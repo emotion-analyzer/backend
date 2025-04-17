@@ -7,10 +7,12 @@ import nox
 #     session.install("pytest")
 #     session.run("pytest")
 
+
 @nox.session()
 def lint(session):
     session.install("ruff")
     session.run("ruff", "check")
+
 
 @nox.session
 def clean(session):
