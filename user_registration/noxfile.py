@@ -2,10 +2,12 @@ import shutil
 
 import nox
 
-# @nox.session()
-# def tests(session):
-#     session.install("pytest")
-#     session.run("pytest")
+
+@nox.session()
+def tests(session):
+    session.install("pytest")
+    session.install("-r", "requirements.txt")
+    session.run("pytest", "tests/test_main.py")
 
 
 @nox.session()

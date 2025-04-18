@@ -5,3 +5,7 @@ class RegisterUser(BaseModel):
     username: str
     email: str
     password: str
+
+
+class NewUser(BaseModel):
+    id: int
