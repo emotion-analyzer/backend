@@ -10,4 +10,16 @@ valid_user_2 = {
     "email": "pepe@gmail.com",
 }
 
+valid_user_3 = {
+    "password": "miguel_pw",
+    "username": "miguel",
+    "email": "miguel@gmail.com",
+}
+
+repeated_email_user_1 = {
+    "password": "jorge_pw",
+    "username": "jorge",
+    "email": "jorgito@gmail.com",
+}
+
 invalid_user = {"password": "anita_pw", "username": "anita"}

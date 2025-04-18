@@ -5,10 +5,14 @@ from user_registration.schemas import RegisterUser
 
 from user_registration.main import SessionDep
 
+from user_registration.exceptions.exceptions import UserAlreadyExistsError
+
 
 def register_new_user(new_user: RegisterUser, session: SessionDep):
     if get_user_by_username(new_user.username, session) is not None:
-        return None
+        raise UserAlreadyExistsError("nombre de usuario")
+    if get_user_by_email(new_user.email, session) is not None:
+        raise UserAlreadyExistsError("email")
     user = User(username = new_user.username, email = new_user.email, password = new_user.password)
     session.add(user)
     session.commit()
@@ -19,3 +23,6 @@ def get_user_by_username(username: str, session: SessionDep) -> User | None:
     statement = select(User).where(User.username == username)
     return session.exec(statement).first()
 
+def get_user_by_email(email: str, session: SessionDep) -> User | None:
+    statement = select(User).where(User.email == email)
+    return session.exec(statement).first()

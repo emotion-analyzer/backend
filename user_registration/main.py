@@ -7,6 +7,8 @@ from user_registration.database.crud import register_new_user
 
 from user_registration.schemas import RegisterUser
 
+from user_registration.exceptions.exceptions import UserAlreadyExistsError
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,8 +20,9 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/api/users/register")
 async def register(new_user: RegisterUser, session: SessionDep):
-    registered_user = register_new_user(new_user, session)
-    if registered_user is None:
-        raise HTTPException(status_code=409, detail= "Usuario ya registrado" )
-    return {"message": "Usuario registrado exitosamente",
-            "id": registered_user.id}
+    try:
+        registered_user = register_new_user(new_user, session)
+        return {"message": "Usuario registrado exitosamente",
+                "id": registered_user.id}
+    except UserAlreadyExistsError as e:
+        raise HTTPException(status_code=409, detail= e.message)
