@@ -7,5 +7,10 @@ class RegisterUser(BaseModel):
     password: str
 
 
+class LoginUser(BaseModel):
+    email: str
+    password: str
+
+
 class NewUser(BaseModel):
     id: int
