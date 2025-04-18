@@ -1,4 +1,6 @@
 class UserAlreadyExistsError(Exception):
+    """Raised if username/email already exist in the database."""
+
     def __init__(self, field: str):
         self.field = field
         self.message = f"Usuario ya registrado con este {field}."
@@ -6,6 +8,8 @@ class UserAlreadyExistsError(Exception):
 
 
 class AuthError(Exception):
+    """Raised if there are authentication-related errors."""
+
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
