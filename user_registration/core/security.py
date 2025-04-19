@@ -1,13 +1,12 @@
 import jwt
-
 from user_registration.config import config
+from user_registration.core.schemas import LoginUser
 from user_registration.database.crud import (
     verify_user_existence,
     verify_user_password,
 )
 from user_registration.database.session import SessionDep
 from user_registration.exceptions.exceptions import AuthError
-from user_registration.schemas import LoginUser
 
 
 def get_token(login: LoginUser, session: SessionDep):

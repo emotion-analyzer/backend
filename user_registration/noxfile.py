@@ -1,3 +1,4 @@
+import os
 import shutil
 
 import nox
@@ -10,6 +11,9 @@ def tests(session):
     session.install("pytest")
     session.install("-r", "requirements.txt")
     session.run("pytest", "tests/test_main.py")
+    # This should be done in a cleaner way.
+    if os.path.exists("database.db"):
+        os.remove("database.db")
 
 
 @nox.session()

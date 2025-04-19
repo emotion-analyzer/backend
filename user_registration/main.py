@@ -2,14 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
+from user_registration.core.schemas import LoginUser, RegisterUser
+from user_registration.core.security import get_token
 from user_registration.database.crud import register_new_user
 from user_registration.database.session import SessionDep, create_db_and_tables
 from user_registration.exceptions.exceptions import (
     AuthError,
     UserAlreadyExistsError,
 )
-from user_registration.schemas import LoginUser, RegisterUser
-from user_registration.security import get_token
 
 
 @asynccontextmanager

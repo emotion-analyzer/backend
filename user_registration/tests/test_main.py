@@ -1,11 +1,12 @@
 # ruff: noqa: E501, D103
+
 from fastapi.testclient import TestClient
 import pytest
 from sqlmodel import Session, SQLModel
 
+from user_registration.core.security import decode_token
 from user_registration.database.session import create_db_and_tables, engine
 from user_registration.main import app
-from user_registration.security import decode_token
 from user_registration.tests.test_constants import (
     invalid_user,
     repeated_email_user_1,

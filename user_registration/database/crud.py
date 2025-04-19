@@ -1,9 +1,9 @@
 from sqlmodel import select
 
+from user_registration.core.schemas import LoginUser, RegisterUser
+from user_registration.database.model import User
 from user_registration.database.session import SessionDep
 from user_registration.exceptions.exceptions import UserAlreadyExistsError
-from user_registration.model import User
-from user_registration.schemas import LoginUser, RegisterUser
 
 
 def register_new_user(user: RegisterUser, session: SessionDep):
