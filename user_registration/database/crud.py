@@ -1,6 +1,7 @@
 from sqlmodel import select
 
-from user_registration.core.schemas import LoginUser, RegisterUser
+from user_registration.core.hashing import get_hash
+from user_registration.core.schemas import RegisterUser
 from user_registration.database.model import User
 from user_registration.database.session import SessionDep
 from user_registration.exceptions.exceptions import UserAlreadyExistsError
@@ -13,7 +14,9 @@ def register_new_user(user: RegisterUser, session: SessionDep):
     if get_user_by_email(user.email, session) is not None:
         raise UserAlreadyExistsError("email")
     user = User(
-        username=user.username, email=user.email, password=user.password
+        username=user.username,
+        email=user.email,
+        password_hash=get_hash(user.password),
     )
     session.add(user)
     session.commit()
@@ -38,10 +41,8 @@ def verify_user_existence(email: str, session: SessionDep) -> bool:
     return get_user_by_email(email, session) is not None
 
 
-def verify_user_password(login_data: LoginUser, session: SessionDep) -> bool:
-    """Return True if password/email match login_data, False otherwise."""
-    statement = select(User).where(User.email == login_data.email)
-    user = session.exec(statement).first()
-    if user.password != login_data.password:
-        return False
-    return True
+# def set_password_hash_for_user(
+#     user: RegisterUser, hashed_password: str, session: SessionDep
+# ) -> None:
+#     user.password_hash = hashed_password
+#     session.commit()

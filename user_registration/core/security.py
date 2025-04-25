@@ -1,19 +1,21 @@
 import jwt
 from user_registration.config import config
+from user_registration.core.hashing import verify_password
 from user_registration.core.schemas import LoginUser
 from user_registration.database.crud import (
+    get_user_by_email,
     verify_user_existence,
-    verify_user_password,
 )
 from user_registration.database.session import SessionDep
 from user_registration.exceptions.exceptions import AuthError
 
 
 def get_token(login: LoginUser, session: SessionDep):
-    """Return JWT token if given login data is valid."""
+    """Return a JWT token if given login data is valid."""
     if not verify_user_existence(login.email, session):
         raise AuthError("Usuario no encontrado.")
-    if not verify_user_password(login, session):
+    user = get_user_by_email(login.email, session)
+    if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
     encoded_jwt = jwt.encode(
         {"email": login.email}, config.SECRET_KEY, algorithm=config.ALGORITHM

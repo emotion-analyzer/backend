@@ -48,7 +48,7 @@ async def login(login_data: LoginUser, session: SessionDep):
         token_type: always "bearer".
 
     Raises:
-        AuthError: If the email doesn't exist or if the password is incorrect,
+        AuthError: If the email doesn't exist or if the password is incorrect.
     """
     try:
         jwt = get_token(login_data, session)
