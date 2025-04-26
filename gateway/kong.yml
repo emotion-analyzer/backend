@@ -1,0 +1,29 @@
+_format_version: "3.0"
+_transform: true
+
+consumers:
+  - username: api_user
+    custom_id: api_user_id
+    jwt_secrets:
+      #This should be hidden in GH secrets or some such
+      - algorithm: "HS256"
+        secret: "secret"
+        key: "secret"
+
+services:
+- name: users
+  url: http://users:8001
+  routes:
+  - name: users-route
+    paths:
+    - /api/users/
+
+plugins:
+- name: jwt
+  service: scraping
+  config:
+    uri_param_names: []
+    cookie_names: []
+    claims_to_verify:
+      - exp
+    run_on_preflight: false
