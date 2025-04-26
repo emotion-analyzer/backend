@@ -4,8 +4,9 @@ from argon2.exceptions import (
     VerificationError,
     VerifyMismatchError,
 )
-from user_registration.database.model import User
-from user_registration.database.session import SessionDep
+
+from users.database.model import User
+from users.database.session import SessionDep
 
 ph = argon2.PasswordHasher()
 

@@ -1,13 +1,14 @@
 import jwt
-from user_registration.config import config
-from user_registration.core.hashing import verify_password
-from user_registration.core.schemas import LoginUser
-from user_registration.database.crud import (
+
+from users.config import config
+from users.core.hashing import verify_password
+from users.core.schemas import LoginUser
+from users.database.crud import (
     get_user_by_email,
     verify_user_existence,
 )
-from user_registration.database.session import SessionDep
-from user_registration.exceptions.exceptions import AuthError
+from users.database.session import SessionDep
+from users.exceptions.exceptions import AuthError
 
 
 def get_token(login: LoginUser, session: SessionDep):
@@ -18,8 +19,9 @@ def get_token(login: LoginUser, session: SessionDep):
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
     encoded_jwt = jwt.encode(
-        {"email": login.email}, config.SECRET_KEY, algorithm=config.ALGORITHM
-    )
+        {"email": login.email}, config.SECRET_KEY, algorithm=config.ALGORITHM),
+    headers = {"alg": config.ALGORITHM, "typ": "JWT","kid": config.KONG_KEY}
+
     return encoded_jwt
 
 

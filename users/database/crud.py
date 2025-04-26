@@ -1,10 +1,10 @@
 from sqlmodel import select
 
-from user_registration.core.hashing import get_hash
-from user_registration.core.schemas import RegisterUser
-from user_registration.database.model import User
-from user_registration.database.session import SessionDep
-from user_registration.exceptions.exceptions import UserAlreadyExistsError
+from users.core.hashing import get_hash
+from users.core.schemas import RegisterUser
+from users.database.model import User
+from users.database.session import SessionDep
+from users.exceptions.exceptions import UserAlreadyExistsError
 
 
 def register_new_user(user: RegisterUser, session: SessionDep):

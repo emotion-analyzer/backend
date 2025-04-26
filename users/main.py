@@ -2,11 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
-from user_registration.core.schemas import LoginUser, RegisterUser
-from user_registration.core.security import get_token
-from user_registration.database.crud import register_new_user
-from user_registration.database.session import SessionDep, create_db_and_tables
-from user_registration.exceptions.exceptions import (
+from users.core.schemas import LoginUser, RegisterUser
+from users.core.security import get_token
+from users.database.crud import register_new_user
+from users.database.session import SessionDep, create_db_and_tables
+from users.exceptions.exceptions import (
     AuthError,
     UserAlreadyExistsError,
 )
@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.post("/api/users/register")
+@app.post("/register")
 async def register(new_user: RegisterUser, session: SessionDep):
     """Register a new user in the application.
 
@@ -39,7 +39,7 @@ async def register(new_user: RegisterUser, session: SessionDep):
         raise HTTPException(status_code=409, detail=e.message) from e
 
 
-@app.post("/api/users/login")
+@app.post("/login")
 async def login(login_data: LoginUser, session: SessionDep):
     """Return JWT for registered user.
 

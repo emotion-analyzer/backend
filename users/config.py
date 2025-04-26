@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 if os.getenv("TESTING"):
     load_dotenv(".env.test")
 else:
-    load_dotenv()
+    # This should load the production env
+    load_dotenv(".env.test")
 
 
 class Config:
@@ -18,6 +19,7 @@ class Config:
 
     DATABASE_URL = os.getenv("DATABASE_URL")
     SECRET_KEY = os.getenv("SECRET_KEY")
+    KONG_KEY = os.getenv("KONG_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
     DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
