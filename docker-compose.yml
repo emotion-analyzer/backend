@@ -23,6 +23,13 @@ services:
     container_name: users
     networks:
       - kong-network
+  scraper:
+    build:
+      context: scraper
+    container_name: scraper
+    networks:
+      - kong-network
+
 
 networks:
   kong-network:

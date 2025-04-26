@@ -8,7 +8,7 @@ consumers:
       #This should be hidden in GH secrets or some such
       - algorithm: "HS256"
         secret: "secret"
-        key: "secret"
+        key: "users"
 
 services:
 - name: users
@@ -17,10 +17,16 @@ services:
   - name: users-route
     paths:
     - /api/users/
+- name: scraper
+  url: http://scraper:8000
+  routes:
+  - name: scraper-route
+    paths:
+    - /api/scraper/
 
 plugins:
 - name: jwt
-  service: scraping
+  service: scraper
   config:
     uri_param_names: []
     cookie_names: []

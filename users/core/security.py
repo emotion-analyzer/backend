@@ -1,3 +1,5 @@
+import time
+
 import jwt
 
 from users.config import config
@@ -18,10 +20,11 @@ def get_token(login: LoginUser, session: SessionDep):
     user = get_user_by_email(login.email, session)
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
+    expiration_time = int(time.time()) + 3600
     encoded_jwt = jwt.encode(
-        {"email": login.email}, config.SECRET_KEY, algorithm=config.ALGORITHM),
-    headers = {"alg": config.ALGORITHM, "typ": "JWT","kid": config.KONG_KEY}
-
+        {"email": login.email, "iss": "users", "exp": expiration_time},
+        config.SECRET_KEY, algorithm=config.ALGORITHM,
+        headers={"alg": config.ALGORITHM, "typ": "JWT", "kid": config.KONG_KEY})
     return encoded_jwt
 
 
