@@ -2,11 +2,13 @@
 import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 
 from scraper.config import config
 from scraper.core.reddit import RedditScraper
 from scraper.core.schemas import FetchRequest, FetchResult
+
+from scraper.core.reddit import get_reddit_scraper
 
 
 @asynccontextmanager
@@ -25,7 +27,7 @@ async def fetch_posts(fetch_request: FetchRequest) -> FetchResult:
     """Return relevant social media posts according to query parameters."""
     match fetch_request.platform:
         case "reddit":
-            scraper = RedditScraper()
+            scraper = get_reddit_scraper()
         case _:
             return {"results": []}
     matching_posts = await scraper.query(fetch_request)

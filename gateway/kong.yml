@@ -22,7 +22,7 @@ services:
   routes:
   - name: scraper-route
     paths:
-    - /api/scraper/
+    - /api/data/
 
 plugins:
 - name: jwt

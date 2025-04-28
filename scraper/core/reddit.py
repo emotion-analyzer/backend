@@ -1,23 +1,32 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import asyncpraw
 from scraper.config import config
-from scraper.core.schemas import FetchRequest
+from scraper.core.schemas import FetchRequest, Post
 from scraper.core.scraping import Scraper
-
-from scraper.core.schemas import Post
 
 
 @dataclass
 class RedditScraper(Scraper):
-    """Reddit scraper using AsyncPRAW."""
+    reddit: asyncpraw.Reddit = field(init=False)
 
-    reddit = asyncpraw.Reddit(
-        client_id=config.CLIENT_ID,
-        client_secret=config.CLIENT_SECRET,
-        user_agent=config.USER_AGENT,
-        ratelimit_seconds=config.RATELIMIT_SECONDS
-    )
+    # Class variable to enforce singleton
+    _instance: "RedditScraper" = field(default=None, init=False, repr=False)
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __post_init__(self):
+        # This runs after __init__, but only initialize once
+        if not hasattr(self, "reddit"):
+            self.reddit = asyncpraw.Reddit(
+                client_id=config.CLIENT_ID,
+                client_secret=config.CLIENT_SECRET,
+                user_agent=config.USER_AGENT,
+                ratelimit_seconds=config.RATELIMIT_SECONDS
+            )
 
     async def initiate_scraping(self):
         """Initiate hourly scraping."""
@@ -37,3 +46,6 @@ class RedditScraper(Scraper):
                 if count == fetch_request.limit:
                     break
         return submission_list
+
+def get_reddit_scraper() -> RedditScraper:
+    return RedditScraper()
