@@ -21,10 +21,10 @@ class Config:
     CLIENT_ID = os.getenv("CLIENT_ID")
     CLIENT_SECRET = os.getenv("CLIENT_SECRET")
     USER_AGENT = os.getenv("USER_AGENT")
-    ES_SUBREDDITS = json.loads(os.getenv("ES_SUBREDDITS"))
+    ES_SUBREDDITS = "+".join(json.loads(os.getenv("ES_SUBREDDITS")))
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
     INITIAL_EMOTIONS = json.loads(os.getenv("INITIAL_EMOTIONS"))
-    HOURLY_LIMIT = int(os.getenv("HOURLY_LIMIT"))
+    REDDIT_SCRAPER = os.getenv("REDDIT_SCRAPER") == "ON"
 
 
 config = Config()
