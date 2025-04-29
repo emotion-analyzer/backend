@@ -19,13 +19,13 @@ class RedditScraper(Scraper):
         return cls._instance
 
     def __post_init__(self):
-        # This runs after __init__, but only initialize once
+        # Only runs once
         if not hasattr(self, "reddit"):
             self.reddit = asyncpraw.Reddit(
-                client_id=config.CLIENT_ID,
-                client_secret=config.CLIENT_SECRET,
-                user_agent=config.USER_AGENT,
-                ratelimit_seconds=config.RATELIMIT_SECONDS
+                client_id=config.REDDIT.CLIENT_ID,
+                client_secret=config.REDDIT.CLIENT_SECRET,
+                user_agent=config.REDDIT.USER_AGENT,
+                ratelimit_seconds=config.REDDIT.RATELIMIT_SECONDS
             )
 
     async def initiate_scraping(self):
@@ -36,7 +36,7 @@ class RedditScraper(Scraper):
         """Return relevant posts according to the fetch request."""
         submission_list = []
         count = 0
-        subreddit = await self.reddit.subreddit(config.ES_SUBREDDITS)
+        subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
         async for submission in subreddit.new(limit=None):
             if fetch_request.query in submission.selftext:
                 submission_list.append({"id": submission.id,

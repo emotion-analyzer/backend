@@ -15,7 +15,7 @@ from scraper.core.reddit import get_reddit_scraper
 async def lifespan(app: FastAPI):
     """Initialize the hourly scrapers before the app runs."""
     #Initialize databases for scraping here
-    if config.REDDIT_SCRAPER:
+    if config.REDDIT.SCRAPER:
         asyncio.create_task(RedditScraper.initiate_scraping())
     yield
 
