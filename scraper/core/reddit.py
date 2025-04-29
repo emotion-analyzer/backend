@@ -1,3 +1,4 @@
+# ruff: noqa:  D101, D102, D103, D105
 from dataclasses import dataclass, field
 
 import asyncpraw
@@ -19,7 +20,6 @@ class RedditScraper(Scraper):
         return cls._instance
 
     def __post_init__(self):
-        # Only runs once
         if not hasattr(self, "reddit"):
             self.reddit = asyncpraw.Reddit(
                 client_id=config.REDDIT.CLIENT_ID,

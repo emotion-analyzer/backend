@@ -2,13 +2,11 @@
 import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 
 from scraper.config import config
-from scraper.core.reddit import RedditScraper
+from scraper.core.reddit import RedditScraper, get_reddit_scraper
 from scraper.core.schemas import FetchRequest, FetchResult
-
-from scraper.core.reddit import get_reddit_scraper
 
 
 @asynccontextmanager

@@ -11,6 +11,7 @@ else:
     load_dotenv(".env.test")
 
 class Reddit:
+    """Reddit scraping configuration."""
     CLIENT_ID = os.getenv("CLIENT_ID")
     CLIENT_SECRET = os.getenv("CLIENT_SECRET")
     USER_AGENT = os.getenv("USER_AGENT")
@@ -19,6 +20,7 @@ class Reddit:
     SCRAPER = os.getenv("REDDIT_SCRAPER") == "ON"
 
 class Scraping:
+    """MASSive scraper configuration."""
     INITIAL_EMOTIONS = json.loads(os.getenv("INITIAL_EMOTIONS"))
 
 class Config:
