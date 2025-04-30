@@ -51,7 +51,7 @@ nox
     - <route/to/access/module>
 ```
 
-y al final
+y al final (esto se puede obviar inicialmente)
 
 ```
 plugins:
@@ -65,7 +65,8 @@ plugins:
     run_on_preflight: false
 ```
 
-Esta ultima parte se puede obviar inicialmente.
+El sistema se puede acceder mediante
+http://localhost:8000/<path_to_endpoint>
 
 **IMPORTANTE**
 
