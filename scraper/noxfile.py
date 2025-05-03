@@ -4,6 +4,11 @@ import nox
 
 
 @nox.session()
+def tests(session):
+    """Test the application."""
+    pass
+
+@nox.session()
 def lint(session):
     """Verify code linting and formatting."""
     session.install("ruff")
