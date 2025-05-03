@@ -1,5 +1,7 @@
 # Backend
 
+[![codecov](https://codecov.io/gh/facundopareja/emalyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/facundopareja/emalyzer)
+
 ## 📌 Descripción
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
 
