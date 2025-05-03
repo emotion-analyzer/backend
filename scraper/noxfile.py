@@ -4,8 +4,8 @@ import nox
 
 
 @nox.session()
-def tests(session):
-    """Test the application."""
+def tests_with_report(session):
+    """Test and generate report."""
     pass
 
 @nox.session()
