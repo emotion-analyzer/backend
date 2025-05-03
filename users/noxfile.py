@@ -9,8 +9,8 @@ def tests(session):
     """Test the application."""
     session.env["TESTING"] = "1"
     session.install("pytest")
-    session.install("-r", "requirements.txt")
-    session.run("pytest", "tests/test_main.py")
+    session.install("-r", "requirements.txt", "dev-requirements.txt")
+    session.run("pytest", "tests/test_main.py", "--cov --cov-branch --cov-report=json")
     # This should be done in a cleaner way.
     if os.path.exists("database.db"):
         os.remove("database.db")
