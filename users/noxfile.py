@@ -16,7 +16,6 @@ def remove_database(session):
 @nox.session()
 def tests_without_report(session):
     """Test the application, don't generate a coverage report."""
-    session.env["TESTING"] = "1"
     session.install("--upgrade", "pip")
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run("pytest", "tests/test_main.py")
@@ -25,7 +24,6 @@ def tests_without_report(session):
 @nox.session()
 def tests_with_report(session):
     """Test the application, generate a coverage report."""
-    session.env["TESTING"] = "1"
     session.install("--upgrade", "pip")
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run(
