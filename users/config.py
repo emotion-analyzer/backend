@@ -2,7 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-# This could be fancier/more structured
 
 load_dotenv(os.getenv(key="APP_ENV", default=".env.test"))
 
