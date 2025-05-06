@@ -33,3 +33,26 @@ plugins:
     claims_to_verify:
       - exp
     run_on_preflight: false
+- name: cors
+  config:
+    origins:
+      # Add more origins here if needed
+      - http://localhost:3000
+      - http://localhost:8000
+      - http://localhost:8080
+    methods:
+    - GET
+    - POST
+    - OPTIONS
+    headers:
+    - Accept
+    - Accept-Version
+    - Content-Length
+    - Content-MD5
+    - Content-Type
+    - Date
+    - X-Auth-Token
+    exposed_headers:
+    - X-Auth-Token
+    credentials: true
+    max_age: 3600
