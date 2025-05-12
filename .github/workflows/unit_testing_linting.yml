@@ -32,6 +32,7 @@ jobs:
           for service in ${CHANGED_SERVICES}; do
             cd service
             nox -s lint
+          done
 
 #      - name: Nox testing
 #        working-directory: ${{ matrix.service }}
