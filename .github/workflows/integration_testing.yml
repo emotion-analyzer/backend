@@ -2,7 +2,6 @@ name: Postman integration testing
 
 # Run this only occasionally
 on:
-  push:
   pull_request:
 
 jobs:
