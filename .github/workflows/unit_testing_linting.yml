@@ -1,0 +1,36 @@
+name: Unit testing and linting for each service
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run-nox:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [ users, scraper ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Nox
+        run: pip install nox
+
+      - name: Nox linting for ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
+        run: nox -s lint
+
+      - name: Nox testing for ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
+        run: nox -s tests_with_report
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: backend/users/coverage.json
