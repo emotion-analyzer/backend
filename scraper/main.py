@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from scraper.config import config
 from scraper.core.reddit import RedditScraper, get_reddit_scraper
 from scraper.core.schemas import FetchRequest, FetchResult
+from scraper.core.twitter import TwitterScraper
 
 
 @asynccontextmanager
@@ -26,6 +27,8 @@ async def fetch_posts(fetch_request: FetchRequest) -> FetchResult:
     match fetch_request.platform:
         case "reddit":
             scraper = get_reddit_scraper()
+        case "twitter":
+            scraper = await TwitterScraper.login_create()
         case _:
             return {"results": []}
     matching_posts = await scraper.query(fetch_request)
