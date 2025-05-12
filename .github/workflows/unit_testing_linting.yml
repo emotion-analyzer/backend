@@ -14,8 +14,8 @@ jobs:
         with:
           dir_names: 'true'
           files: |
-            users
-            scraper
+            users/**
+            scraper/**
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,12 +34,18 @@ jobs:
             nox -s lint
           done
 
-#      - name: Nox testing
-#        working-directory: ${{ matrix.service }}
-#        run: nox -s tests_with_report
-#
-#      - name: Upload coverage reports to Codecov
-#        uses: codecov/codecov-action@v5
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          files: users/coverage.json
+
+      - name: Nox testing
+        env:
+          CHANGED_SERVICES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          for service in ${CHANGED_SERVICES}; do
+            cd service
+            nox -s tests_with_report
+          done
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: users/coverage.json
