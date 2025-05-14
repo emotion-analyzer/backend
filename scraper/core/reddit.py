@@ -27,9 +27,9 @@ class RedditScraper(Scraper):
                 user_agent=config.REDDIT.USER_AGENT,
                 ratelimit_seconds=config.REDDIT.RATELIMIT_SECONDS
             )
+            self.reddit.read_only = True
 
     async def initiate_scraping(self):
-        """Initiate hourly scraping."""
         pass
 
     async def query(self, fetch_request: FetchRequest) -> list[Post]:
