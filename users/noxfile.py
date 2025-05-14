@@ -25,6 +25,7 @@ def tests_without_report(session):
 def tests_with_report(session):
     """Test the application, generate a coverage report."""
     session.install("--upgrade", "pip")
+    session.env["APP_ENV"] = ".env"
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run(
         "pytest",
