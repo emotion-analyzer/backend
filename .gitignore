@@ -2,7 +2,6 @@
 .idea
 
 # Environment files
-test.env
 prod.env
 
 # Tweet scraping results

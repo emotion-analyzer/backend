@@ -1,4 +1,5 @@
 services:
+
   gateway:
     image: kong:latest
     container_name: gateway
@@ -17,7 +18,10 @@ services:
       - kong-network
     volumes:
       - ./gateway/kong.yml:/kong/kong.yml:ro
+
   users:
+    environment:
+      - APP_ENV=test.env
     build:
       context: users
     container_name: users
@@ -29,7 +33,6 @@ services:
     container_name: scraper
     networks:
       - kong-network
-
 
 networks:
   kong-network:

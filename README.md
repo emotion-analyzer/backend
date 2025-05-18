@@ -11,21 +11,27 @@
 
 ## 📌 Ejecución
 
-1. Clonar el repositorio, ingresar al backend:
+1. Clonar el repositorio:
 ```bash
-git clone https://github.com/nicolas-vazquez/emotion-analyzer.git
-cd backend
+git clone git@github.com:emotion-analyzer/backend.git
 ```
 
-2. Correr la app:
+2. Correr la app con bases de datos locales:
 ```bash
 docker-compose up
 ```
 
-3. (Opcional para cada modulo excepto _gateway_) Instalar dependencias y ejecutar tests/lint :
+o bien en modo produccion con bases de datos reales
+
 ```bash
-pip install --upgrade
-pip install -r requirements.txt
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+```
+
+3. (Opcional). Instalar dependencias y ejecutar tests/lint :
+```bash
+cd <service>
+pip install --upgrade pip
+pip install -r requirements.txt -r dev-requirements.txt
 nox
 ```
 
