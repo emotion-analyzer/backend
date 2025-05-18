@@ -1,1 +1,7 @@
+# Environment files
 test.env
+prod.env
+
+# Tweet scraping results
+scraper/*.json
+scraper/outputs

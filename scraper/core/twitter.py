@@ -1,32 +1,39 @@
 # ruff: noqa:  D101, D102, D103, D105, E501
+import csv
 from dataclasses import dataclass
+from dateutil import parser
 
+from typing import List
+
+from Scweet.scweet import Scweet
+
+from scraper.config import config
 from scraper.core.schemas import FetchRequest, Post
-from scraper.core.scraping import Scraper
-from twscrape import API
 
 
 @dataclass
-class TwitterScraper(Scraper):
-    def __init__(self, api: API):
-        self.api = api
+class TwitterScraper:
 
-    @classmethod
-    async def login_create(cls):
-        api = API()
-        await api.pool.add_account("user1", "pass1",
-                                   "u1@example.com", "mail_pass1")
-        await api.pool.login_all()
-        return cls(api)
+    def __init__(self):
+        self.scweet = Scweet(proxy=None, cookies=None, user_agent=None,
+                             disable_images=True, env_path='test.env',
+                             n_splits=-1, concurrency=config.TWITTER.CONCURRENT_BROWSERS,
+                             headless=False, scroll_ratio=config.TWITTER.SCROLL_RATIO)
 
-    async def initiate_scraping(self):
-        """Initiate hourly scraping."""
-        pass
-
-    async def query(self, fetch_request: FetchRequest) -> list[Post]:
+    def query(self, fetch_request: FetchRequest) -> List[Post]:
         submission_list = []
-        async for tweet in self.api.search(fetch_request.query, limit=fetch_request.limit):
-            submission_list.append({"id": tweet.id,
-                                    "text": tweet.text,
-                                    "timestamp": tweet.created_utc})
+        # Verify if the query has already been executed recently before doing this
+        results = self.scweet.scrape(since="2020-10-01", words=[fetch_request.query],
+                                      limit=fetch_request.limit,
+                                      lang="es",
+                                      custom_csv_name=f'tweets_{fetch_request.query}.csv')
+        with open(f'outputs/tweets_{fetch_request.query}.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                tweet_info = {
+                    "id": row['tweetId'],
+                    "text": row['Text'],
+                    "timestamp": parser.parse(row['Timestamp'])
+                }
+                submission_list.append(tweet_info)
         return submission_list
