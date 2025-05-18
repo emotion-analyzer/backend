@@ -1,3 +1,6 @@
+# IDEA
+.idea
+
 # Environment files
 test.env
 prod.env
