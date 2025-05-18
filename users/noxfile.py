@@ -18,6 +18,7 @@ def tests_without_report(session):
     """Test the application, don't generate a coverage report."""
     session.install("--upgrade", "pip")
     session.env["APP_ENV"] = "test.env"
+    session.env["DATABASE_URL"] = "sqlite:///database.db"
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run("pytest", "tests/test_main.py")
     session.notify("remove_database")

@@ -1,4 +1,5 @@
 fastapi[all]
 sqlmodel
 argon2-cffi
+psycopg2-binary
 pyjwt

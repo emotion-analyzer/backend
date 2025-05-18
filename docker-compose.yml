@@ -20,6 +20,8 @@ services:
       - ./gateway/kong.yml:/kong/kong.yml:ro
 
   users:
+    environment:
+      - APP_ENV=test.env
     build:
       context: users
     container_name: users

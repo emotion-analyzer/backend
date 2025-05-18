@@ -3,14 +3,14 @@ services:
   user_database:
     image: postgres:17.5-alpine
     env_file:
-      - ./users/prod.env
+      - ./users/test.env
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - kong-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d users" ]
       interval: 10s
       timeout: 5s
       retries: 5
