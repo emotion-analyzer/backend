@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv(os.getenv(key="APP_ENV", default=".env.test"))
+load_dotenv(os.getenv(key="APP_ENV", default=".env"))
 
 class Reddit:
     """Reddit scraping configuration."""

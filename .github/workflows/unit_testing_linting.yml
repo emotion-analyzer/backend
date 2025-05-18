@@ -14,6 +14,7 @@ jobs:
         uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c
         with:
           dir_names: "true"
+          dir_names_max_depth: '1'
           files: |
             users/**
             scraper/**
@@ -31,8 +32,9 @@ jobs:
           CHANGED_SERVICES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           for service in ${CHANGED_SERVICES}; do
-            cd service
+            cd "$service"
             nox -s lint
+            cd -
           done
 
 
@@ -41,8 +43,9 @@ jobs:
           CHANGED_SERVICES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           for service in ${CHANGED_SERVICES}; do
-            cd service
+            cd "$service"
             nox -s tests_with_report
+            cd -
           done
 
       - name: Upload coverage reports to Codecov
