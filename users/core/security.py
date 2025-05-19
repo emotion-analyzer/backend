@@ -20,7 +20,7 @@ def get_token(login: LoginUser, session: SessionDep):
     user = get_user_by_email(login.email, session)
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
-    expiration_time = int(time.time()) + 3600
+    expiration_time = int(time.time()) + config.EXPIRATION_MINUTES * 60
     encoded_jwt = jwt.encode(
         {"id": user.id, "email": login.email, "iss": "users",
          "exp": expiration_time},
