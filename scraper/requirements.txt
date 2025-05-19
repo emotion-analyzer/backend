@@ -1,4 +1,4 @@
 fastapi[all]
-praw
+asyncpraw
 python-dateutil
 Scweet
