@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
