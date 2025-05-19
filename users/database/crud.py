@@ -65,7 +65,7 @@ def update_password(password_reset: PasswordReset,
     if user is None:
         raise UserDoesntExistError
     if not verify_password(password_reset.old_password, user, session):
-        raise AuthError("Old password is incorrect.")
+        raise AuthError("Contraseña vieja invalida.")
     user.password_hash = get_hash(password_reset.new_password)
     session.add(user)
     session.commit()

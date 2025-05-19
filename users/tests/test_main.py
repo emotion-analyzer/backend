@@ -8,6 +8,7 @@ from users.core.security import decode_token
 from users.database.session import create_db_and_tables, engine
 from users.main import app
 from users.tests.test_constants import (
+    invalid_password_reset,
     invalid_user,
     password_reset,
     repeated_email_user_1,
@@ -201,7 +202,20 @@ def test_17_successful_password_change_invalidates_old_login(client):
     assert response.json() == {"detail": "Contraseña invalida."}
 
 
-def test_18_can_login_with_new_password_after_password_reset(client):
+def test_18_password_reset_with_invalid_old_password_returns_401(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.post("/me/password_reset",
+                           json=invalid_password_reset,
+                           headers=headers)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Contraseña vieja invalida."}
+
+
+def test_19_can_login_with_new_password_after_password_reset(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
     response = client.post("/login", json=user_1_login)

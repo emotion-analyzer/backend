@@ -27,4 +27,9 @@ password_reset = {
     "new_password": "jorgito_new_pw"
 }
 
+invalid_password_reset = {
+    "old_password": "jorgito_pw_incorrect",
+    "new_password": "jorgito_new_pw"
+}
+
 invalid_user = {"password": "anita_pw", "username": "anita"}
