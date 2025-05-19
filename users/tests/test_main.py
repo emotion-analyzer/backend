@@ -8,7 +8,9 @@ from users.core.security import decode_token
 from users.database.session import create_db_and_tables, engine
 from users.main import app
 from users.tests.test_constants import (
+    invalid_password_reset,
     invalid_user,
+    password_reset,
     repeated_email_user_1,
     valid_user_1,
     valid_user_2,
@@ -155,3 +157,73 @@ def test_13_deleting_user_with_valid_jwt_and_correct_id_twice_returns_404(client
     response = client.delete("/1", headers=headers)
     assert response.status_code == 404
     assert response.json() == {"detail": "Usuario no encontrado."}
+
+
+def test_14_changing_password_with_missing_jwt_returns_401(client):
+    response = client.post("/me/password_reset", json=valid_user_1)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+def test_15_changing_password_with_invalid_jwt_format_returns_401(client):
+    headers = {"Authorization": "Bearer invalidtoken"}
+    response = client.post("/me/password_reset",
+                           json = password_reset,
+                           headers=headers)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Token de seguridad invalido."}
+
+
+def test_16_changing_password_with_valid_jwt_401(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    client.delete("/1", headers=headers)
+    response = client.post("/me/password_reset",
+                           json = password_reset,
+                           headers=headers)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Usuario no encontrado."}
+
+
+def test_17_successful_password_change_invalidates_old_login(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.post("/me/password_reset",
+                           json = password_reset,
+                           headers=headers)
+    response = client.post("/login", json=user_1_login)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Contraseña invalida."}
+
+
+def test_18_password_reset_with_invalid_old_password_returns_401(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.post("/me/password_reset",
+                           json=invalid_password_reset,
+                           headers=headers)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Contraseña vieja invalida."}
+
+
+def test_19_can_login_with_new_password_after_password_reset(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    client.post("/me/password_reset",
+                json = password_reset,
+                headers=headers)
+    user_1_login["password"] = password_reset.get("new_password")
+    response = client.post("/login", json=user_1_login)
+    assert response.status_code == 200

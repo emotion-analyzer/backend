@@ -5,19 +5,14 @@ import jwt
 from users.config import config
 from users.core.hashing import verify_password
 from users.core.schemas import LoginUser
-from users.database.crud import (
-    get_user_by_email,
-    verify_user_existence,
-)
+from users.database.model import User
 from users.database.session import SessionDep
 from users.exceptions.exceptions import AuthError
 
 
-def get_token(login: LoginUser, session: SessionDep):
+def get_token(login: LoginUser, user: User,
+              session: SessionDep):
     """Return a JWT token if given login data is valid."""
-    if not verify_user_existence(login.email, session):
-        raise AuthError("Usuario no encontrado.")
-    user = get_user_by_email(login.email, session)
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
     expiration_time = int(time.time()) + config.EXPIRATION_MINUTES * 60

@@ -4,9 +4,15 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
-from users.core.schemas import LoginUser, RegisterUser
+from users.core.schemas import LoginUser, PasswordReset, RegisterUser
 from users.core.security import get_token, verify_token
-from users.database.crud import delete_user_from_db, register_new_user
+from users.database.crud import (
+    delete_user_from_db,
+    get_user_by_email,
+    register_new_user,
+    update_password,
+    verify_user_existence,
+)
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
@@ -33,9 +39,6 @@ async def register(new_user: RegisterUser, session: SessionDep):
 
     Returns:
         id: the resulting id for the new registered user.
-
-    Raises:
-        UserAlreadyExistsError If the email/username already exists.
     """
     try:
         user = register_new_user(new_user, session)
@@ -51,15 +54,38 @@ async def login(login_data: LoginUser, session: SessionDep):
     Returns:
         access_token: the resulting JWT for the user.
         token_type: always "bearer".
-
-    Raises:
-        AuthError: If the email doesn't exist or if the password is incorrect.
     """
     try:
-        jwt = get_token(login_data, session)
+        verify_user_existence(login_data.email, session)
+        user = get_user_by_email(login_data.email, session)
+        jwt = get_token(login_data, user, session)
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     return {"access_token": jwt, "token_type": "bearer"}
+
+
+@app.post("/me/password_reset")
+async def password_reset(password_reset: PasswordReset,
+                         session: SessionDep,
+                         access_token: str = Depends(oauth2_scheme)):
+    """Update user password.
+
+    Returns:
+        None
+
+    HTTP Status Codes:
+        200 OK: If the password reset was successful.
+        401 Unauthorized: If the token format is invalid in any way
+        If the old password is incorrect.
+        404 Not Found: If the token has a valid format but there is no such user.
+    """
+    try:
+        update_password(password_reset, access_token, session)
+    except UserDoesntExistError as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    return {"detail": "Contraseña actualizada exitosamente."}
 
 
 @app.delete("/{user_id}")

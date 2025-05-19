@@ -1,10 +1,12 @@
 from sqlmodel import select
 
-from users.core.hashing import get_hash
-from users.core.schemas import RegisterUser
+from users.core.hashing import get_hash, verify_password
+from users.core.schemas import PasswordReset, RegisterUser
+from users.core.security import decode_token
 from users.database.model import User
 from users.database.session import SessionDep
 from users.exceptions.exceptions import (
+    AuthError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -41,7 +43,8 @@ def get_user_by_email(email: str, session: SessionDep) -> User | None:
 
 def verify_user_existence(email: str, session: SessionDep) -> bool:
     """Return True if the email belongs to a user, False otherwise."""
-    return get_user_by_email(email, session) is not None
+    if get_user_by_email(email, session) is None:
+        raise AuthError("Usuario no encontrado.")
 
 
 def delete_user_from_db(user_id: int, session: SessionDep):
@@ -51,6 +54,20 @@ def delete_user_from_db(user_id: int, session: SessionDep):
     if user is None:
         raise UserDoesntExistError
     session.delete(user)
+    session.commit()
+
+def update_password(password_reset: PasswordReset,
+                    access_token: str, session: SessionDep) -> None:
+    """Update hashed password in the database."""
+    payload = decode_token(access_token)
+    statement = select(User).where(User.id == payload["id"])
+    user = session.exec(statement).first()
+    if user is None:
+        raise UserDoesntExistError
+    if not verify_password(password_reset.old_password, user, session):
+        raise AuthError("Contraseña vieja invalida.")
+    user.password_hash = get_hash(password_reset.new_password)
+    session.add(user)
     session.commit()
 
 # def set_password_hash_for_user(
