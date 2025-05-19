@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
 from users.core.schemas import LoginUser, RegisterUser
@@ -22,6 +23,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 @app.post("/register")
@@ -60,7 +63,8 @@ async def login(login_data: LoginUser, session: SessionDep):
 
 
 @app.delete("/{user_id}")
-async def delete_user(user_id: int, session: SessionDep):
+async def delete_user(user_id: int, session: SessionDep,
+                      access_token: str = Depends(oauth2_scheme)):
     """Delete registered user with specified id.
 
     Returns:
@@ -74,9 +78,10 @@ async def delete_user(user_id: int, session: SessionDep):
         401 Unauthorized: If the token is invalid in any way (format, wrong id, etc.)
     """
     try:
-        verify_token(user_id, session)
+        verify_token(user_id, access_token)
         delete_user_from_db(user_id, session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    return {"detail": "Usuario borrado exitosamente."}
