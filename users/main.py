@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
 from users.core.schemas import LoginUser, RegisterUser
 from users.core.security import get_token, verify_token
@@ -41,7 +41,7 @@ async def register(new_user: RegisterUser, session: SessionDep):
         user = register_new_user(new_user, session)
         return {"message": "Usuario registrado exitosamente", "id": user.id}
     except UserAlreadyExistsError as e:
-        raise HTTPException(status_code=409, detail=e.message) from e
+        raise HTTPException(status_code=HTTP_409_CONFLICT, detail=e.message) from e
 
 
 @app.post("/login")
@@ -58,7 +58,7 @@ async def login(login_data: LoginUser, session: SessionDep):
     try:
         jwt = get_token(login_data, session)
     except AuthError as e:
-        raise HTTPException(status_code=401, detail=e.message) from e
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     return {"access_token": jwt, "token_type": "bearer"}
 
 
