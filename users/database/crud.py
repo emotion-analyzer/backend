@@ -4,8 +4,10 @@ from users.core.hashing import get_hash
 from users.core.schemas import RegisterUser
 from users.database.model import User
 from users.database.session import SessionDep
-from users.exceptions.exceptions import (UserAlreadyExistsError,
-                                         UserDoesntExistError)
+from users.exceptions.exceptions import (
+    UserAlreadyExistsError,
+    UserDoesntExistError,
+)
 
 
 def register_new_user(user: RegisterUser, session: SessionDep) -> User | None:
@@ -43,6 +45,7 @@ def verify_user_existence(email: str, session: SessionDep) -> bool:
 
 
 def delete_user_from_db(user_id: int, session: SessionDep):
+    """Delete user from database, raise exception if not found."""
     statement = select(User).where(User.id == user_id)
     user = session.exec(statement).first()
     if user is None:

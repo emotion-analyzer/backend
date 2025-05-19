@@ -11,7 +11,7 @@ class UserDoesntExistError(Exception):
     """Raised if user is not present in the database."""
 
     def __init__(self):
-        self.message = f"Usuario no encontrado."
+        self.message = "Usuario no encontrado."
         super().__init__(self.message)
 
 

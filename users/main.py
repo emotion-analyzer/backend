@@ -1,15 +1,16 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-from starlette.status import HTTP_404_NOT_FOUND
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
 from users.core.schemas import LoginUser, RegisterUser
-from users.core.security import get_token
-from users.database.crud import register_new_user, delete_user_from_db
+from users.core.security import get_token, verify_token
+from users.database.crud import delete_user_from_db, register_new_user
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
-    UserAlreadyExistsError, UserDoesntExistError,
+    UserAlreadyExistsError,
+    UserDoesntExistError,
 )
 
 
@@ -70,9 +71,12 @@ async def delete_user(user_id: int, session: SessionDep):
 
     HTTP Status Codes:
         200 OK: If the user has been successfully deleted.
-        401 Unauthorized: If the token is invalid in any way.
+        401 Unauthorized: If the token is invalid in any way (format, wrong id, etc.)
     """
     try:
+        verify_token(user_id, session)
         delete_user_from_db(user_id, session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
