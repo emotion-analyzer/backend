@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 
 from users.core.schemas import LoginUser, RegisterUser
 from users.core.security import get_token
-from users.database.crud import register_new_user
+from users.database.crud import register_new_user, delete_user_from_db
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
@@ -58,7 +58,7 @@ async def login(login_data: LoginUser, session: SessionDep):
 
 
 @app.delete("/{user_id}")
-async def delete_user(session: SessionDep):
+async def delete_user(user_id: int, session: SessionDep):
     """Delete registered user with specified id.
 
     Returns:
@@ -71,4 +71,4 @@ async def delete_user(session: SessionDep):
         200 OK: If the user has been successfully deleted.
         401 Unauthorized: If the token is invalid in any way.
     """
-    print("Deleting user")
+    delete_user_from_db(user_id, session)
