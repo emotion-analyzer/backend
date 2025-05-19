@@ -26,11 +26,12 @@ class RedditScraper(Scraper):
         """Return relevant posts according to the fetch request."""
         submission_list = []
         subreddit = self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
-        for submission in subreddit.new(limit=None):
-            if fetch_request.query in submission.selftext:
-                submission_list.append({"id": submission.id,
-                                        "text": submission.selftext,
-                                        "timestamp": submission.created_utc})
-                if len(submission_list) == fetch_request.limit:
-                    break
+        for submission in subreddit.search(query=fetch_request.query,
+                                           sort="new",
+                                           limit=None):
+            if submission.selftext == "":
+                continue
+            submission_list.append({"id": submission.id,
+                                    "text": submission.selftext,
+                                    "timestamp": submission.created_utc})
         return submission_list

@@ -5,14 +5,12 @@ from fastapi import FastAPI, Request
 
 from scraper.core.reddit import RedditScraper
 from scraper.core.schemas import FetchRequest, FetchResult
-from scraper.core.twitter import TwitterScraper
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize scrapers before the app runs."""
-    app.state.scrapers = {"reddit": RedditScraper(),
-                          "twitter": TwitterScraper()}
+    app.state.scrapers = {"reddit": RedditScraper()}
     yield
 
 app = FastAPI(lifespan=lifespan)
