@@ -18,6 +18,7 @@ class Config:
                                  host=os.getenv("DATABASE_HOST"),
                                  port=os.getenv("DATABASE_PORT"),
                                  database=os.getenv("POSTGRES_DB"))
+    EXPIRATION_MINUTES = int(os.getenv("EXPIRATION_MINUTES"))
     SECRET_KEY = os.getenv("SECRET_KEY")
     KONG_KEY = os.getenv("KONG_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
