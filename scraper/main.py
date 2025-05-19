@@ -16,8 +16,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.get("/fetch")
-def fetch_posts(fetch_req: FetchRequest, request: Request) -> FetchResult:
+async def fetch_posts(fetch_req: FetchRequest, request: Request) -> FetchResult:
     """Return relevant social media posts according to query parameters."""
     scrapers = request.app.state.scrapers
-    matching_posts = scrapers.get(fetch_req.platform).query(fetch_req)
+    matching_posts = await scrapers.get(fetch_req.platform).query(fetch_req)
     return {"results": matching_posts}
