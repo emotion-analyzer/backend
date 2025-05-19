@@ -186,6 +186,7 @@ def test_16_changing_password_with_valid_jwt_401(client):
     assert response.status_code == 404
     assert response.json() == {"detail": "Usuario no encontrado."}
 
+
 def test_17_successful_password_change_invalidates_old_login(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
@@ -198,3 +199,17 @@ def test_17_successful_password_change_invalidates_old_login(client):
     response = client.post("/login", json=user_1_login)
     assert response.status_code == 401
     assert response.json() == {"detail": "Contraseña invalida."}
+
+
+def test_18_can_login_with_new_password_after_password_reset(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    client.post("/me/password_reset",
+                json = password_reset,
+                headers=headers)
+    user_1_login["password"] = password_reset.get("new_password")
+    response = client.post("/login", json=user_1_login)
+    assert response.status_code == 200

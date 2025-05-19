@@ -22,5 +22,6 @@ class NewUser(BaseModel):
     id: int
 
 class PasswordReset(BaseModel):
+    """Password reset details."""
     old_password: str
     new_password: str

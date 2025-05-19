@@ -39,9 +39,6 @@ async def register(new_user: RegisterUser, session: SessionDep):
 
     Returns:
         id: the resulting id for the new registered user.
-
-    Raises:
-        UserAlreadyExistsError If the email/username already exists.
     """
     try:
         user = register_new_user(new_user, session)
@@ -57,9 +54,6 @@ async def login(login_data: LoginUser, session: SessionDep):
     Returns:
         access_token: the resulting JWT for the user.
         token_type: always "bearer".
-
-    Raises:
-        AuthError: If the email doesn't exist or if the password is incorrect.
     """
     try:
         verify_user_existence(login_data.email, session)
@@ -74,6 +68,17 @@ async def login(login_data: LoginUser, session: SessionDep):
 async def password_reset(password_reset: PasswordReset,
                          session: SessionDep,
                          access_token: str = Depends(oauth2_scheme)):
+    """Update user password.
+
+    Returns:
+        None
+
+    HTTP Status Codes:
+        200 OK: If the password reset was successful.
+        401 Unauthorized: If the token format is invalid in any way
+        If the old password is incorrect.
+        404 Not Found: If the token has a valid format but there is no such user.
+    """
     try:
         update_password(password_reset, access_token, session)
     except UserDoesntExistError as e:

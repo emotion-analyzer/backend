@@ -46,6 +46,7 @@ def verify_user_existence(email: str, session: SessionDep) -> bool:
     if get_user_by_email(email, session) is None:
         raise AuthError("Usuario no encontrado.")
 
+
 def delete_user_from_db(user_id: int, session: SessionDep):
     """Delete user from database, raise exception if not found."""
     statement = select(User).where(User.id == user_id)
@@ -55,7 +56,9 @@ def delete_user_from_db(user_id: int, session: SessionDep):
     session.delete(user)
     session.commit()
 
-def update_password(password_reset: PasswordReset, access_token: str, session: SessionDep) -> None:
+def update_password(password_reset: PasswordReset,
+                    access_token: str, session: SessionDep) -> None:
+    """Update hashed password in the database."""
     payload = decode_token(access_token)
     statement = select(User).where(User.id == payload["id"])
     user = session.exec(statement).first()
