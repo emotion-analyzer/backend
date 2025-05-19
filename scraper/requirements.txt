@@ -1,3 +1,4 @@
 fastapi[all]
-asyncpraw
-twscrape
+praw
+python-dateutil
+Scweet

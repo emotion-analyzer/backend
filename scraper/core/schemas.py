@@ -1,3 +1,4 @@
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -12,7 +13,7 @@ class Post(BaseModel):
     """Post object."""
     id: str
     text: str
-    timestamp: float
+    timestamp: datetime
 
 class FetchResult(BaseModel):
     """Result of a social media post-fetch."""

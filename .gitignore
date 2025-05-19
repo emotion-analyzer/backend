@@ -1,1 +1,9 @@
+# IDEA
+.idea
+
+# Environment files
 prod.env
+
+# Tweet scraping results
+scraper/*.json
+scraper/outputs
