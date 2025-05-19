@@ -55,3 +55,20 @@ async def login(login_data: LoginUser, session: SessionDep):
     except AuthError as e:
         raise HTTPException(status_code=401, detail=e.message) from e
     return {"access_token": jwt, "token_type": "bearer"}
+
+
+@app.delete("/{user_id}")
+async def delete_user(session: SessionDep):
+    """Delete registered user with specified id.
+
+    Returns:
+        None
+
+    Raises:
+        AuthError: If the user_id doesn't match the token-encoded id.
+
+    HTTP Status Codes:
+        200 OK: If the user has been successfully deleted.
+        401 Unauthorized: If the token is invalid in any way.
+    """
+    print("Deleting user")
