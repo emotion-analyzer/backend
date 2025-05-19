@@ -20,3 +20,7 @@ class NewUser(BaseModel):
     """User data returned after successful registration."""
 
     id: int
+
+class PasswordReset(BaseModel):
+    old_password: str
+    new_password: str
