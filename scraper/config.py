@@ -16,8 +16,8 @@ class Reddit:
 
 class Twitter:
     """Reddit scraping configuration."""
-    SCROLL_RATIO = int(os.getenv("SCROLL_RATIO", default=100))
-    CONCURRENT_BROWSERS = int(os.getenv("CONCURRENT_BROWSERS", default=1))
+    SCROLL_RATIO = int(os.getenv("SCROLL_RATIO"))
+    CONCURRENT_BROWSERS = int(os.getenv("CONCURRENT_BROWSERS"))
 
 class Scraping:
     """MASSive scraper configuration."""

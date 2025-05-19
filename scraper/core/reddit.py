@@ -2,7 +2,6 @@
 from dataclasses import dataclass
 
 import praw
-
 from scraper.config import config
 from scraper.core.schemas import FetchRequest, Post
 from scraper.core.scraping import Scraper

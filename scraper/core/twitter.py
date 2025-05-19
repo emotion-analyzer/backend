@@ -1,14 +1,11 @@
 # ruff: noqa:  D101, D102, D103, D105, E501
 import csv
 from dataclasses import dataclass
+
 from dateutil import parser
-
-from typing import List
-
-from Scweet.scweet import Scweet
-
 from scraper.config import config
 from scraper.core.schemas import FetchRequest, Post
+from Scweet.scweet import Scweet
 
 
 @dataclass
@@ -20,14 +17,14 @@ class TwitterScraper:
                              n_splits=-1, concurrency=config.TWITTER.CONCURRENT_BROWSERS,
                              headless=False, scroll_ratio=config.TWITTER.SCROLL_RATIO)
 
-    def query(self, fetch_request: FetchRequest) -> List[Post]:
+    def query(self, fetch_request: FetchRequest) -> list[Post]:
         submission_list = []
         # Verify if the query has already been executed recently before doing this
-        results = self.scweet.scrape(since="2020-10-01", words=[fetch_request.query],
-                                      limit=fetch_request.limit,
-                                      lang="es",
-                                      custom_csv_name=f'tweets_{fetch_request.query}.csv')
-        with open(f'outputs/tweets_{fetch_request.query}.csv', 'r') as file:
+        self.scweet.scrape(since="2020-10-01", words=[fetch_request.query],
+                           limit=fetch_request.limit,
+                           lang="es",
+                           custom_csv_name=f'tweets_{fetch_request.query}.csv')
+        with open(f'outputs/tweets_{fetch_request.query}.csv') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 tweet_info = {
