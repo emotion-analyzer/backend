@@ -1,0 +1,20 @@
+services:
+
+  user_database:
+    image: postgres:17.5-alpine
+    container_name: user_database
+    env_file:
+      - ./users/test.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - kong-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d users" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

@@ -5,8 +5,7 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from users.config import config
 
-connection_args = {"check_same_thread": False}
-engine = create_engine(config.DATABASE_URL, connect_args=connection_args)
+engine = create_engine(config.DATABASE_URL)
 
 
 def get_session():

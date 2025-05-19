@@ -1,6 +1,5 @@
 name: Postman integration testing
 
-# Run this only occasionally
 on:
   pull_request:
 
@@ -15,7 +14,7 @@ jobs:
       uses: docker/setup-compose-action@v1.2.0
 
     - name: Set up all containers for testing
-      run: docker compose up -d
+      run: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
       working-directory: .
 
     - name: Install Postman CLI
