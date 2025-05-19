@@ -7,3 +7,6 @@ prod.env
 # Tweet scraping results
 scraper/*.json
 scraper/outputs
+
+# Local database
+*.db

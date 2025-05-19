@@ -108,3 +108,50 @@ def test_08_logging_in_with_incorrect_password_returns_401(client):
     response = client.post("/login", json=user_3_login)
     assert response.status_code == 401
     assert response.json() == {"detail": "Contraseña invalida."}
+
+
+def test_09_deleting_user_without_jwt_returns_401(client):
+    response = client.delete("/1")
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+def test_10_deleting_user_with_invalid_jwt_format_returns_401(client):
+    headers = {"Authorization": "Bearer invalidtoken"}
+    response = client.delete("/1", headers=headers)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Token de seguridad invalido."}
+
+
+def test_11_deleting_user_with_valid_jwt_but_incorrect_id_returns_401(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.delete("/2", headers=headers)
+    assert response.status_code == 401
+    assert response.json() == {"detail": "ID de usuario no coincide."}
+
+
+def test_12_deleting_user_with_valid_jwt_and_correct_id_returns_200(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.delete("/1", headers=headers)
+    assert response.status_code == 200
+    assert response.json() == {"detail": "Usuario borrado exitosamente."}
+
+
+def test_13_deleting_user_with_valid_jwt_and_correct_id_twice_returns_404(client):
+    client.post("/register", json=valid_user_1)
+    user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
+    response = client.post("/login", json=user_1_login)
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    client.delete("/1", headers=headers)
+    response = client.delete("/1", headers=headers)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Usuario no encontrado."}

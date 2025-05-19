@@ -22,7 +22,8 @@ def get_token(login: LoginUser, session: SessionDep):
         raise AuthError("Contraseña invalida.")
     expiration_time = int(time.time()) + 3600
     encoded_jwt = jwt.encode(
-        {"email": login.email, "iss": "users", "exp": expiration_time},
+        {"id": user.id, "email": login.email, "iss": "users",
+         "exp": expiration_time},
         config.SECRET_KEY, algorithm=config.ALGORITHM,
         headers={"alg": config.ALGORITHM, "typ": "JWT", "kid": config.KONG_KEY})
     return encoded_jwt
@@ -31,7 +32,16 @@ def get_token(login: LoginUser, session: SessionDep):
 def decode_token(token):
     """Decode JWT and return decoded data."""
     try:
-        # Just a placeholder. Will move to a secure config file.
         return jwt.decode(token, config.SECRET_KEY, algorithms=config.ALGORITHM)
     except jwt.InvalidTokenError as e:
         raise AuthError("Token de seguridad invalido.") from e
+
+
+def verify_token(user_id: int, token):
+    """Verify encoded data in token."""
+    try:
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=config.ALGORITHM)
+    except jwt.InvalidTokenError as e:
+        raise AuthError("Token de seguridad invalido.") from e
+    if payload["id"] != user_id:
+        raise AuthError("ID de usuario no coincide.")
