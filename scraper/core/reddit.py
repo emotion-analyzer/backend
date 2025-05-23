@@ -19,8 +19,6 @@ class RedditScraper(Scraper):
         )
         self.reddit.read_only = True
 
-    async def initiate_scraping(self):
-        pass
 
     async def query(self, fetch_request: FetchRequest) -> list[Post]:
         """Return relevant posts according to the fetch request."""
