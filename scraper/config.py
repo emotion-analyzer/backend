@@ -14,11 +14,6 @@ class Reddit:
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
     SCRAPER = os.getenv("REDDIT_SCRAPER") == "ON"
 
-class Twitter:
-    """Reddit scraping configuration."""
-    SCROLL_RATIO = int(os.getenv("SCROLL_RATIO"))
-    CONCURRENT_BROWSERS = int(os.getenv("CONCURRENT_BROWSERS"))
-
 class Scraping:
     """MASSive scraper configuration."""
     INITIAL_EMOTIONS = json.loads(os.getenv("INITIAL_EMOTIONS"))
@@ -30,7 +25,6 @@ class Config:
     """
     REDDIT = Reddit
     SCRAPING = Scraping
-    TWITTER = Twitter
 
 
 config = Config()
