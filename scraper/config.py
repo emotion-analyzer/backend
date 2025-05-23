@@ -14,6 +14,11 @@ class Reddit:
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
     SCRAPER = os.getenv("REDDIT_SCRAPER") == "ON"
 
+class Bluesky:
+    """Bluesky scraping configuration."""
+    BASE_URL = os.getenv("BASE_URL")
+    SEARCH_URL = os.getenv("SEARCH_URL")
+
 class Scraping:
     """MASSive scraper configuration."""
     INITIAL_EMOTIONS = json.loads(os.getenv("INITIAL_EMOTIONS"))
@@ -24,6 +29,7 @@ class Config:
     Import in your module and access (after setting in the proper .env).
     """
     REDDIT = Reddit
+    BLUESKY = Bluesky
     SCRAPING = Scraping
 
 
