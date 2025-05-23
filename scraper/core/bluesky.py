@@ -1,17 +1,16 @@
 from dataclasses import dataclass
 
-from starlette.status import HTTP_200_OK
-
+import httpx
 from scraper.config import config
 from scraper.core.schemas import FetchRequest, Post
 from scraper.core.scraping import Scraper
-import httpx
-
 from scraper.exceptions.exceptions import ScraperError
+from starlette.status import HTTP_200_OK
 
 
 @dataclass
 class BlueskyScraper(Scraper):
+    """Executes real-time Bluesky search queries."""
 
     def __init__(self):
         self.bluesky = config.BLUESKY.BASE_URL
