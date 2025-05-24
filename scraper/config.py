@@ -14,10 +14,10 @@ class Reddit:
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
     SCRAPER = os.getenv("REDDIT_SCRAPER") == "ON"
 
-class Twitter:
-    """Reddit scraping configuration."""
-    SCROLL_RATIO = int(os.getenv("SCROLL_RATIO"))
-    CONCURRENT_BROWSERS = int(os.getenv("CONCURRENT_BROWSERS"))
+class Bluesky:
+    """Bluesky scraping configuration."""
+    BASE_URL = os.getenv("BASE_URL")
+    SEARCH_URL = os.getenv("SEARCH_URL")
 
 class Scraping:
     """MASSive scraper configuration."""
@@ -29,8 +29,8 @@ class Config:
     Import in your module and access (after setting in the proper .env).
     """
     REDDIT = Reddit
+    BLUESKY = Bluesky
     SCRAPING = Scraping
-    TWITTER = Twitter
 
 
 config = Config()

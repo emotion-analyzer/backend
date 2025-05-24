@@ -1,12 +1,12 @@
+from pydantic import EmailStr
 from sqlmodel import select
 
-from users.core.hashing import get_hash, verify_password
+from users.core.hashing import get_hash
 from users.core.schemas import PasswordReset, RegisterUser
 from users.core.security import decode_token
 from users.database.model import User
 from users.database.session import SessionDep
 from users.exceptions.exceptions import (
-    AuthError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -35,16 +35,10 @@ def get_user_by_username(username: str, session: SessionDep) -> User | None:
     return session.exec(statement).first()
 
 
-def get_user_by_email(email: str, session: SessionDep) -> User | None:
+def get_user_by_email(email: EmailStr, session: SessionDep) -> User | None:
     """Return user with given email or None if not found."""
     statement = select(User).where(User.email == email)
     return session.exec(statement).first()
-
-
-def verify_user_existence(email: str, session: SessionDep) -> bool:
-    """Return True if the email belongs to a user, False otherwise."""
-    if get_user_by_email(email, session) is None:
-        raise AuthError("Usuario no encontrado.")
 
 
 def delete_user_from_db(user_id: int, session: SessionDep):
@@ -57,21 +51,13 @@ def delete_user_from_db(user_id: int, session: SessionDep):
     session.commit()
 
 def update_password(password_reset: PasswordReset,
-                    access_token: str, session: SessionDep) -> None:
-    """Update hashed password in the database."""
-    payload = decode_token(access_token)
-    statement = select(User).where(User.id == payload["id"])
-    user = session.exec(statement).first()
+                    session: SessionDep) -> None:
+    """Update hashed password in the database for user email specified in the token."""
+    payload = decode_token(password_reset.token)
+    user = get_user_by_email(payload["email"], session)
     if user is None:
         raise UserDoesntExistError
-    if not verify_password(password_reset.old_password, user, session):
-        raise AuthError("Contraseña vieja invalida.")
     user.password_hash = get_hash(password_reset.new_password)
     session.add(user)
     session.commit()
 
-# def set_password_hash_for_user(
-#     user: RegisterUser, hashed_password: str, session: SessionDep
-# ) -> None:
-#     user.password_hash = hashed_password
-#     session.commit()

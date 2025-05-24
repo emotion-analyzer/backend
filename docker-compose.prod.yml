@@ -1,5 +1,17 @@
 services:
 
+  users:
+    environment:
+      - APP_ENV=test.env
+    build:
+      context: users
+    container_name: users
+    networks:
+      - kong-network
+    depends_on:
+      user_database:
+        condition: service_healthy
+
   user_database:
     image: postgres:17.5-alpine
     container_name: user_database
