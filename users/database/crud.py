@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from sqlmodel import select
 
 from users.core.hashing import get_hash, verify_password
@@ -35,16 +36,16 @@ def get_user_by_username(username: str, session: SessionDep) -> User | None:
     return session.exec(statement).first()
 
 
-def get_user_by_email(email: str, session: SessionDep) -> User | None:
+def get_user_by_email(email: EmailStr, session: SessionDep) -> User | None:
     """Return user with given email or None if not found."""
     statement = select(User).where(User.email == email)
     return session.exec(statement).first()
 
 
-def verify_user_existence(email: str, session: SessionDep) -> bool:
+def verify_user_existence(email: EmailStr, session: SessionDep) -> bool:
     """Return True if the email belongs to a user, False otherwise."""
     if get_user_by_email(email, session) is None:
-        raise AuthError("Usuario no encontrado.")
+        raise UserAlreadyExistsError("email")
 
 
 def delete_user_from_db(user_id: int, session: SessionDep):
@@ -70,8 +71,3 @@ def update_password(password_reset: PasswordReset,
     session.add(user)
     session.commit()
 
-# def set_password_hash_for_user(
-#     user: RegisterUser, hashed_password: str, session: SessionDep
-# ) -> None:
-#     user.password_hash = hashed_password
-#     session.commit()

@@ -4,8 +4,14 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
-from users.core.schemas import LoginUser, PasswordReset, RegisterUser
-from users.core.security import get_token, verify_token
+from users.core.password_reset import send_password_reset_email
+from users.core.schemas import (
+    LoginUser,
+    PasswordReset,
+    PasswordResetRequest,
+    RegisterUser,
+)
+from users.core.security import get_password_reset_token, get_token, verify_token
 from users.database.crud import (
     delete_user_from_db,
     get_user_by_email,
@@ -86,6 +92,27 @@ async def password_reset(password_reset: PasswordReset,
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     return {"detail": "Contraseña actualizada exitosamente."}
+
+
+@app.post("/forgot-password")
+async def password_reset_mail(password_reset_request: PasswordResetRequest,
+                              session: SessionDep):
+    """Send mail to initiate password reset.
+
+    Returns:
+        None
+
+    HTTP Status Codes:
+        200 OK: After attempting to send a password reset email (even if it fails!).
+    """
+    try:
+        verify_user_existence(password_reset_request.email, session)
+        token = get_password_reset_token(password_reset_request.email)
+        await send_password_reset_email(password_reset_request.email, token)
+    except UserDoesntExistError:
+        pass
+    return {"message": "Si el correo está registrado, "
+                       "se han enviado instrucciones para restablecer la contraseña."}
 
 
 @app.delete("/{user_id}")
