@@ -7,7 +7,7 @@
 
 > El modelo presente incluye los siguientes modulos
 > * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos)
-> * scraper para obtener posts de reddit
+> * scraper para obtener posts de Reddit y Bluesky
 
 ## 📌 Ejecución
 
@@ -27,13 +27,23 @@ o bien en modo produccion con bases de datos reales
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 ```
 
-3. (Opcional). Instalar dependencias y ejecutar tests/lint :
+Algunos modulos requieren de credenciales especificas. Consultar _test.env_ 
+
+(Opcional). Instalar dependencias y ejecutar tests/lint :
 ```bash
 cd <service>
 pip install --upgrade pip
 pip install -r requirements.txt -r dev-requirements.txt
 nox
 ```
+
+(Opcional). Para ejecucion local de modulos especificos  :
+```bash
+cd <service>
+fastapi run --reload
+```
+De forma predeterminada esto carga el .env especificado en **APP_ENV** o bien _test.env_
+
 
 ## 📌 Agregado de contenedores
 1. Crear carpeta con archivo de Dockerfile correspondiente al nuevo modulo
@@ -44,6 +54,7 @@ nox
     build:
       context: <folder_name>
     container_name: <module_name>
+    ...
     networks:
       - kong-network
 ```
