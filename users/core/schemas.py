@@ -24,7 +24,7 @@ class NewUser(BaseModel):
 
 class PasswordReset(BaseModel):
     """Password reset details."""
-    old_password: str
+    token: str
     new_password: str
 
 

@@ -71,10 +71,9 @@ async def login(login_data: LoginUser, session: SessionDep):
     return {"access_token": jwt, "token_type": "bearer"}
 
 
-@app.post("/me/password_reset")
+@app.post("/reset-password")
 async def password_reset(password_reset: PasswordReset,
-                         session: SessionDep,
-                         access_token: str = Depends(oauth2_scheme)):
+                         session: SessionDep):
     """Update user password.
 
     Returns:
@@ -87,7 +86,7 @@ async def password_reset(password_reset: PasswordReset,
         404 Not Found: If the token has a valid format but there is no such user.
     """
     try:
-        update_password(password_reset, access_token, session)
+        update_password(password_reset, session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
@@ -106,12 +105,10 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
     HTTP Status Codes:
         200 OK: After attempting to send a password reset email (even if it fails!).
     """
-    try:
-        user = get_user_by_email(password_reset_request.email, session)
+    user = get_user_by_email(password_reset_request.email, session)
+    if user is not None:
         token = get_password_reset_token(user.email)
         await send_password_reset_email(password_reset_request.email, token)
-    except UserDoesntExistError:
-        pass
     return {"message": "Si el correo está registrado, "
                        "se han enviado instrucciones para restablecer la contraseña."}
 
