@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 import pytest
 from sqlmodel import Session, SQLModel
 
-from users.config import config
 from users.core.security import decode_token, encode_token
 from users.database.session import create_db_and_tables, engine
 from users.main import app
@@ -177,7 +176,7 @@ def test_15_changing_password_with_expired_jwt_format_returns_401(client):
 def test_16_changing_password_with_valid_jwt_but_invalid_user_return_404(client):
     client.post("/register", json=valid_user_1)
     token = encode_token({"email": valid_user_2["email"]},
-                          expiration_time=config.EXPIRATION_MINUTES_LOGIN * 60)
+                          expiration_time=60)
     response = client.post("/reset-password",
                            json ={"token": token,
                                "new_password": valid_user_2["password"]})
@@ -189,7 +188,7 @@ def test_17_successful_password_change_invalidates_old_login(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
     token = encode_token({"email": valid_user_1["email"]},
-                          expiration_time=config.EXPIRATION_MINUTES_LOGIN * 60)
+                          expiration_time=60)
     client.post("/reset-password",
                 json={"token": token,
                     "new_password": valid_user_2["password"]})
@@ -202,7 +201,7 @@ def test_18_can_login_with_new_password_after_password_reset(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
     token = encode_token({"email": valid_user_1["email"]},
-                          expiration_time=config.EXPIRATION_MINUTES_LOGIN * 60)
+                          expiration_time=60)
     client.post("/reset-password",
                 json={"token": token,
                     "new_password": valid_user_2["password"]})

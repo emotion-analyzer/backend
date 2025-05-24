@@ -16,11 +16,11 @@ async def send_email(to_email: str, subject: str, body: str):
     message.add_alternative(body, subtype="html")
     await aiosmtplib.send(
         message,
-        hostname=config.SMTP_SERVER,
-        port=config.SMTP_PORT,
+        hostname=config.MAIL.SMTP_SERVER,
+        port=config.MAIL.SMTP_PORT,
         start_tls=True,
-        username=config.EMAIL_ADDRESS,
-        password=config.EMAIL_PASSWORD,
+        username=config.MAIL.ADDRESS,
+        password=config.MAIL.PASSWORD,
     )
 
 
@@ -32,7 +32,7 @@ async def send_password_reset_email(email, token):
         <p>Hola,</p>
         <p> Usted solicitó un cambio de contraseña. Puede acceder mediante el siguiente link:</p>
         <p>
-          <a href="https://{config.FRONTEND_URL}/reset-password?token={token}" target="_blank">
+          <a href="https://{config.FRONTEND.URL}/reset-password?token={token}" target="_blank">
             Cambie su contraseña aqui
           </a>
         </p>

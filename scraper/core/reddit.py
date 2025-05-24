@@ -33,4 +33,6 @@ class RedditScraper(Scraper):
             submission_list.append({"id": submission.id,
                                     "text": submission.selftext,
                                     "timestamp": submission.created_utc})
+            if len(submission_list) == fetch_request.limit:
+                break
         return submission_list
