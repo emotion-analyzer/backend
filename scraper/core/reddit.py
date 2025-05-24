@@ -1,4 +1,4 @@
-# ruff: noqa:  D101, D102, D103, D105
+# ruff: noqa:  D102, D103, D105
 from dataclasses import dataclass
 
 import asyncpraw
@@ -9,6 +9,7 @@ from scraper.core.scraping import Scraper
 
 @dataclass
 class RedditScraper(Scraper):
+    """Executes real-time Reddit search queries."""
 
     def __init__(self):
         self.reddit = asyncpraw.Reddit(
@@ -19,8 +20,6 @@ class RedditScraper(Scraper):
         )
         self.reddit.read_only = True
 
-    async def initiate_scraping(self):
-        pass
 
     async def query(self, fetch_request: FetchRequest) -> list[Post]:
         """Return relevant posts according to the fetch request."""
