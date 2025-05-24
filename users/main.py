@@ -17,7 +17,6 @@ from users.database.crud import (
     get_user_by_email,
     register_new_user,
     update_password,
-    verify_user_existence,
 )
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
@@ -62,8 +61,10 @@ async def login(login_data: LoginUser, session: SessionDep):
         token_type: always "bearer".
     """
     try:
-        verify_user_existence(login_data.email, session)
         user = get_user_by_email(login_data.email, session)
+        if user is None:
+            raise HTTPException(status_code=HTTP_404_NOT_FOUND,
+                                detail="Usuario no encontrado.")
         jwt = get_token(login_data, user, session)
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
@@ -106,8 +107,8 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
         200 OK: After attempting to send a password reset email (even if it fails!).
     """
     try:
-        verify_user_existence(password_reset_request.email, session)
-        token = get_password_reset_token(password_reset_request.email)
+        user = get_user_by_email(password_reset_request.email, session)
+        token = get_password_reset_token(user.email)
         await send_password_reset_email(password_reset_request.email, token)
     except UserDoesntExistError:
         pass

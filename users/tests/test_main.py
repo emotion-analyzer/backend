@@ -95,11 +95,11 @@ def test_06_logging_in_with_valid_data_returns_200(client):
     assert valid_user_1["email"] == decoded_token["email"]
 
 
-def test_07_logging_in_with_nonexistent_user_returns_401(client):
+def test_07_logging_in_with_nonexistent_user_returns_404(client):
     client.post("/register", json=valid_user_1)
     user_2_login = {k: v for k, v in valid_user_2.items() if k != "username"}
     response = client.post("/login", json=user_2_login)
-    assert response.status_code == 401
+    assert response.status_code == 404
     assert response.json() == {"detail": "Usuario no encontrado."}
 
 

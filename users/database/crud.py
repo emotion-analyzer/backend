@@ -42,12 +42,6 @@ def get_user_by_email(email: EmailStr, session: SessionDep) -> User | None:
     return session.exec(statement).first()
 
 
-def verify_user_existence(email: EmailStr, session: SessionDep) -> bool:
-    """Return True if the email belongs to a user, False otherwise."""
-    if get_user_by_email(email, session) is None:
-        raise UserAlreadyExistsError("email")
-
-
 def delete_user_from_db(user_id: int, session: SessionDep):
     """Delete user from database, raise exception if not found."""
     statement = select(User).where(User.id == user_id)
