@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import URL
 
-load_dotenv(os.getenv(key="APP_ENV", default="prod.env"))
+load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
 
 class Config:
     """Represents configuration state in the application.

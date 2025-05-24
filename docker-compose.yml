@@ -27,9 +27,6 @@ services:
     container_name: users
     networks:
       - kong-network
-    depends_on:
-      user_database:
-        condition: service_healthy
 
   scraper:
     environment:
