@@ -16,12 +16,12 @@
 git clone git@github.com:emotion-analyzer/backend.git
 ```
 
-2. Correr la app con bases de datos locales:
+2. Correr la app con bases de datos minimas:
 ```bash
-docker-compose up
+docker compose up
 ```
 
-o bien en modo produccion con bases de datos reales
+o bien con bases de datos reales
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up
