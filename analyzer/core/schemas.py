@@ -2,7 +2,6 @@ from typing import List
 
 from pydantic import BaseModel, EmailStr
 
-
 class AnalyzePrompt(BaseModel):
     """Single inference request."""
 
@@ -11,7 +10,7 @@ class AnalyzePrompt(BaseModel):
 class AnalyzePromptResponse(BaseModel):
     """Single inference response."""
 
-    emotions: List[str]
+    emotions: dict[str, float]
     dominant_emotion: str
 
 class AnalyzePromptBatch(BaseModel):

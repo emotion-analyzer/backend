@@ -1,6 +1,8 @@
 import torch
+import torch.nn.functional as functional
 
-from analyzer.core.schemas import AnalyzePrompt
+from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptResponse
+
 
 def make_new_prediction(tokenizer, model, prompt: AnalyzePrompt, TOP_K:int = 5):
     text = f"{prompt.text} Me siento {tokenizer.mask_token}."
@@ -16,11 +18,14 @@ def make_new_prediction(tokenizer, model, prompt: AnalyzePrompt, TOP_K:int = 5):
 
     # Get top-k token IDs and their scores
     top_k_values, top_k_indices = torch.topk(logits, TOP_K, dim=-1)
+    top_k_values = functional.softmax(top_k_values, dim=-1)
 
-    print(f"Input: {text}")
+    emotions_with_scores = {}
+
     for i, token_ids in enumerate(top_k_indices):
-        print(f"\nPredictions for mask #{i+1}:")
         for score, token_id in zip(top_k_values[i], token_ids):
             token = tokenizer.decode([token_id.item()])
-            print(f"{token} (score: {score.item():.4f})")
-    print("\n")
+            emotions_with_scores[token] = score.item()
+
+    return AnalyzePromptResponse(emotions=emotions_with_scores,
+                                 dominant_emotion=tokenizer.decode(top_k_indices[0][0]))
