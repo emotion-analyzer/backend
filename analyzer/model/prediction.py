@@ -1,11 +1,11 @@
 import torch
 import torch.nn.functional as functional
 
-from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptResponse
+from analyzer.core.schemas import AnalyzePromptResponse
 
 
-def make_new_prediction(tokenizer, model, prompt: AnalyzePrompt, TOP_K:int = 5):
-    text = f"{prompt.text} Me siento {tokenizer.mask_token}."
+def make_new_prediction(tokenizer, model, prompt: str, TOP_K:int = 5):
+    text = f"{prompt} Me siento {tokenizer.mask_token}."
 
     inputs = tokenizer(text, return_tensors="pt")
     outputs = model(**inputs)

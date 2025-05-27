@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Request, FastAPI
 
-from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptResponse
+from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptBatch, BatchResponse
 from analyzer.model.initialization import load_emotions_model
 from analyzer.model.prediction import make_new_prediction
 
@@ -18,13 +18,30 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/text")
 async def analyze_text(request: Request,
                        prompt: AnalyzePrompt):
-    """ Make a prediction for the received text.
+    """ Perform emotion analysis on the received text.
+
+    Returns:
+        result: the resulting id for the new registered user.
+    """
+    prediction = make_new_prediction(request.app.state.tokenizer,
+                                     request.app.state.model,
+                                     prompt.text)
+    return {"result": prediction}
+
+
+@app.post("/batch")
+async def analyze_text(request: Request,
+                       prompt: AnalyzePromptBatch):
+    """ Perform emotion analysis on the received text batch.
 
     Returns:
         id: the resulting id for the new registered user.
     """
-    prediction = make_new_prediction(request.app.state.tokenizer,
-                                     request.app.state.model,
-                                     prompt)
-    return {"prediction": prediction}
-
+    predictions = []
+    for text in prompt.texts:
+        predictions.append(BatchResponse
+            (text=text,
+             dominant_emotion=make_new_prediction(request.app.state.tokenizer,
+                                                  request.app.state.model,
+                                                  text).dominant_emotion))
+    return {"results": predictions}
