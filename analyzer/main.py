@@ -10,7 +10,7 @@ from analyzer.model.prediction import make_new_prediction
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize the model and tokenizer before the app runs."""
-    app.state.tokenizer, app.state.model = load_emotions_model()
+    app.state.tokenizer, app.state.pipeline = load_emotions_model()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -24,7 +24,7 @@ async def analyze_text(request: Request,
         result: the resulting id for the new registered user.
     """
     prediction = make_new_prediction(request.app.state.tokenizer,
-                                     request.app.state.model,
+                                     request.app.state.pipeline,
                                      prompt.text)
     return {"result": prediction}
 
@@ -42,6 +42,6 @@ async def analyze_text(request: Request,
         predictions.append(BatchResponse
             (text=text,
              dominant_emotion=make_new_prediction(request.app.state.tokenizer,
-                                                  request.app.state.model,
+                                                  request.app.state.pipeline,
                                                   text).dominant_emotion))
     return {"results": predictions}

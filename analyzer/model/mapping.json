@@ -1,0 +1,11 @@
+{
+  "_comment": "Este es un mapeo de las 8 emociones de Plutchik a los 44 estados afectivos mas detectados en MASIVE (al menos 200 ocurrencias). ",
+  "ira": ["locx", "hartx", "caliente"],
+  "miedo": ["desesperadx", "perdidx", "preocupadx", "enfermx", "nerviosx", "ansiosx"],
+  "tristeza": ["mal", "triste", "solx", "deprimidx"],
+  "disgusto": ["cansadx", "frustradx", "obligadx", "estancadx", "aburridx"],
+  "sorpresa": ["confundidx", "decepcionadx"],
+  "anticipacion" : ["listx", "interesadx", "consciente", "dispuestx", "emocionadx"],
+  "confianza": ["segurx", "convencidx", "vivx", "acostumbradx"],
+  "alegria": ["agradecidx", "mejor", "feliz", "contentx", "satisfechx", "orgullosx", "enamoradx"]
+}
