@@ -8,7 +8,7 @@ from users.config import config
 from users.core.hashing import verify_password
 from users.core.schemas import LoginUser
 from users.database.model import User
-from users.database.session import SessionDep
+from util.database_session import SessionDep
 from users.exceptions.exceptions import AuthError
 
 
