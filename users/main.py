@@ -4,7 +4,6 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
-from users.config import config
 from users.core.password_reset import send_password_reset_email
 from users.core.schemas import (
     LoginUser,
@@ -19,7 +18,7 @@ from users.database.crud import (
     register_new_user,
     update_password,
 )
-from util.database_session import SessionDep, create_db_and_tables, init_engine
+from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
     UserAlreadyExistsError,
@@ -30,7 +29,6 @@ from users.exceptions.exceptions import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize the database and tables before the app runs."""
-    init_engine(config.DATABASE.URL_)
     create_db_and_tables()
     yield
 

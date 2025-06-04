@@ -1,8 +1,7 @@
-from util.database_session import SessionDep
-
 from analyzer.core.hashing import compute_text_hash
 from analyzer.core.schemas import AnalyzePromptResponse
 from analyzer.database.crud import look_up_query, store_query
+from analyzer.database.session import SessionDep
 
 
 def get_emotional_analysis(tokenizer, pipeline,

@@ -6,7 +6,7 @@ from argon2.exceptions import (
 )
 
 from users.database.model import User
-from util.database_session import SessionDep
+from users.database.session import SessionDep
 
 ph = argon2.PasswordHasher()
 

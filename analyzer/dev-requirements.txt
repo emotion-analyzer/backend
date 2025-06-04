@@ -1,0 +1,5 @@
+ruff
+nox
+pytest
+pytest-cov
+python-dotenv

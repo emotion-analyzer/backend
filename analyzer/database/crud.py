@@ -1,9 +1,9 @@
 
 from sqlmodel import select
-from util.database_session import SessionDep
 
 from analyzer.core.schemas import AnalyzePromptResponse
 from analyzer.database.model import QueryResult
+from analyzer.database.session import SessionDep
 
 
 def store_query(text_hash: str, result: AnalyzePromptResponse,
