@@ -54,3 +54,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: users/coverage.json, analyzer/coverage.json
+          flags: users,analyzer
+
