@@ -5,7 +5,7 @@ from users.core.hashing import get_hash
 from users.core.schemas import PasswordReset, RegisterUser
 from users.core.security import decode_token
 from users.database.model import User
-from users.database.session import SessionDep
+from util.database_session import SessionDep
 from users.exceptions.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,

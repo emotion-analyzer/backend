@@ -17,16 +17,9 @@
 git clone git@github.com:emotion-analyzer/backend.git
 ```
 
-2. Correr la app con bases de datos minimas (**IMPORTANTE**: asegurar de que la linea DATABASE_URL: ... en el archivo 
-.env este descomentada y apunte a una base de datos existente, o bien SQLite)
+2. Correr la app  (**IMPORTANTE**: para usar una base de datos local, descomentar DATABASE_URL=...)
 ```bash
 docker compose up
-```
-
-o bien con bases de datos reales
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 ```
 
 Algunos modulos requieren de credenciales especificas. Consultar _test.env_ 

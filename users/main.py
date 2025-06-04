@@ -18,7 +18,7 @@ from users.database.crud import (
     register_new_user,
     update_password,
 )
-from users.database.session import SessionDep, create_db_and_tables
+from util.database_session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
     UserAlreadyExistsError,
