@@ -1,6 +1,6 @@
-from typing import List
 
 from pydantic import BaseModel
+
 
 class AnalyzePrompt(BaseModel):
     """Single inference request."""
@@ -18,7 +18,7 @@ class AnalyzePromptResponse(BaseModel):
 class AnalyzePromptBatch(BaseModel):
     """Inference batch request."""
 
-    texts: List[str]
+    texts: list[str]
 
 
 class BatchResponse(BaseModel):
@@ -29,5 +29,5 @@ class BatchResponse(BaseModel):
 
 class AnalyzeBatchResponse(BaseModel):
     """Single inference response."""
-    predictions: List[BatchResponse]
+    predictions: list[BatchResponse]
 

@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Request, FastAPI
+from fastapi import FastAPI, Request
+from util.database_session import SessionDep, create_db_and_tables, init_engine
 
 from analyzer.config import config
 from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptBatch, BatchResponse
 from analyzer.model.initialization import load_emotions_model
 from analyzer.model.prediction import make_new_prediction
-from util.database_session import SessionDep, create_db_and_tables, init_engine
 
 
 @asynccontextmanager
@@ -23,7 +23,7 @@ app = FastAPI(lifespan=lifespan)
 async def analyze_text(prompt: AnalyzePrompt,
                        request: Request,
                        session: SessionDep):
-    """ Perform emotion analysis on the received text.
+    """Perform emotion analysis on the received text.
 
     Returns:
         result: the resulting id for the new registered user.
@@ -36,10 +36,10 @@ async def analyze_text(prompt: AnalyzePrompt,
 
 
 @app.post("/batch")
-async def analyze_text(request: Request,
+async def analyze_text_batch(request: Request,
                        prompt: AnalyzePromptBatch,
                        session: SessionDep):
-    """ Perform emotion analysis on the received text batch.
+    """Perform emotion analysis on the received text batch.
 
     Returns:
         id: the resulting id for the new registered user.

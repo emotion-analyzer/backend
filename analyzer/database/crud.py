@@ -1,13 +1,13 @@
-from typing import Dict
 
 from sqlmodel import select
+from util.database_session import SessionDep
 
 from analyzer.core.schemas import AnalyzePromptResponse
 from analyzer.database.model import QueryResult
-from util.database_session import SessionDep
 
 
-def store_query(text_hash: str, result: AnalyzePromptResponse, session: SessionDep) -> None:
+def store_query(text_hash: str, result: AnalyzePromptResponse,
+                session: SessionDep) -> None:
     """Store query for faster lookup."""
     query_result = QueryResult(
         text_hash=text_hash,
@@ -18,7 +18,8 @@ def store_query(text_hash: str, result: AnalyzePromptResponse, session: SessionD
     session.refresh(query_result)
 
 
-def look_up_query(text_hash: str, session: SessionDep) -> QueryResult | None:
+def look_up_query(text_hash: str,
+                  session: SessionDep) -> QueryResult | None:
     """Get query result for given text hash or None if not found."""
     statement = select(QueryResult).where(QueryResult.text_hash == text_hash)
     return session.exec(statement).first()
