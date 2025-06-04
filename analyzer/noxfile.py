@@ -23,6 +23,7 @@ def tests_without_report(session):
     session.run("pytest", "tests/test_main.py")
     session.notify("remove_database")
 
+
 @nox.session()
 def tests_with_report(session):
     """Test the application, generate a coverage report."""
@@ -40,11 +41,13 @@ def tests_with_report(session):
     )
     session.notify("remove_database")
 
+
 @nox.session()
 def lint(session):
     """Verify code linting and formatting."""
     session.install("ruff")
     session.run("ruff", "check")
+
 
 @nox.session
 def clean(session):
