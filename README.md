@@ -1,6 +1,12 @@
 # Backend
-![Users Coverage](https://codecov.io/gh/facundopareja/emotion-analyzer/develop/main/graph/badge.svg?flag=users)
-![Analyzer Coverage](https://codecov.io/gh/facundopareja/your-repo/branch/feature/analyzer/graph/badge.svg?flag=analyzer)
+
+- **Service:** `users`  
+
+[![users](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
+
+- **Service:** `analyzer` 
+
+[![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/feature%2Fanalyzer/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
 
 ## 📌 Descripción
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
