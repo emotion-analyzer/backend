@@ -34,9 +34,9 @@ async def analyze_text(prompt: AnalyzePrompt,
 
 
 @app.post("/batch")
-async def analyze_text_batch(request: Request,
-                       prompt: AnalyzePromptBatch,
-                       session: SessionDep):
+async def analyze_text_batch(prompt: AnalyzePromptBatch,
+                             request: Request,
+                             session: SessionDep):
     """Perform emotion analysis on the received text batch.
 
     Returns:
