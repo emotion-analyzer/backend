@@ -6,8 +6,9 @@
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
 
 > El modelo presente incluye los siguientes modulos
-> * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos)
-> * scraper para obtener posts de Reddit y Bluesky
+> * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos).
+> * scraper para obtener posts de Reddit y Bluesky.
+> * analyzer, para analisis emocional de textos aislados o grupos de los mismos.
 
 ## 📌 Ejecución
 
@@ -16,7 +17,8 @@
 git clone git@github.com:emotion-analyzer/backend.git
 ```
 
-2. Correr la app con bases de datos minimas:
+2. Correr la app con bases de datos minimas (**IMPORTANTE**: asegurar de que la linea DATABASE_URL: ... en el archivo 
+.env este descomentada y apunte a una base de datos existente, o bien SQLite)
 ```bash
 docker compose up
 ```
