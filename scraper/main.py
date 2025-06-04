@@ -20,7 +20,7 @@ from util.queue_middleware import initialize_channel, send_message
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize scrapers before the app runs."""
+    """Initialize scrapers and create the RabbitMQ connection before the app runs."""
     app.state.scrapers = {"reddit": RedditScraper(),
                           "bluesky": BlueskyScraper()}
     app.state.channel = await initialize_channel(config)
