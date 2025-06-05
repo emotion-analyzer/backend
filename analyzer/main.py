@@ -1,6 +1,5 @@
 import asyncio
 from contextlib import asynccontextmanager
-from multiprocessing import Process
 
 from fastapi import FastAPI, Request
 from util.queue_middleware import process_posts
