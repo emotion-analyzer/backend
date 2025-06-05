@@ -1,7 +1,10 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 
+from analyzer.config import config
+from util.queue_middleware import process_posts
 from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptBatch, BatchResponse
 from analyzer.database.session import SessionDep, create_db_and_tables
 from analyzer.model.initialization import load_emotions_model
@@ -13,7 +16,9 @@ async def lifespan(app: FastAPI):
     """Initialize the model and tokenizer before the app runs."""
     create_db_and_tables()
     app.state.tokenizer, app.state.pipeline = load_emotions_model()
+    task = asyncio.create_task(process_posts(config))
     yield
+    task.cancel()
 
 app = FastAPI(lifespan=lifespan)
 

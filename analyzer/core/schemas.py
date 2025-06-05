@@ -23,6 +23,7 @@ class AnalyzePromptBatch(BaseModel):
 
 class BatchResponse(BaseModel):
     """Inference batch response."""
+
     text: str
     dominant_emotion: str
 
