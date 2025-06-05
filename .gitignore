@@ -1,12 +1,11 @@
 # IDEA
 .idea
 
+# Virtual environment
+.venv
+
 # Environment files
 *prod.env
-
-# Tweet scraping results
-scraper/*.json
-scraper/outputs
 
 # Local database
 *.db
