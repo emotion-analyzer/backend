@@ -6,7 +6,7 @@
 
 - **Service:** `analyzer` 
 
-[![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/feature%2Fanalyzer/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
+[![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
 
 ## 📌 Descripción
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
@@ -86,16 +86,16 @@ plugins:
 ```
 
 El sistema se puede acceder mediante
-http://localhost:8000/<path_to_endpoint>
+http://localhost:8000/<route/to/access/module>
 
 **IMPORTANTE**
 
 kong quita la ruta especificada en paths. Una ruta accedida como
 ```
-<route/to/access/module>
+<route/to/access/module/endpoint>
 ```
-desde afuera del modulo, se convierte en el endpoint
+desde afuera del modulo, se convierte en
 ```
-</module>
+</endpoint>
 ```
 dentro del mismo.
