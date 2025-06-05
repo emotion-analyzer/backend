@@ -1,20 +1,20 @@
 # ruff: noqa: RUF006
-import json
 from contextlib import asynccontextmanager
+import json
 
-from aio_pika import Message, DeliveryMode
+from aio_pika import DeliveryMode, Message
 from fastapi import FastAPI, HTTPException, Request
 from starlette.status import (
     HTTP_404_NOT_FOUND,
     HTTP_503_SERVICE_UNAVAILABLE,
 )
+from util.queue_middleware import initialize_channel, send_message
 
 from scraper.config import config
 from scraper.core.bluesky import BlueskyScraper
 from scraper.core.reddit import RedditScraper
 from scraper.core.schemas import FetchRequest, FetchResult
 from scraper.exceptions.exceptions import ScraperError
-from util.queue_middleware import initialize_channel, send_message
 
 
 @asynccontextmanager
@@ -36,7 +36,8 @@ async def fetch_posts(fetch_req: FetchRequest, request: Request) -> FetchResult:
             raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                                 detail="La red social especificada es invalida")
         matching_posts = await scraper.query(fetch_req)
-        message = Message(json.dumps(matching_posts).encode('utf-8'), delivery_mode=DeliveryMode.PERSISTENT)
+        message = Message(json.dumps(matching_posts).encode('utf-8'),
+                          delivery_mode=DeliveryMode.PERSISTENT)
         await send_message(message, app.state.channel, config)
     except ScraperError as e:
         raise HTTPException(status_code=HTTP_503_SERVICE_UNAVAILABLE,
