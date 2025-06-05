@@ -2,9 +2,9 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from util.queue_middleware import process_posts
 
 from analyzer.config import config
-from util.queue_middleware import process_posts
 from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptBatch, BatchResponse
 from analyzer.database.session import SessionDep, create_db_and_tables
 from analyzer.model.initialization import load_emotions_model
