@@ -8,10 +8,10 @@ from starlette.status import (
     HTTP_404_NOT_FOUND,
     HTTP_503_SERVICE_UNAVAILABLE,
 )
-from util.queue_middleware import initialize_channel, send_message
 
 from scraper.config import config
 from scraper.core.bluesky import BlueskyScraper
+from scraper.core.queue_middleware import initialize_channel, send_message
 from scraper.core.reddit import RedditScraper
 from scraper.core.schemas import FetchRequest, FetchResult
 from scraper.exceptions.exceptions import ScraperError
