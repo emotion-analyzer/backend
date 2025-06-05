@@ -9,7 +9,7 @@
 [![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
 
 ## 📌 Descripción
-> Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
+> Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw
 
 > El modelo presente incluye los siguientes modulos
 > * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos).
