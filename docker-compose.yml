@@ -23,8 +23,7 @@ services:
     build:
       dockerfile: ./rabbitmq/Dockerfile
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "15672:15672" # Management port
     environment:
       - RABBITMQ_LOGS=rabbit.log
     networks:
