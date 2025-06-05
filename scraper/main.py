@@ -1,5 +1,4 @@
 # ruff: noqa: RUF006
-import asyncio
 import json
 from contextlib import asynccontextmanager
 
