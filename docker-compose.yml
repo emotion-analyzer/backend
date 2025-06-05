@@ -40,7 +40,7 @@ services:
       - APP_ENV=test.env
       - DATABASE_ENV=../util/database.test.env
     build:
-      context: users
+      dockerfile: ./users/Dockerfile
     container_name: users
     networks:
       - kong-network
@@ -53,7 +53,7 @@ services:
       - APP_ENV=test.env
       - DATABASE_ENV=../util/database.test.env
     build:
-      context: analyzer
+      dockerfile: ./analyzer/Dockerfile
     container_name: analyzer
     networks:
       - kong-network
