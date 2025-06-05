@@ -14,9 +14,7 @@ async def initiate_connection(config):
 
 
 async def process_message(message: AbstractIncomingMessage) -> None:
-    async with message.process():
-        # FALTA: Procesar y mandar a guardar en la base de datos
-        print(f"Message body is: {message.body!r}")
+    print(f"Message body is: {message.body!r}", flush=True)
 
 
 async def process_posts(config) -> None:
@@ -24,8 +22,8 @@ async def process_posts(config) -> None:
     async with connection:
         channel = await connection.channel()
         await channel.set_qos(prefetch_count=1)
-        queue = await channel.declare_queue(config.RABBIT_MQ.PROCESSING_QUEUE, durable=True)
-        await queue.consume(process_message)
+        queue = await channel.declare_queue(config.RABBIT_MQ.PROCESSING_QUEUE)
+        await queue.consume(callback=process_message, no_ack=True)
         await asyncio.Future()
 
 
@@ -33,9 +31,13 @@ async def initialize_channel(config)-> AbstractRobustChannel :
     connection = await initiate_connection(config)
     await connection.connect()
     channel = await connection.channel()
-    await channel.declare_queue(config.RABBIT_MQ.PROCESSING_QUEUE, durable=True)
+    await channel.declare_queue(config.RABBIT_MQ.PROCESSING_QUEUE)
     return channel
 
 
 async def send_message(message, channel, config) -> None:
     await channel.default_exchange.publish(message, routing_key=config.RABBIT_MQ.PROCESSING_QUEUE)
+
+
+# def launch_new_process(config) -> None:
+#     asyncio.run(process_posts(config))

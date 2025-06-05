@@ -1,4 +1,4 @@
-fastapi[all]
+fastapi[standard]
 asyncpraw
 python-dateutil
 aio-pika

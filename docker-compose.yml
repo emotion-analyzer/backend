@@ -20,8 +20,7 @@ services:
       - ./gateway/kong.yml:/kong/kong.yml:ro
 
   rabbitmq:
-    build:
-      dockerfile: ./rabbitmq/Dockerfile
+    image: rabbitmq:4.1.0-management-alpine
     ports:
       - "15672:15672" # Management port
     environment:

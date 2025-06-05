@@ -37,7 +37,7 @@ async def fetch_posts(fetch_req: FetchRequest, request: Request) -> FetchResult:
                                 detail="La red social especificada es invalida")
         matching_posts = await scraper.query(fetch_req)
         message = Message(json.dumps(matching_posts).encode('utf-8'),
-                          delivery_mode=DeliveryMode.PERSISTENT)
+                          delivery_mode=DeliveryMode.NOT_PERSISTENT)
         await send_message(message, app.state.channel, config)
     except ScraperError as e:
         raise HTTPException(status_code=HTTP_503_SERVICE_UNAVAILABLE,
