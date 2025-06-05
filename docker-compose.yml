@@ -19,14 +19,47 @@ services:
     volumes:
       - ./gateway/kong.yml:/kong/kong.yml:ro
 
+  database:
+    image: postgres:17.5-alpine
+    container_name: database
+    env_file:
+      - ./util/database.test.env
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - kong-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d users" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   users:
     environment:
       - APP_ENV=test.env
+      - DATABASE_ENV=../util/database.test.env
     build:
-      context: users
+      dockerfile: ./users/Dockerfile
     container_name: users
     networks:
       - kong-network
+    depends_on:
+      database:
+        condition: service_healthy
+
+  analyzer:
+    environment:
+      - APP_ENV=test.env
+      - DATABASE_ENV=../util/database.test.env
+    build:
+      dockerfile: ./analyzer/Dockerfile
+    container_name: analyzer
+    networks:
+      - kong-network
+    depends_on:
+      database:
+        condition: service_healthy
 
   scraper:
     environment:
@@ -40,3 +73,6 @@ services:
 networks:
   kong-network:
     driver: bridge
+
+#volumes:
+#  pgdata:

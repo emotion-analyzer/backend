@@ -17,38 +17,16 @@ class Database:
                           port=os.getenv("DATABASE_PORT"),
                           database=os.getenv("POSTGRES_DB"))
 
-class Frontend:
-    """Frontend configuration."""
-    URL = os.getenv("FRONTEND_URL")
-
-class Mail:
-    """Mail configuration."""
-    SMTP_SERVER = os.getenv("SMTP_SERVER")
-    SMTP_PORT = int(os.getenv("SMTP_PORT", default="587"))
-    ADDRESS = os.getenv("EMAIL_ADDRESS")
-    PASSWORD = os.getenv("EMAIL_PASSWORD")
-
-class JSONWebToken:
-    """JSONWebToken configuration."""
-    KEY = os.getenv("SECRET_KEY")
-    ALGORITHM = os.getenv("ALGORITHM")
-    EXPIRATION_MINUTES_LOGIN = int(os.getenv("EXPIRATION_MIN_LOGIN"))
-    EXPIRATION_MINUTES_PW_RESET = int(os.getenv("EXPIRATION_MIN_PASSWORD_RESET"))
-
-class Kong:
-    """Kong gateway configuration."""
-    KEY = os.getenv("KONG_KEY")
+class HuggingFace:
+    """HuggingFace configuration."""
+    MODEL_URL = os.getenv("HUGGINGFACE_MODEL_URL")
 
 class Config:
     """Represents configuration state in the application.
 
     Import in your module and access (after setting in the proper .env).
     """
+    HUGGING_FACE = HuggingFace
     DATABASE = Database
-    FRONTEND = Frontend
-    MAIL = Mail
-    KONG = Kong
-    JWT = JSONWebToken
-
 
 config = Config()

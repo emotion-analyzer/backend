@@ -1,13 +1,20 @@
 # Backend
 
-[![codecov](https://codecov.io/gh/facundopareja/emalyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/facundopareja/emalyzer)
+- **Service:** `users`  
+
+[![users](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
+
+- **Service:** `analyzer` 
+
+[![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/feature%2Fanalyzer/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
 
 ## 📌 Descripción
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw/edit?tab=t.0&pli=1&authuser=0#heading=h.6j7uy3t38onn
 
 > El modelo presente incluye los siguientes modulos
-> * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos)
-> * scraper para obtener posts de Reddit y Bluesky
+> * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos).
+> * scraper para obtener posts de Reddit y Bluesky.
+> * analyzer, para analisis emocional de textos aislados o grupos de los mismos.
 
 ## 📌 Ejecución
 
@@ -16,15 +23,9 @@
 git clone git@github.com:emotion-analyzer/backend.git
 ```
 
-2. Correr la app con bases de datos minimas:
+2. Correr la app  (**IMPORTANTE**: para usar una base de datos local, descomentar DATABASE_URL=...)
 ```bash
 docker compose up
-```
-
-o bien con bases de datos reales
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 ```
 
 Algunos modulos requieren de credenciales especificas. Consultar _test.env_ 

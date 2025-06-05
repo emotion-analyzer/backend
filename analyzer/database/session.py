@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-from users.config import config
+from analyzer.config import config
 
 engine = create_engine(config.DATABASE.URL_)
 

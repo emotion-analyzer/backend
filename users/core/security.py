@@ -46,9 +46,6 @@ def decode_token(token):
 
 def verify_token(user_id: int, token):
     """Verify encoded data in token."""
-    try:
-        payload = jwt.decode(token, config.JWT.KEY, algorithms=config.JWT.ALGORITHM)
-    except jwt.InvalidTokenError as e:
-        raise AuthError("Token de seguridad invalido.") from e
+    payload = decode_token(token)
     if payload["id"] != user_id:
         raise AuthError("ID de usuario no coincide.")
