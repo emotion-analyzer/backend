@@ -1,8 +1,11 @@
-FROM python:3.11
+FROM python:3.11-slim
 
-WORKDIR /scraper
+WORKDIR ..
 
-COPY . /scraper
+COPY ./scraper /scraper
+COPY ./util /util
+
+WORKDIR ./scraper
 
 RUN pip install pip --upgrade
 RUN pip install --no-cache-dir -r requirements.txt

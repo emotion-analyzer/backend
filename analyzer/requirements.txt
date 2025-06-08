@@ -1,4 +1,5 @@
-fastapi[all]
+fastapi[standard]
 sqlmodel
 psycopg2-binary
 transformers~=4.52.2
+aio-pika

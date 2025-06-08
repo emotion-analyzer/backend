@@ -1,4 +1,4 @@
-fastapi[all]
+fastapi[standard]
 sqlmodel
 argon2-cffi
 psycopg2-binary
