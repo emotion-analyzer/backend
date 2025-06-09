@@ -9,5 +9,6 @@ class QueryResult(SQLModel, table=True):
 
     text_hash: str = Field(index=True, default=None, primary_key=True, max_length=64)
     emotions: dict[str, float] = Field(default=None, sa_column=Column(JSON))
+    mapped_emotions: dict[str, float] = Field(default=None, sa_column=Column(JSON))
     dominant_emotion: str = Field(default=None,nullable=True)
 

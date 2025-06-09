@@ -12,6 +12,7 @@ def store_query(text_hash: str, result: AnalyzePromptResponse,
     query_result = QueryResult(
         text_hash=text_hash,
         emotions=result.emotions,
+        mapped_emotions=result.mapped_emotions,
         dominant_emotion=result.dominant_emotion)
     session.add(query_result)
     session.commit()

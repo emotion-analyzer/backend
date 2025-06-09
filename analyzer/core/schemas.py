@@ -12,6 +12,7 @@ class AnalyzePromptResponse(BaseModel):
     """Single inference response."""
 
     emotions: dict[str, float]
+    mapped_emotions: dict[str, float]
     dominant_emotion: str
 
 

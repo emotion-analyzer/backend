@@ -47,7 +47,8 @@ def test_02_single_prompt_with_text_field_returns_proper_response(analysis_mock:
     response = client.post("/text", json=valid_prompt_1)
     assert response.status_code == 200
     assert response.json() == {"result": {'dominant_emotion': analysis_response.dominant_emotion,
-                                          'emotions': analysis_response.emotions}}
+                                          'emotions': analysis_response.emotions,
+                                          'mapped_emotions': analysis_response.mapped_emotions}}
 
 
 def test_03_prompt_without_texts_field_returns_422(client):

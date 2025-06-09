@@ -24,4 +24,7 @@ valid_batch_prompt_1 = {
 
 analysis_response = AnalyzePromptResponse(dominant_emotion='emotion1',
                                           emotions={'emotion1': 0.6,
-                                                    'emotion2': 0.4})
+                                                    'emotion2': 0.2,
+                                                    'emotion3': 0.2},
+                                          mapped_emotions={'fixed_emotion1': 0.8,
+                                                           'fixed_emotion2': 0.2})
