@@ -26,6 +26,7 @@ class Model:
     """Model configuration."""
     EMOTION_MAPPING = os.getenv("MODEL_EMOTION_MAPPING", "False").lower() == "true"
     MAPPING_FILE = os.getenv("MODEL_MAPPING_FILE")
+    EMOTION_THRESHOLD = float(os.getenv("MODEL_EMOTION_THRESHOLD", "0.4"))
 
 class RabbitMQ:
     """RabbitMQ configuration."""
