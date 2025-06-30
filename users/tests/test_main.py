@@ -1,4 +1,4 @@
-# ruff: noqa: E501, D103
+# ruff: noqa: D103
 from fastapi.testclient import TestClient
 import pytest
 from sqlmodel import Session, SQLModel

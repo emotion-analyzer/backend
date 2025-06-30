@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv(os.getenv(key="APP_ENV", default="prod.env"))
+load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
 load_dotenv(os.getenv(key="RABBITMQ_ENV", default="../util/rabbit_mq.test.env"))
 
 class Reddit:
@@ -16,8 +16,8 @@ class Reddit:
 
 class Bluesky:
     """Bluesky scraping configuration."""
-    BASE_URL = os.getenv("BASE_URL")
-    SEARCH_URL = os.getenv("SEARCH_URL")
+    BASE_URL = os.getenv("BLUESKY_BASE_URL")
+    SEARCH_URL = os.getenv("BLUESKY_SEARCH_URL")
 
 class RabbitMQ:
     """RabbitMQ configuration."""

@@ -24,7 +24,9 @@ class HuggingFace:
 
 class Model:
     """Model configuration."""
-    MAPPING = os.getenv("HUGGINGFACE_MAPPING")
+    EMOTION_MAPPING = os.getenv("MODEL_EMOTION_MAPPING", "False").lower() == "true"
+    MAPPING_FILE = os.getenv("MODEL_MAPPING_FILE")
+    EMOTION_THRESHOLD = float(os.getenv("MODEL_EMOTION_THRESHOLD", "0.4"))
 
 class RabbitMQ:
     """RabbitMQ configuration."""
@@ -43,5 +45,6 @@ class Config:
     HUGGING_FACE = HuggingFace
     DATABASE = Database
     RABBIT_MQ = RabbitMQ
+    MODEL = Model
 
 config = Config()

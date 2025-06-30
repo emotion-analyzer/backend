@@ -3,15 +3,17 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class FetchRequest(BaseModel):
-    """Request for social media post-fetching."""
-    platform: str
-    query: str
-    limit: int
+class FetchQuery(BaseModel):
+    """Model for fetching social media posts ."""
+    date_start: datetime
+    date_end: datetime | None = datetime.now()
+    keyword: str
+    platform: list[str] = ["all"]
+    limit: int = 100
 
 class Post(BaseModel):
     """Post object."""
-    id: str
+    link: str
     text: str
     timestamp: datetime
 
