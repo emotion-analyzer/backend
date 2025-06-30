@@ -1,3 +1,4 @@
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -9,22 +10,28 @@ class AnalyzePrompt(BaseModel):
 
 
 class AnalyzePromptResponse(BaseModel):
-    """Single inference response."""
+    """Inference response."""
 
     emotions: dict[str, float]
-    mapped_emotions: dict[str, float]
     dominant_emotion: str
+
+class Post(BaseModel):
+    """Post object."""
+    link: str
+    text: str
+    timestamp: datetime
 
 
 class AnalyzePromptBatch(BaseModel):
     """Inference batch request."""
 
-    texts: list[str]
+    posts: list[Post]
 
 
 class BatchResponse(BaseModel):
     """Inference batch response."""
 
+    link: str
     text: str
     dominant_emotion: str
 

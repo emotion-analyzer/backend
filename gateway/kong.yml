@@ -17,31 +17,17 @@ services:
   - name: users-route
     paths:
     - /api/users/
-- name: scraper
-  url: http://scraper:8000
+- name: query_processor
+  url: http://query-processor:8000
   routes:
-  - name: scraper-route
+  - name: query-processor-route
     paths:
-    - /api/data/
-- name: analyzer
-  url: http://analyzer:8000
-  routes:
-  - name: analyzer-route
-    paths:
-    - /api/analyze/
+    - /api/emotional-analysis
 
 plugins:
-- name: jwt
-  service: scraper
-  config:
-    uri_param_names: []
-    cookie_names: []
-    claims_to_verify:
-      - exp
-    run_on_preflight: false
 
 - name: jwt
-  service: analyzer
+  service: query_processor
   config:
     uri_param_names: []
     cookie_names: []

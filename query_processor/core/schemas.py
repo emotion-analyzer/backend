@@ -9,13 +9,3 @@ class EmotionalAnalysisParams(BaseModel):
     keyword: str
     platform: list[str] = ["all"]
     limit: int = 100
-
-class Post(BaseModel):
-    """Post object."""
-    link: str
-    text: str
-    timestamp: datetime
-
-class FetchResult(BaseModel):
-    """Result of a social media post-fetch."""
-    results: list[Post]
