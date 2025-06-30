@@ -5,10 +5,10 @@ from fastapi import FastAPI, Request
 
 from analyzer.config import config
 from analyzer.core.queue_middleware import process_posts
-from analyzer.core.schemas import AnalyzePrompt, AnalyzePromptBatch, BatchResponse
+from analyzer.core.schemas import AnalyzePromptBatch, BatchResponse
 from analyzer.database.session import SessionDep, create_db_and_tables, engine
-from analyzer.model.initialization import load_emotions_model
 from analyzer.model.analyze import analyze_text
+from analyzer.model.initialization import load_emotions_model
 from analyzer.stats.aggregation import process_affective_states
 
 

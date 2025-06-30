@@ -1,8 +1,6 @@
-from analyzer.core.schemas import AnalyzePromptResponse
+from datetime import datetime
 
-invalid_prompt_1 = {
-    "input": "Este prompt es invalido",
-}
+from analyzer.core.schemas import BatchResponse
 
 invalid_batch_prompt_1 = {
     "inputs": [
@@ -11,20 +9,27 @@ invalid_batch_prompt_1 = {
     ]
 }
 
-valid_prompt_1 = {
-    "text": "Este prompt es valido",
+valid_post_1 = {
+            "text": "Este prompt es valido",
+            "link": "https://www.validlink.com",
+            "timestamp": datetime.now().isoformat(),
+}
+
+valid_post_2 = {
+            "text": "Este prompt tambien es valido",
+            "link": "https://www.validlink2.com",
+            "timestamp": datetime.now().isoformat()
 }
 
 valid_batch_prompt_1 = {
-    "texts": [
-        "Este prompt es valido",
-        "Este prompt tambien es valido",
-    ]
+    "posts": [valid_post_1, valid_post_2]
 }
 
-analysis_response = AnalyzePromptResponse(dominant_emotion='emotion1',
-                                          emotions={'emotion1': 0.6,
-                                                    'emotion2': 0.2,
-                                                    'emotion3': 0.2},
-                                          mapped_emotions={'fixed_emotion1': 0.8,
-                                                           'fixed_emotion2': 0.2})
+analysis_post_1 = BatchResponse(link=valid_post_1["link"],
+                                text=valid_post_1["text"],
+                                dominant_emotion= "harto")
+
+analysis_post_2 = BatchResponse(link=valid_post_2["link"],
+                                text=valid_post_2["text"],
+                                dominant_emotion= "triste")
+

@@ -1,24 +1,23 @@
-# ruff: noqa: T201
-import json
 from abc import abstractmethod
 from dataclasses import dataclass
 
-from scraper.config import config
-from scraper.core.schemas import Post, EmotionalAnalysisParams
-from scraper.core.queue_middleware import send_message
 from aio_pika import DeliveryMode, Message
+from scraper.config import config
+from scraper.core.queue_middleware import send_message
+from scraper.core.schemas import FetchQuery, Post
 
 
 @dataclass
 class Scraper:
+    """Scraper base class."""
 
     def __init__(self, name, channel):
-        """Scraper base class."""
+        """Scraper constructor."""
         self._name = name
         self.channel = channel
 
     @abstractmethod
-    def query(self, query: EmotionalAnalysisParams) -> list[Post]:
+    def query(self, query: FetchQuery) -> list[Post]:
         """Search for posts according to the fetch request details."""
 
     async def send_to_analyzer(self, post: Post):
@@ -28,4 +27,5 @@ class Scraper:
         await send_message(message, self.channel, config)
 
     def get_name(self) -> str:
+        """Return scraper's associated social network ."""
         return self._name

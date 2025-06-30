@@ -1,5 +1,3 @@
-from collections import Counter
-import json
 
 import torch
 from torch.nn.functional import softmax
@@ -12,17 +10,18 @@ from analyzer.database.session import SessionDep
 
 
 def process_text(prompt, tokenizer, model, top_k=5):
+    """Pass prompt through model and get specified number of top predictions."""
     full_text = f"{prompt}. Me siento {tokenizer.mask_token}."
 
     # Tokenize + truncate from front
     ids = tokenizer(full_text, add_special_tokens=True, return_tensors="pt")["input_ids"]
-    truncated_ids = ids[:, -tokenizer.model_max_length:]
+    trunc_ids = ids[:, -tokenizer.model_max_length:]
 
     # Get model output
     with torch.no_grad():
-        outputs = model(input_ids=truncated_ids)
-        mask_token_index = (truncated_ids == tokenizer.mask_token_id).nonzero(as_tuple=True)[1].item()
-        logits = outputs.logits[0, mask_token_index]
+        outputs = model(input_ids=trunc_ids)
+        mask_idx = (trunc_ids == tokenizer.mask_token_id).nonzero(as_tuple=True)[1].item()
+        logits = outputs.logits[0, mask_idx]
         topk = torch.topk(logits, top_k)
 
     # Convert logits to probabilities
@@ -31,10 +30,10 @@ def process_text(prompt, tokenizer, model, top_k=5):
     # Format results like pipeline
     results = []
 
-    for token_id, score in zip(topk.indices, probs):
+    for token_id, score in zip(topk.indices, probs, strict=False):
         token_str = tokenizer.decode([token_id])
-        sequence_ids = truncated_ids.clone()
-        sequence_ids[0, mask_token_index] = token_id
+        sequence_ids = trunc_ids.clone()
+        sequence_ids[0, mask_idx] = token_id
         sequence = tokenizer.decode(sequence_ids[0], skip_special_tokens=True)
 
         results.append({

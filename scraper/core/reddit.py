@@ -1,9 +1,8 @@
-# ruff: noqa:  D102, D103, D105
 from dataclasses import dataclass
 
 import asyncpraw
 from scraper.config import config
-from scraper.core.schemas import Post, EmotionalAnalysisParams
+from scraper.core.schemas import FetchQuery, Post
 from scraper.core.scraping import Scraper
 
 
@@ -22,7 +21,7 @@ class RedditScraper(Scraper):
         self.reddit.read_only = True
 
 
-    async def query(self, query: EmotionalAnalysisParams)  -> list[Post]:
+    async def query(self, query: FetchQuery)  -> list[Post]:
         """Return relevant posts according to the fetch request."""
         submission_list = []
         subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)

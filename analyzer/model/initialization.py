@@ -1,4 +1,4 @@
-from transformers import AutoModelForMaskedLM, AutoTokenizer, pipeline
+from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 from analyzer.config import config
 
