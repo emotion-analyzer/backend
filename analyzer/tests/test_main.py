@@ -1,4 +1,4 @@
-# ruff: noqa: E501, D103, E402
+# ruff: noqa: E501, D103, E402, F401
 import sys
 from unittest.mock import MagicMock, patch
 
@@ -10,8 +10,11 @@ from analyzer.tests.testing_constants import (
     analysis_post_1,
     analysis_post_2,
     invalid_batch_prompt_1,
-    valid_batch_prompt_1, valid_post_1, valid_post_2,
+    valid_batch_prompt_1,
+    valid_post_1,
+    valid_post_2,
 )
+
 
 @pytest.fixture(autouse=True)
 def client():
