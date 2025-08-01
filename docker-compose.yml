@@ -34,6 +34,31 @@ services:
       retries: 10
       start_period: 50s
 
+  elasticsearch:
+    image: elasticsearch:9.0.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    # Just for now, will need to be enabled in the future.
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    networks:
+      - kong-network
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    image: kibana:9.0.4
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    networks:
+      - kong-network
+
   database:
     image: postgres:17.5-alpine
     container_name: database
@@ -104,4 +129,4 @@ networks:
     driver: bridge
 
 #volumes:
-#  pgdata:
+  #pgdata:

@@ -27,9 +27,9 @@ valid_batch_prompt_1 = {
 
 analysis_post_1 = BatchResponse(link=valid_post_1["link"],
                                 text=valid_post_1["text"],
-                                dominant_emotion= "harto")
-
-analysis_post_2 = BatchResponse(link=valid_post_2["link"],
-                                text=valid_post_2["text"],
                                 dominant_emotion= "triste")
+
+analysis_post_2 = BatchResponse(link=valid_post_1["link"],
+                                text=valid_post_1["text"],
+                                dominant_emotion= "harto")
 

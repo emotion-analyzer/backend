@@ -18,7 +18,7 @@ def tests_without_report(session):
     session.install("--upgrade", "pip")
     session.env["APP_ENV"] = "test.env"
     session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
-    session.install("fastapi[all]", "sqlmodel", "psycopg2-binary", "aio-pika")
+    session.install("fastapi[all]", "aio-pika")
     session.install("-r", "dev-requirements.txt")
     session.run("pytest", "tests/test_main.py")
     session.notify("remove_database")

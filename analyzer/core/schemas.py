@@ -3,17 +3,12 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class AnalyzePrompt(BaseModel):
-    """Single inference request."""
-
-    text: str
-
-
 class AnalyzePromptResponse(BaseModel):
     """Inference response."""
 
-    emotions: dict[str, float]
-    dominant_emotion: str
+    affective_states: dict[str, float]
+    dominant_affective_state: str
+
 
 class Post(BaseModel):
     """Post object."""
