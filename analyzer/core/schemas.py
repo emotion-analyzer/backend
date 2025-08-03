@@ -19,7 +19,6 @@ class Post(BaseModel):
 
 class AnalyzePromptBatch(BaseModel):
     """Inference batch request."""
-
     posts: list[Post]
 
 
@@ -28,10 +27,6 @@ class BatchResponse(BaseModel):
 
     link: str
     text: str
-    dominant_emotion: str
-
-
-class AnalyzeBatchResponse(BaseModel):
-    """Single inference response."""
-    predictions: list[BatchResponse]
+    affective_states: list[str]
+    dominant_affective_state: str
 

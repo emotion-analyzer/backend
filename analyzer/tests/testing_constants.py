@@ -21,15 +21,26 @@ valid_post_2 = {
             "timestamp": datetime.now().isoformat()
 }
 
+single_post_prompt = {
+    "posts": [valid_post_1]
+}
+
 valid_batch_prompt_1 = {
     "posts": [valid_post_1, valid_post_2]
 }
 
+post_1_affective_states = {"loco": 0.80, "harto": 0.20}
+post_1_dominant_affective_state = next(iter(post_1_affective_states.keys()))
+
+post_2_affective_states = {"triste": 0.75, "cansado": 0.25}
+post_2_dominant_affective_state = next(iter(post_2_affective_states.keys()))
+
 analysis_post_1 = BatchResponse(link=valid_post_1["link"],
                                 text=valid_post_1["text"],
-                                dominant_emotion= "triste")
+                                affective_states=list(post_1_affective_states.keys()),
+                                dominant_affective_state=post_1_dominant_affective_state)
 
-analysis_post_2 = BatchResponse(link=valid_post_1["link"],
-                                text=valid_post_1["text"],
-                                dominant_emotion= "harto")
-
+analysis_post_2 = BatchResponse(link=valid_post_2["link"],
+                                text=valid_post_2["text"],
+                                affective_states=list(post_2_affective_states.keys()),
+                                dominant_affective_state=post_2_dominant_affective_state)

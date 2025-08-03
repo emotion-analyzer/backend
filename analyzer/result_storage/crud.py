@@ -5,8 +5,8 @@ from analyzer.core.schemas import AnalyzePromptResponse
 
 def store_query(text_hash: str, analysis_result: AnalyzePromptResponse, client) -> None:
     """Store query for faster lookup."""
-    client.index(index="analysis_index", id=text_hash, document=analysis_result.dict())
-
+    client.index(index="analysis_index", id=text_hash,
+                 document=analysis_result.model_dump())
 
 def look_up_query(text_hash: str, client):
     """Get query result for given text hash or None if not found."""

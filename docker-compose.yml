@@ -50,6 +50,12 @@ services:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://elasticsearch:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   kibana:
     image: kibana:9.0.4
@@ -113,6 +119,8 @@ services:
       - kong-network
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
 
   query-processor:

@@ -20,7 +20,7 @@ def tests_without_report(session):
     session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
     session.install("fastapi[all]", "aio-pika")
     session.install("-r", "dev-requirements.txt")
-    session.run("pytest", "tests/test_main.py")
+    session.run("pytest", "tests/test_main.py", "-vv")
     session.notify("remove_database")
 
 

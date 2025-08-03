@@ -49,8 +49,7 @@ def get_affective_states(tokenizer, pipeline, db, prompt: str,):
     text_hash = compute_text_hash(prompt)
     prompt_analysis = look_up_query(text_hash, db)
     if prompt_analysis is not None:
-        return AnalyzePromptResponse(affective_states=prompt_analysis["affective_states"],
-                                     dominant_affective_state=prompt_analysis["dominant_affective_state"])
+        return AnalyzePromptResponse(**prompt_analysis)
     else:
         affective_states, dominant_affective_state = process_text(tokenizer, pipeline,
                                                                   prompt)

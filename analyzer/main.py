@@ -37,15 +37,16 @@ async def get_affective_states_batch(prompt: AnalyzePromptBatch,
     analysis_results = []
     affective_states = []
     for post in prompt.posts:
-        dominant_affective_state = get_affective_states(
+        analysis_result = get_affective_states(
             request.app.state.tokenizer,
             request.app.state.model,
             request.app.state.elasticsearch_client,
-            post.text).dominant_affective_state
+            post.text)
         analysis_results.append(BatchResponse(link=post.link,
                                               text=post.text,
-                                              dominant_emotion=dominant_affective_state))
-        affective_states.append(dominant_affective_state)
+                                              affective_states=list(analysis_result.affective_states.keys()),
+                                              dominant_affective_state=analysis_result.dominant_affective_state))
+        affective_states.extend(list(analysis_result.affective_states.keys()))
     as_summary, mapped_summary = process_affective_states(affective_states)
     return {"posts": analysis_results,
             "affective_states": as_summary,

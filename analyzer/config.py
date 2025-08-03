@@ -6,17 +6,6 @@ load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
 load_dotenv(os.getenv(key="DATABASE_ENV", default="../util/database.test.env"))
 load_dotenv(os.getenv(key="RABBITMQ_ENV", default="../util/rabbit_mq.test.env"))
 
-# class Database:
-#     """Database configuration. Will generate the URL if one is not provided."""
-#     URL_ = os.getenv("DATABASE_URL")
-#     if URL_ is None:
-#         URL_ = URL.create(drivername=os.getenv("DATABASE_DRIVER"),
-#                           username=os.getenv("POSTGRES_USER"),
-#                           password=os.getenv("POSTGRES_PASSWORD"),
-#                           host=os.getenv("DATABASE_HOST"),
-#                           port=os.getenv("DATABASE_PORT"),
-#                           database=os.getenv("POSTGRES_DB"))
-
 class HuggingFace:
     """HuggingFace configuration."""
     MODEL_URL = os.getenv("HUGGINGFACE_MODEL_URL")
@@ -26,7 +15,7 @@ class Model:
     EMOTION_MAPPING = os.getenv("MODEL_EMOTION_MAPPING", "False").lower() == "true"
     MAPPING_FILE = os.getenv("MODEL_MAPPING_FILE")
     THRESHOLD = float(os.getenv("MODEL_EMOTION_THRESHOLD", "0.4"))
-    TOP_K = int(os.getenv("MODEL_TOP_K_AFFECTIVE_STATES", "1"))
+    TOP_K = int(os.getenv("MODEL_TOP_K", "1"))
 
 class RabbitMQ:
     """RabbitMQ configuration."""
@@ -50,7 +39,6 @@ class Config:
     Import in your module and access (after setting in the proper .env).
     """
     HUGGING_FACE = HuggingFace
-    #DATABASE = Database
     RABBIT_MQ = RabbitMQ
     MODEL = Model
     ELASTICSEARCH = ElasticSearch
