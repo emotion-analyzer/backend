@@ -1,15 +1,15 @@
 from collections import Counter
 import json
 
-from analyzer.config import config
+from query_processor.config import config
 
 
 def map_to_emotions(affective_states):
     """Maps the result of the emotional analysis to a fixed set of emotions."""
     emotions_dict = []
-    if not config.MODEL.EMOTION_MAPPING:
+    if not config.MAPPING.APPLY:
         return {}
-    with open (config.MODEL.MAPPING_FILE) as f:
+    with open (config.MAPPING.FILE) as f:
         emotions = json.load(f)
     for state in affective_states:
         neutral = True

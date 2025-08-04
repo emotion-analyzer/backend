@@ -1,12 +1,12 @@
 from elasticsearch import NotFoundError
 
-from analyzer.core.schemas import AnalyzePromptResponse
+from analyzer.core.schemas import PostAnalysisResult
 
 
-def store_query(text_hash: str, analysis_result: AnalyzePromptResponse, client) -> None:
+def store_query(text_hash: str, analyzed_post:PostAnalysisResult, client) -> None:
     """Store query for faster lookup."""
     client.index(index="analysis_index", id=text_hash,
-                 document=analysis_result.model_dump())
+                 document=analyzed_post.model_dump())
 
 def look_up_query(text_hash: str, client):
     """Get query result for given text hash or None if not found."""

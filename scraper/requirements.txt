@@ -1,4 +1,7 @@
-fastapi[standard]
 asyncpraw
 python-dateutil
+python-dotenv
 aio-pika
+httpx
+pydantic
+starlette

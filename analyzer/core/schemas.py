@@ -1,32 +1,20 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
-class AnalyzePromptResponse(BaseModel):
-    """Inference response."""
+class QueueMessage(BaseModel):
+    code: int
+    query_processor_id: str
+    model_config = ConfigDict(extra='allow')
 
-    affective_states: dict[str, float]
-    dominant_affective_state: str
-
-
-class Post(BaseModel):
+class Post(QueueMessage):
     """Post object."""
     link: str
     text: str
     timestamp: datetime
 
-
-class AnalyzePromptBatch(BaseModel):
-    """Inference batch request."""
-    posts: list[Post]
-
-
-class BatchResponse(BaseModel):
+class PostAnalysisResult(Post):
     """Inference batch response."""
-
-    link: str
-    text: str
-    affective_states: list[str]
+    affective_states: dict[str, float]
     dominant_affective_state: str
-

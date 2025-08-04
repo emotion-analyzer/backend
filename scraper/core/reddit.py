@@ -4,6 +4,7 @@ import asyncpraw
 from scraper.config import config
 from scraper.core.schemas import FetchQuery, Post
 from scraper.core.scraping import Scraper
+from scraper.messages.codes import POST
 
 
 @dataclass
@@ -21,9 +22,9 @@ class RedditScraper(Scraper):
         self.reddit.read_only = True
 
 
-    async def query(self, query: FetchQuery)  -> list[Post]:
+    async def query(self, query: FetchQuery, query_processor_id):
         """Return relevant posts according to the fetch request."""
-        submission_list = []
+        messages_sent = 0
         subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
         async for submission in subreddit.search(query=query.keyword,
                                                  sort="new",
@@ -34,9 +35,10 @@ class RedditScraper(Scraper):
                 break
             reddit_post = Post(link=f"reddit.com{submission.permalink}",
                                text=submission.selftext,
-                               timestamp=submission.created_utc)
+                               timestamp=submission.created_utc,
+                               code = POST,
+                               query_processor_id=query_processor_id)
             await self.send_to_analyzer(reddit_post)
-            submission_list.append(reddit_post)
-            if len(submission_list) == query.limit:
+            messages_sent += 1
+            if messages_sent == query.limit:
                 break
-        return submission_list

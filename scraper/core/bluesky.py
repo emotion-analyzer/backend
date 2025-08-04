@@ -7,6 +7,8 @@ from scraper.core.scraping import Scraper
 from scraper.exceptions.exceptions import ScraperError
 from starlette.status import HTTP_200_OK
 
+from scraper.messages.codes import POST
+
 
 @dataclass
 class BlueskyScraper(Scraper):
@@ -17,9 +19,8 @@ class BlueskyScraper(Scraper):
         self.bluesky = config.BLUESKY.BASE_URL
         self.search_url = self.bluesky + config.BLUESKY.SEARCH_URL
 
-    async def query(self, query: FetchQuery):
+    async def query(self, query: FetchQuery, query_processor_id):
         """Return relevant Bluesky posts according to the fetch request."""
-        submission_list = []
         params = {'q': query.keyword, 'limit': query.limit, 'lang': 'es',
                   'since': query.date_start.isoformat(),
                   'until': query.date_end.isoformat()}
@@ -30,7 +31,7 @@ class BlueskyScraper(Scraper):
             for post in request.json()["posts"]:
                 bsky_post = Post(link=f"https://bsky.app/profile/{post['author']['handle']}/post/{post['uri'].split('/')[-1]}",
                                  text=post["record"]["text"],
-                                 timestamp=post["record"]["createdAt"])
+                                 timestamp=post["record"]["createdAt"],
+                                 code=POST,
+                                 query_processor_id=query_processor_id)
                 await self.send_to_analyzer(bsky_post)
-                submission_list.append(bsky_post)
-        return submission_list

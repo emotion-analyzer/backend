@@ -12,8 +12,6 @@ class HuggingFace:
 
 class Model:
     """Model configuration."""
-    EMOTION_MAPPING = os.getenv("MODEL_EMOTION_MAPPING", "False").lower() == "true"
-    MAPPING_FILE = os.getenv("MODEL_MAPPING_FILE")
     THRESHOLD = float(os.getenv("MODEL_EMOTION_THRESHOLD", "0.4"))
     TOP_K = int(os.getenv("MODEL_TOP_K", "1"))
 

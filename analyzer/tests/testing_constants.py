@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from analyzer.core.schemas import BatchResponse
+from analyzer.core.schemas import PostAnalysisResult
 
 invalid_batch_prompt_1 = {
     "inputs": [
@@ -35,12 +35,12 @@ post_1_dominant_affective_state = next(iter(post_1_affective_states.keys()))
 post_2_affective_states = {"triste": 0.75, "cansado": 0.25}
 post_2_dominant_affective_state = next(iter(post_2_affective_states.keys()))
 
-analysis_post_1 = BatchResponse(link=valid_post_1["link"],
-                                text=valid_post_1["text"],
-                                affective_states=list(post_1_affective_states.keys()),
-                                dominant_affective_state=post_1_dominant_affective_state)
+analysis_post_1 = PostAnalysisResult(link=valid_post_1["link"],
+                                     text=valid_post_1["text"],
+                                     affective_states=list(post_1_affective_states.keys()),
+                                     dominant_affective_state=post_1_dominant_affective_state)
 
-analysis_post_2 = BatchResponse(link=valid_post_2["link"],
-                                text=valid_post_2["text"],
-                                affective_states=list(post_2_affective_states.keys()),
-                                dominant_affective_state=post_2_dominant_affective_state)
+analysis_post_2 = PostAnalysisResult(link=valid_post_2["link"],
+                                     text=valid_post_2["text"],
+                                     affective_states=list(post_2_affective_states.keys()),
+                                     dominant_affective_state=post_2_dominant_affective_state)

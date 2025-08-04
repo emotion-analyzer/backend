@@ -4,7 +4,7 @@ from torch.nn.functional import softmax
 
 from analyzer.config import config
 from analyzer.core.hashing import compute_text_hash
-from analyzer.core.schemas import AnalyzePromptResponse
+from analyzer.core.schemas import Post, PostAnalysisResult
 from analyzer.result_storage.crud import look_up_query, store_query
 
 
@@ -44,16 +44,16 @@ def process_text(tokenizer, model, prompt):
 
     return affective_states, dominant_affective_state
 
-def get_affective_states(tokenizer, pipeline, db, prompt: str,):
+def analyze_post(tokenizer, pipeline, db, post: Post):
     """Return stored affective state analysis or process and store the result."""
-    text_hash = compute_text_hash(prompt)
+    text_hash = compute_text_hash(post.text)
     prompt_analysis = look_up_query(text_hash, db)
-    if prompt_analysis is not None:
-        return AnalyzePromptResponse(**prompt_analysis)
+    if prompt_analysis is None:
+        affective_states, dominant_affective_state = process_text(tokenizer, pipeline, post)
+        prompt_analysis = PostAnalysisResult(**post.model_dump(),
+                                           affective_states=affective_states,
+                                           dominant_affective_state=dominant_affective_state)
+        store_query(text_hash,prompt_analysis, db)
     else:
-        affective_states, dominant_affective_state = process_text(tokenizer, pipeline,
-                                                                  prompt)
-        prompt_analysis = AnalyzePromptResponse(affective_states=affective_states,
-                                                dominant_affective_state=dominant_affective_state)
-        store_query(text_hash, prompt_analysis, db)
-        return prompt_analysis
+        prompt_analysis = PostAnalysisResult(**prompt_analysis)
+    return prompt_analysis

@@ -11,9 +11,15 @@ analysis_mappings = {
         }
     ],
     "properties": {
-        "affective_states": {"type": "object",
-                             "dynamic": True},
-        "dominant_affective_state": {"type": "text"}
+        "link": {"type": "text"},  # use "text" if you want full-text search
+        "text": {"type": "text"},
+        "timestamp": {"type": "date"},
+        "affective_states": {
+            "type": "object",
+            "dynamic": True
+        },
+        "dominant_affective_state": {
+            "type": "text"
+        }
     }
 }
-

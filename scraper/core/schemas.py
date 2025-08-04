@@ -11,12 +11,16 @@ class FetchQuery(BaseModel):
     platform: list[str] = ["all"]
     limit: int = 100
 
-class Post(BaseModel):
+class PostRequest(BaseModel):
+    query_processor_id: str
+    analysis_parameters: FetchQuery
+
+class QueueMessage(BaseModel):
+    query_processor_id: str
+    code: int
+
+class Post(QueueMessage):
     """Post object."""
     link: str
     text: str
     timestamp: datetime
-
-class FetchResult(BaseModel):
-    """Result of a social media post-fetch."""
-    results: list[Post]

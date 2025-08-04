@@ -1,38 +1,58 @@
 # ruff: noqa: RUF006
+import uuid
+
+from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, Query, HTTPException
+from aio_pika import Message
+from fastapi import FastAPI, Query
 
-from query_processor.core.schemas import EmotionalAnalysisParams
+from query_processor.core.codes import POST
+from query_processor.core.queue_middleware import initiate_connection, initialize_queues
+from query_processor.core.schemas import AnalysisParams, PostRequest, QueueMessage, Post
 from query_processor.config import config
+from query_processor.stats.aggregation import process_affective_states
 
-import httpx
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize the rabbitQ connection."""
+    app.state.channel = await initiate_connection(config)
+    app.state.posts_queue, app.state.results_exchange = await initialize_queues(app.state.channel, config)
+    yield
 
-timeout = httpx.Timeout(
-    connect=config.HTTPX.CONNECTION_TIMEOUT,  # connect timeout
-    read=config.HTTPX.CONNECTION_TIMEOUT,  # read timeout
-    write=config.HTTPX.CONNECTION_TIMEOUT,  # timeout for sending request
-    pool=config.HTTPX.CONNECTION_TIMEOUT  # read timeout
-)
-
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
-async def get_emotional_analysis (query: Annotated[EmotionalAnalysisParams, Query()]):
+async def get_emotional_analysis (query: Annotated[AnalysisParams, Query()]):
     """Request social media posts and their corresponding emotional analysis."""
-    try:
-        async with httpx.AsyncClient() as client:
-            # This doesn't scale. Need to think of a way to make it so (maybe message broker?)
-            # Hash query here before proceeding. Check for that hash as well.
-            posts = await client.get(url=config.SCRAPER.URL,
-                                     params=query.model_dump(exclude_unset=True))
-            posts.raise_for_status()
-            request = await client.post(url=config.ANALYZER.URL,
-                                        json=posts.json())
-            request.raise_for_status()
-            return request.json()
-    except  httpx.HTTPStatusError as exception:
-        raise HTTPException(status_code=exception.response.status_code,
-                            detail= exception.response.json()["detail"])
-
+    query_processor_id = str(uuid.uuid4())
+    body = PostRequest(query_processor_id=query_processor_id,
+                       analysis_parameters=query)
+    message = Message(body=body.model_dump_json().encode('utf-8'))
+    await app.state.channel.default_exchange.publish(
+        message,
+        routing_key=app.state.posts_queue.name,
+    )
+    queue = await app.state.channel.declare_queue("results", durable=True)
+    await queue.bind(app.state.results_exchange, routing_key=query_processor_id)
+    analysis_results= []
+    affective_states = []
+    async with queue.iterator() as iterator:
+        async for message in iterator:
+            async with message.process():
+                queue_message = QueueMessage.model_validate_json(message.body.decode("utf-8"))
+                if queue_message.code == POST:
+                    post = Post.model_validate_json(message.body.decode("utf-8"))
+                    affective_states.extend(list(post.affective_states.keys()))
+                    post = post.model_dump()
+                    post.pop("query_processor_id", None)
+                    post.pop("code", None)
+                    analysis_results.append(post)
+                else:
+                    break
+    await queue.delete()
+    as_summary, mapped_summary = process_affective_states(affective_states)
+    return {"posts": analysis_results,
+            "affective_states": as_summary,
+            "mapped_summary": mapped_summary}

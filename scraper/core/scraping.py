@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 from dataclasses import dataclass
 
@@ -17,10 +18,10 @@ class Scraper:
         self.channel = channel
 
     @abstractmethod
-    def query(self, query: FetchQuery) -> list[Post]:
+    def query(self, query: FetchQuery, query_processor_id: str):
         """Search for posts according to the fetch request details."""
 
-    async def send_to_analyzer(self, post: Post):
+    async def send_to_analyzer(self, post:Post):
         """Send post to analyzer."""
         message = Message(post.model_dump_json().encode('utf-8'),
                           delivery_mode=DeliveryMode.NOT_PERSISTENT)
