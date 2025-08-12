@@ -17,7 +17,6 @@ async def initialize_channel(config)-> AbstractRobustChannel:
     connection = await initiate_connection(config)
     await connection.connect()
     channel = await connection.channel()
-    await channel.declare_queue(config.RABBIT_MQ.PROCESSING_QUEUE)
     return channel
 
 

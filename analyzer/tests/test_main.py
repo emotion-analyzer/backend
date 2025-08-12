@@ -2,8 +2,6 @@
 import sys
 from unittest.mock import MagicMock, patch
 
-from fastapi.testclient import TestClient
-import pytest
 from starlette.status import HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY
 
 from analyzer.tests.testing_constants import (
@@ -19,12 +17,6 @@ from analyzer.tests.testing_constants import (
     valid_post_1,
     valid_post_2,
 )
-
-
-@pytest.fixture(autouse=True)
-def client():
-    with TestClient(app) as c:
-        yield c
 
 # This will do for now but there has to be a better way to avoid these imports
 sys.modules['transformers'] = MagicMock()

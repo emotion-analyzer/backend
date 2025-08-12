@@ -1,13 +1,13 @@
 FROM python:3.11-slim
 
-WORKDIR ..
+WORKDIR /app
 
-COPY ./scraper /scraper
-COPY ./util /util
+COPY ./scraper /app/scraper
+COPY ./util /app/util
 
-WORKDIR ./scraper
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r scraper/requirements.txt
 
-RUN pip install pip --upgrade
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
-ENTRYPOINT [ "fastapi", "run", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["python3", "-m", "scraper.main"]

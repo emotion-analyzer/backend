@@ -56,7 +56,6 @@ services:
       timeout: 5s
       retries: 5
 
-
   kibana:
     image: kibana:9.0.4
     container_name: kibana
@@ -96,8 +95,8 @@ services:
 
   scraper:
     environment:
-      - APP_ENV=prod.env
-      - RABBITMQ_ENV=../util/rabbit_mq.test.env
+      - APP_ENV=scraper/prod.env
+      - RABBITMQ_ENV=util/rabbit_mq.test.env
     build:
       dockerfile: ./scraper/Dockerfile
     container_name: scraper
@@ -109,9 +108,9 @@ services:
 
   analyzer:
     environment:
-      - APP_ENV=test.env
-      - RABBITMQ_ENV=../util/rabbit_mq.test.env
-      - DATABASE_ENV=../util/database.test.env
+      - APP_ENV=analyzer/test.env
+      - RABBITMQ_ENV=util/rabbit_mq.test.env
+      - DATABASE_ENV=util/database.test.env
     build:
       dockerfile: ./analyzer/Dockerfile
     container_name: analyzer
@@ -126,11 +125,15 @@ services:
   query-processor:
     environment:
       - APP_ENV=test.env
+      - RABBITMQ_ENV=../util/rabbit_mq.test.env
     build:
       dockerfile: ./query_processor/Dockerfile
     container_name: query-processor
     networks:
       - kong-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 networks:
   kong-network:

@@ -3,26 +3,27 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
+load_dotenv(os.getenv(key="RABBITMQ_ENV", default="../util/rabbit_mq.test.env"))
 
-class Analyzer:
-    """Analyzer configuration."""
-    URL = os.getenv("ANALYZER_BASE_URL")
+class Mapping:
+    """Emotion mapping configuration."""
+    APPLY = os.getenv("MODEL_EMOTION_MAPPING", "False").lower() == "true"
+    FILE = os.getenv("MODEL_MAPPING_FILE")
 
-class Scraper:
-    """Scraper configuration."""
-    URL = os.getenv("SCRAPER_BASE_URL")
-
-class Httpx:
-    """Httpx configuration."""
-    CONNECTION_TIMEOUT = float(os.getenv("HTTPX_CONNECTION_TIMEOUT", 15))
+class RabbitMQ:
+    """RabbitMQ configuration."""
+    USERNAME = os.getenv("RABBITMQ_USERNAME")
+    PASSWORD = os.getenv("RABBITMQ_PASSWORD")
+    HOST = os.getenv("RABBITMQ_HOST")
+    PORT = int(os.getenv("RABBITMQ_PORT"))
+    PREFETCH_COUNT = int(os.getenv("RABBITMQ_PREFETCH_COUNT"))
 
 class Config:
     """Represents configuration state in the application.
 
     Import in your module and access (after setting in the proper .env).
     """
-    ANALYZER = Analyzer
-    SCRAPER = Scraper
-    HTTPX = Httpx
+    RABBIT_MQ = RabbitMQ
+    MAPPING = Mapping
 
 config = Config()
