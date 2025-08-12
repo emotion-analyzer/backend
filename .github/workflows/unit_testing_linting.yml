@@ -18,7 +18,6 @@ jobs:
           files: |
             users/**
             scraper/**
-            analyzer/**
 
       - name: Set up Python
         uses: actions/setup-python@v5
