@@ -22,4 +22,5 @@ async def initialize_channel(config)-> AbstractRobustChannel:
 
 async def send_message(message, channel, config) -> None:
     """Return relevant social media posts according to query parameters."""
-    await channel.default_exchange.publish(message, routing_key=config.RABBIT_MQ.PROCESSING_QUEUE)
+    await channel.default_exchange.publish(message,
+                                           routing_key=config.RABBIT_MQ.PROCESSING_QUEUE)

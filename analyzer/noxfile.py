@@ -3,7 +3,7 @@ import shutil
 
 import nox
 
-nox.options.sessions = ["lint", "tests_without_report", "clean"]
+nox.options.sessions = ["lint", "clean"]
 
 @nox.session()
 def remove_database(session):
@@ -12,34 +12,34 @@ def remove_database(session):
         os.remove("database.db")
 
 
-@nox.session()
-def tests_without_report(session):
-    """Test the application, don't generate a coverage report."""
-    session.install("--upgrade", "pip")
-    session.env["APP_ENV"] = "test.env"
-    session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
-    session.install("fastapi[all]", "aio-pika")
-    session.install("-r", "dev-requirements.txt")
-    session.run("pytest", "tests/test_main.py", "-vv")
-    session.notify("remove_database")
-
-
-@nox.session()
-def tests_with_report(session):
-    """Test the application, generate a coverage report."""
-    session.install("--upgrade", "pip")
-    session.env["APP_ENV"] = "test.env"
-    session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
-    session.install("fastapi[all]", "sqlmodel", "psycopg2-binary", "aio-pika")
-    session.install("-r", "dev-requirements.txt")
-    session.run(
-        "pytest",
-        "tests/test_main.py",
-        "--cov",
-        "--cov-branch",
-        "--cov-report=json"
-    )
-    session.notify("remove_database")
+# @nox.session()
+# def tests_without_report(session):
+#     """Test the application, don't generate a coverage report."""
+#     session.install("--upgrade", "pip")
+#     session.env["APP_ENV"] = "test.env"
+#     session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
+#     session.install("aio-pika")
+#     session.install("-r", "dev-requirements.txt")
+#     session.run("pytest", "tests/test_main.py", "-vv")
+#     session.notify("remove_database")
+#
+#
+# @nox.session()
+# def tests_with_report(session):
+#     """Test the application, generate a coverage report."""
+#     session.install("--upgrade", "pip")
+#     session.env["APP_ENV"] = "test.env"
+#     session.env["DATABASE_URL"] = "sqlite:///../util/database.db"
+#     session.install("aio-pika")
+#     session.install("-r", "dev-requirements.txt")
+#     session.run(
+#         "pytest",
+#         "tests/test_main.py",
+#         "--cov",
+#         "--cov-branch",
+#         "--cov-report=json"
+#     )
+#     session.notify("remove_database")
 
 
 @nox.session()

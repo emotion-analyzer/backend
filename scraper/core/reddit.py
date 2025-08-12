@@ -4,7 +4,7 @@ import asyncpraw
 from scraper.config import config
 from scraper.core.schemas import FetchQuery, Post
 from scraper.core.scraping import Scraper
-from scraper.messages.codes import POST
+from util.codes import POST
 
 
 @dataclass

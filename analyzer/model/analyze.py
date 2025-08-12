@@ -49,7 +49,9 @@ def analyze_post(tokenizer, pipeline, db, post: Post):
     text_hash = compute_text_hash(post.text)
     prompt_analysis = look_up_query(text_hash, db)
     if prompt_analysis is None:
-        affective_states, dominant_affective_state = process_text(tokenizer, pipeline, post)
+        affective_states, dominant_affective_state = process_text(tokenizer,
+                                                                  pipeline,
+                                                                  post)
         prompt_analysis = PostAnalysisResult(**post.model_dump(),
                                            affective_states=affective_states,
                                            dominant_affective_state=dominant_affective_state)

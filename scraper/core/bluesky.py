@@ -6,8 +6,7 @@ from scraper.core.schemas import FetchQuery, Post
 from scraper.core.scraping import Scraper
 from scraper.exceptions.exceptions import ScraperError
 from starlette.status import HTTP_200_OK
-
-from scraper.messages.codes import POST
+from util.codes import POST
 
 
 @dataclass

@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class QueueMessage(BaseModel):
+    """General queue message model."""
     code: int
     query_processor_id: str
     model_config = ConfigDict(extra='allow')
