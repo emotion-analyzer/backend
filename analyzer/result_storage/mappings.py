@@ -11,7 +11,7 @@ analysis_mappings = {
         }
     ],
     "properties": {
-        "link": {"type": "text"},  # use "text" if you want full-text search
+        "link": {"type": "text"},
         "text": {"type": "text"},
         "timestamp": {"type": "date"},
         "affective_states": {

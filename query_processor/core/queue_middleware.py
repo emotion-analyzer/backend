@@ -13,6 +13,6 @@ async def initiate_connection(config):
 
 async def initialize_queues(channel, config):
     await channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
-    posts_queue = await channel.declare_queue("scrape_requests")
-    topic_logs_exchange = await channel.declare_exchange("results_exchange", ExchangeType.TOPIC)
-    return posts_queue, topic_logs_exchange
+    posts_queue = await channel.declare_queue(config.RABBIT_MQ.ANALYSIS_REQUEST_QUEUE, durable=True)
+    results_exchange = await channel.declare_exchange(config.RABBIT_MQ.ANALYSIS_RESULT_EXCHANGE, ExchangeType.TOPIC)
+    return posts_queue, results_exchange

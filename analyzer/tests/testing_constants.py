@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from analyzer.core.schemas import PostAnalysisResult
+from util.schemas import PostAnalysisResult
 
 invalid_batch_prompt_1 = {
     "inputs": [

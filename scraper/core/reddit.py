@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 import asyncpraw
 from scraper.config import config
-from scraper.core.schemas import FetchQuery, Post
 from scraper.core.scraping import Scraper
 from util.codes import POST
+from util.schemas import AnalysisRequest, Post
 
 
 @dataclass
@@ -22,23 +22,24 @@ class RedditScraper(Scraper):
         self.reddit.read_only = True
 
 
-    async def query(self, query: FetchQuery, query_processor_id):
+    async def query(self, query: AnalysisRequest) -> int:
         """Return relevant posts according to the fetch request."""
         messages_sent = 0
         subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
-        async for submission in subreddit.search(query=query.keyword,
+        async for submission in subreddit.search(query=query.parameters.keyword,
                                                  sort="new",
                                                  limit=None):
             if submission.selftext == "":
                 continue
-            if submission.created_utc < query.date_start.timestamp():
+            if submission.created_utc < query.parameters.date_start.timestamp():
                 break
             reddit_post = Post(link=f"reddit.com{submission.permalink}",
                                text=submission.selftext,
                                timestamp=submission.created_utc,
                                code = POST,
-                               query_processor_id=query_processor_id)
+                               query_processor_id=query.query_processor_id)
             await self.send_to_analyzer(reddit_post)
             messages_sent += 1
-            if messages_sent == query.limit:
+            if messages_sent == query.parameters.limit:
                 break
+        return messages_sent

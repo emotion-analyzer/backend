@@ -9,5 +9,7 @@ def initialize_mappings():
     client = Elasticsearch(config.ELASTICSEARCH.HOST)
     if client.indices.exists(index="analysis_index"):
         client.indices.delete(index="analysis_index")
-    client.indices.create(index="analysis_index", mappings=analysis_mappings)
+    client.indices.create(index="analysis_index",
+                          mappings=analysis_mappings,
+                          request_timeout=60)
     return client

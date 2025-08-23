@@ -21,8 +21,9 @@ class RabbitMQ:
     PASSWORD = os.getenv("RABBITMQ_PASSWORD")
     HOST = os.getenv("RABBITMQ_HOST")
     PORT = int(os.getenv("RABBITMQ_PORT"))
-    PROCESSING_QUEUE = os.getenv("RABBITMQ_PROCESSING_QUEUE")
     PREFETCH_COUNT = int(os.getenv("RABBITMQ_PREFETCH_COUNT"))
+    SCRAPING_RESULT_QUEUE = os.getenv("RABBITMQ_SCRAPING_RESULT_QUEUE")
+    ANALYSIS_RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
 
 class ElasticSearch:
     """ElasticSearch configuration."""

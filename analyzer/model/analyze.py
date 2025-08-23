@@ -1,10 +1,10 @@
 
 import torch
 from torch.nn.functional import softmax
+from util.schemas import Post, PostAnalysisResult
 
 from analyzer.config import config
 from analyzer.core.hashing import compute_text_hash
-from analyzer.core.schemas import Post, PostAnalysisResult
 from analyzer.result_storage.crud import look_up_query, store_query
 
 

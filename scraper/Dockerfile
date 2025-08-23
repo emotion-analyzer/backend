@@ -1,13 +1,12 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR ..
 
-COPY ./scraper /app/scraper
-COPY ./util /app/util
+COPY ./scraper /scraper
+COPY ./util /util
+COPY scraper/main.py main.py
 
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r scraper/requirements.txt
 
-WORKDIR /app
-
-ENTRYPOINT ["python3", "-m", "scraper.main"]
+ENTRYPOINT ["python3", "main.py"]
