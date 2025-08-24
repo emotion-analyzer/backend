@@ -7,9 +7,10 @@ from typing import Annotated
 from aio_pika import Message
 from fastapi import FastAPI, Query
 
+from query_processor.fasttext.fasttext_mapping import map_to_ekman_fasttext
 from util.codes import ANALYSIS_REQUEST, POST_ANALYSIS_RESULT, EOF
 from query_processor.core.queue_middleware import initiate_connection, initialize_queues
-from util.schemas import AnalysisRequestParameters, QueueMessage, PostAnalysisResult, AnalysisRequest, EOFPosts
+from util.schemas import AnalysisRequestParameters, QueueMessage, PostAnalysisResult, AnalysisRequest, EndOfPosts
 from query_processor.config import config
 
 
@@ -52,8 +53,9 @@ async def get_emotional_analysis (query: Annotated[AnalysisRequestParameters, Qu
                         if len(analysis_results) == posts_awaited:
                             break
                 elif queue_message.code == EOF:
-                    post = EOFPosts.model_validate_json(message.body.decode("utf-8"))
+                    post = EndOfPosts.model_validate_json(message.body.decode("utf-8"))
                     posts_awaited = post.total
                     if len(analysis_results) == posts_awaited:
                         break
-    return {"posts": analysis_results}
+    map_to_ekman_fasttext(analysis_results)
+    return {"results": analysis_results}

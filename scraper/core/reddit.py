@@ -33,7 +33,8 @@ class RedditScraper(Scraper):
                 continue
             if submission.created_utc < query.parameters.date_start.timestamp():
                 break
-            reddit_post = Post(link=f"reddit.com{submission.permalink}",
+            reddit_post = Post(source="reddit",
+                               link=f"reddit.com{submission.permalink}",
                                text=submission.selftext,
                                timestamp=submission.created_utc,
                                code = POST,

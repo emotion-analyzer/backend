@@ -38,9 +38,9 @@ post_2_dominant_affective_state = next(iter(post_2_affective_states.keys()))
 analysis_post_1 = PostAnalysisResult(link=valid_post_1["link"],
                                      text=valid_post_1["text"],
                                      affective_states=list(post_1_affective_states.keys()),
-                                     dominant_affective_state=post_1_dominant_affective_state)
+                                     dominant_emotion=post_1_dominant_affective_state)
 
 analysis_post_2 = PostAnalysisResult(link=valid_post_2["link"],
                                      text=valid_post_2["text"],
                                      affective_states=list(post_2_affective_states.keys()),
-                                     dominant_affective_state=post_2_dominant_affective_state)
+                                     dominant_emotion=post_2_dominant_affective_state)

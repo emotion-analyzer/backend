@@ -1,7 +1,5 @@
 FROM python:3.11-slim
 
-WORKDIR ..
-
 COPY ./query_processor /query_processor
 COPY ./util /util
 

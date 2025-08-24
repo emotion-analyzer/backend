@@ -24,6 +24,7 @@ class AnalysisRequest(QueueMessage):
 
 class Post(QueueMessage):
     """Social media post model."""
+    source: str
     link: str
     text: str
     timestamp: datetime
@@ -31,10 +32,11 @@ class Post(QueueMessage):
 
 class PostAnalysisResult(Post):
     """Social media analysis result model."""
+    model: str
     affective_states: dict[str, float]
-    dominant_affective_state: str
+    dominant_emotions: list[str] | None = None
 
 
-class EOFPosts(QueueMessage):
+class EndOfPosts(QueueMessage):
     """Model for message sent when finished scraping."""
     total: int
