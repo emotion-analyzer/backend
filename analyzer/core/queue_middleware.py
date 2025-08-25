@@ -45,8 +45,8 @@ async def process_posts(available_models, client, config) -> None:
         await channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
         queue = await channel.declare_queue(config.RABBIT_MQ.SCRAPING_RESULT_QUEUE,
                                             durable=True)
-        xch = await channel.declare_exchange(config.RABBIT_MQ.ANALYSIS_RESULT_EXCHANGE,
-                                                             ExchangeType.TOPIC)
+        xch = await channel.declare_exchange(config.RABBIT_MQ.RESULT_EXCHANGE,
+                                             ExchangeType.TOPIC)
         await queue.consume(callback=create_callback(available_models, client, xch),
                             no_ack=False)
         await asyncio.Future()
