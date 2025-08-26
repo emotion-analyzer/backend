@@ -15,7 +15,7 @@ def tests_with_report(session):
         "--cov-branch",
         "--cov-report=json"
     )
-    session.notify(clean)
+    session.notify("clean")
 
 @nox.session(python=["3.11"])
 def tests_without_report(session):
@@ -23,6 +23,7 @@ def tests_without_report(session):
     session.install("--upgrade", "pip")
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run("pytest", "tests")
+    session.notify("clean")
 
 @nox.session(python=["3.11"])
 def lint(session):
