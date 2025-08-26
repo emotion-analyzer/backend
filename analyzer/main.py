@@ -2,8 +2,8 @@ import asyncio
 
 from analyzer.config import config
 from analyzer.core.queue_middleware import process_posts
+from analyzer.elasticsearch.initialization import initialize_mappings
 from analyzer.model.initialization import load_available_models
-from analyzer.result_storage.initialization import initialize_mappings
 
 
 async def initialize():

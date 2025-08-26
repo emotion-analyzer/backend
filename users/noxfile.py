@@ -19,7 +19,7 @@ def tests_without_report(session):
     session.env["APP_ENV"] = "test.env"
     session.env["DATABASE_URL"] = "sqlite:///database.db"
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
-    session.run("pytest", "tests/test_main.py")
+    session.run("pytest", "tests/test_models.py")
     session.notify("remove_database")
 
 @nox.session()
@@ -31,7 +31,7 @@ def tests_with_report(session):
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run(
         "pytest",
-        "tests/test_main.py",
+        "tests/test_models.py",
         "--cov",
         "--cov-branch",
         "--cov-report=json"
