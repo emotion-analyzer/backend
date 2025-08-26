@@ -1,17 +1,10 @@
-# ruff: noqa: RUF006
 from contextlib import asynccontextmanager
 from typing import Annotated
 import uuid
 
-from aio_pika import Message
 from fastapi import FastAPI, Query
-from util.codes import ANALYSIS_REQUEST, EOF, POST_ANALYSIS_RESULT
 from util.schemas import (
-    AnalysisRequest,
     AnalysisRequestParameters,
-    EndOfPosts,
-    PostAnalysisResult,
-    QueueMessage,
 )
 
 from query_processor.config import config
@@ -20,7 +13,8 @@ from query_processor.core.queue_middleware import (
     initialize_queues,
     initiate_connection,
 )
-from query_processor.fasttext.mapping import map_to_ekman_fasttext
+from query_processor.core.util import queue_scrape_request, receive_analysis_results
+from query_processor.fasttext.mapping import map_to_fixed_labels
 
 
 @asynccontextmanager
@@ -37,37 +31,8 @@ app = FastAPI(lifespan=lifespan)
 async def get_emotional_analysis (query: Annotated[AnalysisRequestParameters, Query()]):
     """Request social media posts and their corresponding emotional analysis."""
     query_processor_id = str(uuid.uuid4())
-    body = AnalysisRequest(query_processor_id=query_processor_id,
-                       code=ANALYSIS_REQUEST,
-                       parameters=query)
-    message = Message(body=body.model_dump_json().encode('utf-8'))
-    await app.state.channel.default_exchange.publish(
-        message,
-        routing_key=app.state.posts_queue.name,
-    )
-    queue = await app.state.channel.declare_queue(config.RABBIT_MQ.ANALYSIS_RESULT_QUEUE,
-                                                  durable=True)
-    await queue.bind(app.state.results_exchange, routing_key=query_processor_id)
-    analysis_results= []
-    posts_awaited = None
-    async with queue.iterator() as iterator:
-        async for message in iterator:
-            async with message.process():
-                decoded_body = message.body.decode("utf-8")
-                queue_message = QueueMessage.model_validate_json(decoded_body)
-                if queue_message.code == POST_ANALYSIS_RESULT:
-                    post = PostAnalysisResult.model_validate_json(decoded_body)
-                    post = post.model_dump()
-                    post.pop("query_processor_id", None)
-                    post.pop("code", None)
-                    analysis_results.append(post)
-                    if posts_awaited is not None:
-                        if len(analysis_results) == posts_awaited:
-                            break
-                elif queue_message.code == EOF:
-                    post = EndOfPosts.model_validate_json(decoded_body)
-                    posts_awaited = post.total
-                    if len(analysis_results) == posts_awaited:
-                        break
-    map_to_ekman_fasttext(analysis_results)
+    await queue_scrape_request(query, query_processor_id, app)
+    # There should be a fixed timeout
+    analysis_results = await receive_analysis_results(query_processor_id, app)
+    map_to_fixed_labels(analysis_results)
     return {"results": analysis_results}

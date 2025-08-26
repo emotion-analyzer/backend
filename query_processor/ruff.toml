@@ -1,0 +1,55 @@
+# ruff.toml
+
+# Target the latest Python version you're using
+target-version = "py311"
+
+# Google's line length
+line-length = 90
+
+lint.select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle
+    "UP",   # pyupgrade
+    "C90",  # mccabe complexity
+    "PL",   # pylint
+    "B",    # bugbear
+    "A",    # builtins
+    "C4",   # comprehensions
+    "T20",  # flake8-print
+    "RUF",  # ruff-specific rules
+]
+
+lint.ignore = [
+    "D100",  # Missing docstring in public module
+    "D107", # Missing docstring in init
+    "D104",  # Missing docstring in public package
+    "PLR0913",  # Too many arguments in function
+    "PLR2004",  # Magic value used in comparison
+    "C901",  # Function is too complex
+]
+
+# Automatically format code where possible (e.g., with `ruff format`)
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 100
+
+# pydocstyle config
+[lint.pydocstyle]
+convention = "google"
+
+# isort-like settings
+[lint.isort]
+known-first-party = ["your_package_name"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[lint.per-file-ignores]
+# Ignore specific rules in the 'tests' directory
+"tests/*" = ["E501", "D103"] # Ignore E501 (lines too long) and D103 (no dosctrings) in tests

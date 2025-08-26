@@ -21,7 +21,7 @@ def map_affective_states_to_emotions(affective_states):
     most_common = [k for k, v in counts.items() if v == max_count]
     return most_common
 
-def map_to_ekman_fasttext(result_list: list[PostAnalysisResult]):
+def map_to_fixed_labels(result_list: list[PostAnalysisResult]):
     """Return normalized summary of affective states and mapped emotions."""
     for result in result_list:
         affective_states = result["affective_states"]
