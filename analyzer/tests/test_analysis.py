@@ -1,7 +1,15 @@
 from datetime import datetime
+import sys
+from unittest.mock import MagicMock
 
 from util.codes import POST
 from util.schemas import Post, PostAnalysisResult
+
+sys.modules['transformers'] = MagicMock()
+sys.modules["torch"] = MagicMock()
+sys.modules["torch.nn"] = MagicMock()
+sys.modules["torch.nn.functional"] = MagicMock()
+sys.modules["elasticsearch"] = MagicMock()
 
 from analyzer.model.analyze import analyze_post
 from analyzer.model.initialization import load_available_models

@@ -52,4 +52,4 @@ force-sort-within-sections = true
 
 [lint.per-file-ignores]
 # Ignore specific rules in the 'tests' directory
-"tests/*" = ["E501", "D103"] # Ignore E501 (lines too long) and D103 (no dosctrings) in tests
+"tests/*" = ["E501", "D103", "E402"]

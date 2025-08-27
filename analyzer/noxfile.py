@@ -20,8 +20,9 @@ def tests_with_report(session):
 def tests_without_report(session):
     """Test the application, don't generate a coverage report."""
     session.install("--upgrade", "pip")
-    session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
-    session.install("torch==2.7.1", "--index-url", "https://download.pytorch.org/whl/cpu")
+    session.install("-r", "dev-requirements.txt")
+    session.install("pydantic")
+    session.install("python-dotenv")
     session.run("pytest", "tests")
     session.notify("clean")
 
