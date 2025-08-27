@@ -15,10 +15,6 @@ jobs:
     - name: Set up Docker Compose
       uses: docker/setup-compose-action@v1.2.0
 
-    - name: Set up all containers for testing
-      run: sudo docker compose -f docker-compose.yml up -d
-      working-directory: .
-
     - name: Install Postman CLI
       run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
 
