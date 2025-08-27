@@ -10,4 +10,4 @@
 # Local database
 *.db
 
-elasticsearch
+actions-runner
