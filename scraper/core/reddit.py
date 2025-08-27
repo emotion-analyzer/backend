@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 import asyncpraw
-from scraper.config import config
-from scraper.core.scraping import Scraper
 from util.codes import POST
 from util.schemas import AnalysisRequest, Post
+
+from scraper.config import config
+from scraper.core.scraping import Scraper
 
 
 @dataclass

@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 
 import httpx
-from scraper.config import config
-from scraper.core.scraping import Scraper
 from starlette.status import HTTP_200_OK
 from util.codes import POST
 from util.schemas import AnalysisRequest, Post
+
+from scraper.config import config
+from scraper.core.scraping import Scraper
 
 
 @dataclass

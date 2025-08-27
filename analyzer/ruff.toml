@@ -49,3 +49,7 @@ convention = "google"
 known-first-party = ["your_package_name"]
 combine-as-imports = true
 force-sort-within-sections = true
+
+[lint.per-file-ignores]
+# Ignore specific rules in the 'tests' directory
+"tests/*" = ["E501", "D103", "E402"]
