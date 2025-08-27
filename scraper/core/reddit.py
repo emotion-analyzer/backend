@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 import asyncpraw
-from scraper.config import config
-from scraper.core.scraping import Scraper
 from util.codes import POST
 from util.schemas import AnalysisRequest, Post
+
+from scraper.config import config
+from scraper.core.scraping import Scraper
 
 
 @dataclass
@@ -33,7 +34,8 @@ class RedditScraper(Scraper):
                 continue
             if submission.created_utc < query.parameters.date_start.timestamp():
                 break
-            reddit_post = Post(link=f"reddit.com{submission.permalink}",
+            reddit_post = Post(source="reddit",
+                               link=f"reddit.com{submission.permalink}",
                                text=submission.selftext,
                                timestamp=submission.created_utc,
                                code = POST,

@@ -1,9 +1,0 @@
-{
-  "_comment": "Este es un mapeo de las 6 emociones de Ekman a los estados afectivos mas detectados en MASIVE (al menos 200 ocurrencias). ",
-  "ira": ["locx", "hartx", "caliente"],
-  "miedo": ["desesperadx", "perdidx", "preocupadx", "nerviosx", "ansiosx"],
-  "tristeza": ["triste", "solx", "deprimidx"],
-  "disgusto": ["cansadx", "frustradx", "obligadx", "estancadx", "aburridx", "mal", "enfermx"],
-  "sorpresa": ["confundidx", "decepcionadx"],
-  "alegria": ["agradecidx", "mejor", "feliz", "contentx", "satisfechx", "orgullosx", "enamoradx", "vivx", "emocionadx"]
-}

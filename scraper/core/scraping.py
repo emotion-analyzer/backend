@@ -2,9 +2,10 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 from aio_pika import DeliveryMode, Message
+from util.schemas import AnalysisRequest, Post
+
 from scraper.config import config
 from scraper.core.queue_middleware import send_message
-from util.schemas import AnalysisRequest, Post
 
 
 @dataclass

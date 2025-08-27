@@ -18,6 +18,7 @@ jobs:
           files: |
             users/**
             scraper/**
+            query_processor/**
 
       - name: Set up Python
         uses: actions/setup-python@v5

@@ -3,7 +3,7 @@ import asyncio
 from aio_pika import Message
 from aio_pika.abc import AbstractIncomingMessage, DeliveryMode
 from util.codes import EOF
-from util.schemas import AnalysisRequest, EOFPosts
+from util.schemas import AnalysisRequest, EndOfPosts
 
 from scraper.config import config
 from scraper.core.bluesky import BlueskyScraper
@@ -30,9 +30,9 @@ def create_callback(available_scrapers, channel):
             messages_sent = await scraper.query(query)
             total += messages_sent
         await message.ack()
-        body = EOFPosts(query_processor_id=query.query_processor_id,
-                        code=EOF,
-                        total=total)
+        body = EndOfPosts(query_processor_id=query.query_processor_id,
+                          code=EOF,
+                          total=total)
         message = Message(body.model_dump_json().encode('utf-8'),
                           delivery_mode=DeliveryMode.PERSISTENT)
         await send_message(message, channel, config)

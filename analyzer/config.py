@@ -8,7 +8,7 @@ load_dotenv(os.getenv(key="RABBITMQ_ENV", default="../util/rabbit_mq.test.env"))
 
 class HuggingFace:
     """HuggingFace configuration."""
-    MODEL_URL = os.getenv("HUGGINGFACE_MODEL_URL")
+    URL = os.getenv("HUGGINGFACE_MODEL_URL")
 
 class Model:
     """Model configuration."""

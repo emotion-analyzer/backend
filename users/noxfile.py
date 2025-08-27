@@ -31,7 +31,7 @@ def tests_with_report(session):
     session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run(
         "pytest",
-        "tests/test_main.py",
+        "tests",
         "--cov",
         "--cov-branch",
         "--cov-report=json"

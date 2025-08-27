@@ -18,14 +18,14 @@ async def initiate_connection(config):
         password=config.RABBIT_MQ.PASSWORD)
 
 
-def create_callback(tokenizer, model, client, results_exchange):
+def create_callback(available_models, client, results_exchange):
     """Create callback function."""
     async def process_message(message: AbstractIncomingMessage):
         """Decode message, perform an emotional analysis on it and store the results."""
         queue_message = QueueMessage.model_validate_json(message.body.decode("utf-8"))
         if queue_message.code == POST:
             post = Post.model_validate_json(message.body.decode("utf-8"))
-            analyzed_post = analyze_post(tokenizer, model, client, post)
+            analyzed_post = analyze_post(available_models, client, post)
             analyzed_post.code = POST_ANALYSIS_RESULT
             new_message = Message(analyzed_post.model_dump_json().encode('utf-8'),
                               delivery_mode=DeliveryMode.PERSISTENT)
@@ -37,7 +37,7 @@ def create_callback(tokenizer, model, client, results_exchange):
     return process_message
 
 
-async def process_posts(tokenizer, model, client, config) -> None:
+async def process_posts(available_models, client, config) -> None:
     """Connect to RabbitMQ, create channel and queue."""
     connection = await initiate_connection(config)
     async with connection:
@@ -45,9 +45,9 @@ async def process_posts(tokenizer, model, client, config) -> None:
         await channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
         queue = await channel.declare_queue(config.RABBIT_MQ.SCRAPING_RESULT_QUEUE,
                                             durable=True)
-        xch = await channel.declare_exchange(config.RABBIT_MQ.ANALYSIS_RESULT_EXCHANGE,
-                                                             ExchangeType.TOPIC)
-        await queue.consume(callback=create_callback(tokenizer, model, client, xch),
+        xch = await channel.declare_exchange(config.RABBIT_MQ.RESULT_EXCHANGE,
+                                             ExchangeType.TOPIC)
+        await queue.consume(callback=create_callback(available_models, client, xch),
                             no_ack=False)
         await asyncio.Future()
 

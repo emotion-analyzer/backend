@@ -7,6 +7,7 @@ nox.options.sessions = ["lint", "tests_without_report", "clean"]
 @nox.session(python=["3.11"])
 def tests_with_report(session):
     """Test the application, generate a coverage report."""
+    session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run(
         "pytest",
         "tests",
@@ -20,9 +21,7 @@ def tests_with_report(session):
 def tests_without_report(session):
     """Test the application, don't generate a coverage report."""
     session.install("--upgrade", "pip")
-    session.install("-r", "dev-requirements.txt")
-    session.install("pydantic")
-    session.install("python-dotenv")
+    session.install("-r", "requirements.txt", "-r", "dev-requirements.txt")
     session.run("pytest", "tests")
     session.notify("clean")
 
@@ -31,7 +30,6 @@ def lint(session):
     """Verify code linting and formatting."""
     session.install("ruff")
     session.run("ruff", "check")
-
 
 @nox.session(python=["3.11"])
 def clean(session):
