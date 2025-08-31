@@ -9,3 +9,4 @@
 
 # Local database
 *.db
+storage/

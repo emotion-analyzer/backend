@@ -6,17 +6,25 @@ from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409
 
 from users.core.password_reset import send_password_reset_email
 from users.core.schemas import (
+    LoginResponse,
     LoginUser,
+    NewUserDetails,
     PasswordReset,
     PasswordResetRequest,
     RegisterUser,
+    UserDetails,
 )
-from users.core.security import get_password_reset_token, get_token, verify_token
+from users.core.security import (
+    decode_token,
+    get_password_reset_token,
+    get_token,
+)
 from users.database.crud import (
     delete_user_from_db,
     get_user_by_email,
     register_new_user,
     update_password,
+    update_user_details,
 )
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
@@ -30,6 +38,7 @@ from users.exceptions.exceptions import (
 async def lifespan(app: FastAPI):
     """Initialize the database and tables before the app runs."""
     create_db_and_tables()
+    #app.state.minio_client = s3_storage_initialize()
     yield
 
 
@@ -52,7 +61,7 @@ async def register(new_user: RegisterUser, session: SessionDep):
         raise HTTPException(status_code=HTTP_409_CONFLICT, detail=e.message) from e
 
 
-@app.post("/login")
+@app.post("/login", response_model=LoginResponse)
 async def login(login_data: LoginUser, session: SessionDep):
     """Return JWT for registered user.
 
@@ -66,10 +75,79 @@ async def login(login_data: LoginUser, session: SessionDep):
             raise HTTPException(status_code=HTTP_404_NOT_FOUND,
                                 detail="Usuario no encontrado.")
         jwt = get_token(login_data, user, session)
+        user_details = UserDetails(id = user.id,
+                                   username = user.username,
+                                   display_name = user.display_name,
+                                   avatar_url = user.avatar_url,
+                                   email = user.email)
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return {"access_token": jwt, "token_type": "bearer"}
+    return LoginResponse(access_token=jwt, token_type="bearer", user=user_details)
 
+
+@app.get("/me", response_model=UserDetails)
+async def get_user_details_route(session: SessionDep,
+                                 access_token: str = Depends(oauth2_scheme)):
+    """Returns user details using JWT encoded data.
+
+    Returns:
+        id: str
+        username: str
+        display_name: str
+        avatar_url: str | None
+        email:
+
+    HTTP Status Codes:
+        200 OK: If the user details were successfully retrieved.
+        401 Unauthorized: If the token is invalid in any way (format, expired, etc.)
+
+    """
+    try:
+        decoded_token = decode_token(access_token)
+        user = get_user_by_email(decoded_token["email"], session)
+        user_details = UserDetails(id = user.id,
+                                   username = user.username,
+                                   display_name = user.display_name,
+                                   avatar_url = user.avatar_url,
+                                   email = user.email)
+    except UserDoesntExistError as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    return user_details
+
+
+@app.patch("/me")
+async def update_user_details_route(details_update: NewUserDetails,
+                                    session: SessionDep,
+                                    access_token: str = Depends(oauth2_scheme)):
+    """Returns user details using JWT encoded data.
+
+    Returns:
+        id: str
+        username: str
+        display_name: str
+        avatar_url: str | None
+        email:
+
+    HTTP Status Codes:
+        200 OK: If the user details were successfully retrieved.
+        401 Unauthorized: If the token is invalid in any way (format, expired, etc.)
+
+    """
+    try:
+        decoded_token = decode_token(access_token)
+        user = update_user_details(decoded_token["id"], details_update, session)
+        user_details = UserDetails(id = user.id,
+                                   username = user.username,
+                                   display_name = user.display_name,
+                                   avatar_url = user.avatar_url,
+                                   email = user.email)
+    except UserDoesntExistError as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    return user_details
 
 @app.post("/reset-password")
 async def password_reset(password_reset: PasswordReset,
@@ -113,8 +191,8 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
                        "se han enviado instrucciones para restablecer la contraseña."}
 
 
-@app.delete("/{user_id}")
-async def delete_user(user_id: int, session: SessionDep,
+@app.delete("/me")
+async def delete_user(session: SessionDep,
                       access_token: str = Depends(oauth2_scheme)):
     """Delete registered user with specified id.
 
@@ -129,8 +207,8 @@ async def delete_user(user_id: int, session: SessionDep,
         401 Unauthorized: If the token is invalid in any way (format, wrong id, etc.)
     """
     try:
-        verify_token(user_id, access_token)
-        delete_user_from_db(user_id, session)
+        decoded_token = decode_token(access_token)
+        delete_user_from_db(decoded_token["id"], session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
