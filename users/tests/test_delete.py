@@ -1,28 +1,9 @@
-from fastapi.testclient import TestClient
-import pytest
-from sqlmodel import Session, SQLModel
 from starlette.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
-from users.database.session import create_db_and_tables, engine
-from users.main import app
 from users.tests.test_constants import (
     valid_user_1,
 )
 
-
-@pytest.fixture(autouse=True)
-def client():
-    create_db_and_tables()
-    with TestClient(app) as c:
-        yield c
-
-
-@pytest.fixture(autouse=True)
-def truncate_tables():
-    with Session(engine) as session:
-        for table in reversed(SQLModel.metadata.sorted_tables):
-            session.execute(table.delete())
-        session.commit()
 
 def test_deleting_user_without_jwt_returns_401(client):
     response = client.delete("/me")
