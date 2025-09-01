@@ -10,3 +10,6 @@
 # Local database
 *.db
 storage/
+
+# GH runner
+actions-runner

@@ -76,11 +76,6 @@ services:
       MINIO_ROOT_PASSWORD: minio_root_password
     command: server /data --console-address ":9001"
     #restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "nc -z localhost 9000 || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   database:
     image: postgres:17.5-alpine
@@ -109,8 +104,6 @@ services:
       - kong-network
     depends_on:
       database:
-        condition: service_healthy
-      minio:
         condition: service_healthy
 
   scraper:
