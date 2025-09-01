@@ -65,6 +65,19 @@ services:
     networks:
       - kong-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    networks:
+      - kong-network
+    volumes:
+      - ./storage/minio:/data
+    environment:
+      MINIO_ROOT_USER: minio_root_user
+      MINIO_ROOT_PASSWORD: minio_root_password
+    command: server /data --console-address ":9001"
+    #restart: unless-stopped
+
   database:
     image: postgres:17.5-alpine
     container_name: database

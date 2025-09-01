@@ -4,3 +4,4 @@ argon2-cffi
 psycopg2-binary
 aiosmtplib
 pyjwt
+minio
