@@ -1,15 +1,14 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR ..
 
-COPY ./analyzer /app/analyzer
-COPY ./util /app/util
+COPY ./analyzer /analyzer
+COPY ./util /util
+COPY analyzer/main.py main.py
 
 RUN pip install pip --upgrade
 RUN pip install --no-cache-dir -r analyzer/requirements.txt
 # We need to install CPU-only torch manually
 RUN pip install torch==2.7.0+cpu --index-url https://download.pytorch.org/whl/cpu
 
-WORKDIR /app
-
-ENTRYPOINT [ "python3", "-m", "analyzer.main"]
+ENTRYPOINT [ "python3", "main.py"]

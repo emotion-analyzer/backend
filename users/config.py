@@ -39,6 +39,14 @@ class Kong:
     """Kong gateway configuration."""
     KEY = os.getenv("KONG_KEY")
 
+class Minio:
+    """Minio configuration."""
+    HOST = os.getenv("MINIO_HOST")
+    PORT = os.getenv("MINIO_PORT")
+    USER = os.getenv("MINIO_USER")
+    PASSWORD = os.getenv("MINIO_PASSWORD")
+    BUCKET = os.getenv("MINIO_BUCKET")
+
 class Config:
     """Represents configuration state in the application.
 
@@ -49,6 +57,7 @@ class Config:
     MAIL = Mail
     KONG = Kong
     JWT = JSONWebToken
+    MINIO = Minio
 
 
 config = Config()

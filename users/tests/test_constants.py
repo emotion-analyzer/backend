@@ -22,6 +22,37 @@ repeated_email_user_1 = {
     "email": "jorgito@gmail.com",
 }
 
+user_1_details_update = {
+    "username": "camilo",
+    "display_name": "camilin",
+}
+
+user_1_email_update_wrong_pw = {
+    "email": "camilo@gmail.com",
+    "current_password": "invalid_pw"
+}
+
+user_1_email_update = {
+    "email": "camilo@gmail.com",
+    "current_password": "jorgito_pw"
+}
+
+user_1_pw_update_mismatch = {
+    "current_password": "jorgito_pw",
+    "new_password": "camilo_pw_1",
+    "confirm_password": "camilo_pw_2"
+}
+
+user_1_pw_update = {
+    "current_password": "jorgito_pw",
+    "new_password": "camilo_pw",
+    "confirm_password": "camilo_pw"
+}
+
+user_1_updated_login = {
+    "email": "jorgito@gmail.com",
+    "password": "camilo_pw"
+}
 
 invalid_password_reset = {
     "token": "invalid_token",

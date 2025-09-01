@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
 import httpx
-from scraper.config import config
-from scraper.core.schemas import FetchQuery, Post
-from scraper.core.scraping import Scraper
-from scraper.exceptions.exceptions import ScraperError
 from starlette.status import HTTP_200_OK
 from util.codes import POST
+from util.schemas import AnalysisRequest, Post
+
+from scraper.config import config
+from scraper.core.scraping import Scraper
 
 
 @dataclass
@@ -18,19 +18,23 @@ class BlueskyScraper(Scraper):
         self.bluesky = config.BLUESKY.BASE_URL
         self.search_url = self.bluesky + config.BLUESKY.SEARCH_URL
 
-    async def query(self, query: FetchQuery, query_processor_id):
+    async def query(self, query: AnalysisRequest) -> int:
         """Return relevant Bluesky posts according to the fetch request."""
-        params = {'q': query.keyword, 'limit': query.limit, 'lang': 'es',
-                  'since': query.date_start.isoformat(),
-                  'until': query.date_end.isoformat()}
+        params = {'q': query.parameters.keyword, 'limit': query.parameters.limit,
+                  'since': query.parameters.since[:10],
+                  'until': query.parameters.until[:10],
+                  'lang': 'es'}
         async with httpx.AsyncClient() as client:
             request = await client.get(self.search_url, params=params)
             if request.status_code != HTTP_200_OK:
-                raise ScraperError(request.status_code, "Bluesky")
+                return 0
+            messages_sent = len(request.json()["posts"])
             for post in request.json()["posts"]:
-                bsky_post = Post(link=f"https://bsky.app/profile/{post['author']['handle']}/post/{post['uri'].split('/')[-1]}",
+                bsky_post = Post(source="bluesky",
+                                 link=f"https://bsky.app/profile/{post['author']['handle']}/post/{post['uri'].split('/')[-1]}",
                                  text=post["record"]["text"],
                                  timestamp=post["record"]["createdAt"],
                                  code=POST,
-                                 query_processor_id=query_processor_id)
+                                 query_processor_id=query.query_processor_id)
                 await self.send_to_analyzer(bsky_post)
+        return messages_sent

@@ -3,3 +3,7 @@ python-dateutil
 aio-pika
 pydantic
 starlette
+scikit-learn
+unidecode
+numpy
+fasttext-wheel

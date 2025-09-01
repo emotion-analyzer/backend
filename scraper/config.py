@@ -25,7 +25,8 @@ class RabbitMQ:
     PASSWORD = os.getenv("RABBITMQ_PASSWORD")
     HOST = os.getenv("RABBITMQ_HOST")
     PORT = int(os.getenv("RABBITMQ_PORT"))
-    PROCESSING_QUEUE = os.getenv("RABBITMQ_PROCESSING_QUEUE")
+    ANALYSIS_REQUEST_QUEUE = os.getenv("RABBITMQ_ANALYSIS_REQUEST_QUEUE")
+    SCRAPING_RESULT_QUEUE = os.getenv("RABBITMQ_SCRAPING_RESULT_QUEUE")
 
 class Config:
     """Represents configuration state in the application.

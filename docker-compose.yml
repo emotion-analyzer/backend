@@ -42,6 +42,7 @@ services:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     # Just for now, will need to be enabled in the future.
       - xpack.security.enabled=false
+      - cluster.routing.allocation.disk.threshold_enabled=false
     ports:
       - "9200:9200"
     networks:
@@ -63,6 +64,19 @@ services:
       - "5601:5601"
     networks:
       - kong-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    networks:
+      - kong-network
+    volumes:
+      - ./storage/minio:/data
+    environment:
+      MINIO_ROOT_USER: minio_root_user
+      MINIO_ROOT_PASSWORD: minio_root_password
+    command: server /data --console-address ":9001"
+    #restart: unless-stopped
 
   database:
     image: postgres:17.5-alpine
@@ -110,7 +124,6 @@ services:
     environment:
       - APP_ENV=analyzer/test.env
       - RABBITMQ_ENV=util/rabbit_mq.test.env
-      - DATABASE_ENV=util/database.test.env
     build:
       dockerfile: ./analyzer/Dockerfile
     container_name: analyzer

@@ -1,6 +1,5 @@
 from elasticsearch import NotFoundError
-
-from analyzer.core.schemas import PostAnalysisResult
+from util.schemas import PostAnalysisResult
 
 
 def store_query(text_hash: str, analyzed_post:PostAnalysisResult, client) -> None:
