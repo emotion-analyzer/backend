@@ -21,8 +21,8 @@ class BlueskyScraper(Scraper):
     async def query(self, query: AnalysisRequest) -> int:
         """Return relevant Bluesky posts according to the fetch request."""
         params = {'q': query.parameters.keyword, 'limit': query.parameters.limit,
-                  'since': query.parameters.since[:10],
-                  'until': query.parameters.until[:10],
+                  'since': query.parameters.date_start.isoformat(),
+                  'until': query.parameters.date_end.isoformat(),
                   'lang': 'es'}
         async with httpx.AsyncClient() as client:
             request = await client.get(self.search_url, params=params)

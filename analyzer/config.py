@@ -23,7 +23,7 @@ class RabbitMQ:
     PORT = int(os.getenv("RABBITMQ_PORT"))
     PREFETCH_COUNT = int(os.getenv("RABBITMQ_PREFETCH_COUNT"))
     SCRAPING_RESULT_QUEUE = os.getenv("RABBITMQ_SCRAPING_RESULT_QUEUE")
-    ANALYSIS_RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
+    RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
 
 class ElasticSearch:
     """ElasticSearch configuration."""

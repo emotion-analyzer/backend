@@ -1,7 +1,6 @@
-from elasticsearch import Elasticsearch
-
 from analyzer.config import config
 from analyzer.elasticsearch.mappings import analysis_mappings
+from elasticsearch import Elasticsearch
 
 
 def initialize_mappings():
