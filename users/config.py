@@ -41,6 +41,7 @@ class Kong:
 
 class Minio:
     """Minio configuration."""
+    ADDRESS = os.getenv("MINIO_ADDRESS")
     HOST = os.getenv("MINIO_HOST")
     PORT = os.getenv("MINIO_PORT")
     USER = os.getenv("MINIO_USER")
@@ -58,6 +59,7 @@ class Config:
     KONG = Kong
     JWT = JSONWebToken
     MINIO = Minio
+    TESTING = bool(os.getenv("TESTING", default="False"))
 
 
 config = Config()

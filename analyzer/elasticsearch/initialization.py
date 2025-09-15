@@ -5,7 +5,9 @@ from elasticsearch import Elasticsearch
 
 def initialize_mappings():
     """Initialize ElasticSearch client and define mappings."""
-    client = Elasticsearch(config.ELASTICSEARCH.HOST)
+    client = Elasticsearch(config.ELASTICSEARCH.HOST,
+                           retry_on_timeout=True,
+                           max_retries=3)
     if client.indices.exists(index="analysis_index"):
         client.indices.delete(index="analysis_index")
     client.indices.create(index="analysis_index",

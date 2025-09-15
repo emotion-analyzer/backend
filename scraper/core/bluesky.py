@@ -20,7 +20,7 @@ class BlueskyScraper(Scraper):
 
     async def query(self, query: AnalysisRequest) -> int:
         """Return relevant Bluesky posts according to the fetch request."""
-        params = {'q': query.parameters.keyword, 'limit': query.parameters.limit,
+        params = {'q': query.parameters.keyword,
                   'since': query.parameters.date_start.isoformat(),
                   'until': query.parameters.date_end.isoformat(),
                   'lang': 'es'}
@@ -35,6 +35,7 @@ class BlueskyScraper(Scraper):
                                  text=post["record"]["text"],
                                  timestamp=post["record"]["createdAt"],
                                  code=POST,
-                                 query_processor_id=query.query_processor_id)
+                                 query_processor_id=query.query_processor_id,
+                                 model=query.parameters.model)
                 await self.send_to_analyzer(bsky_post)
         return messages_sent

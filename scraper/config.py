@@ -13,6 +13,7 @@ class Reddit:
     USER_AGENT = os.getenv("USER_AGENT")
     ES_SUBREDDITS = "+".join(json.loads(os.getenv("ES_SUBREDDITS")))
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
+    LIMIT = int(os.getenv("LIMIT"))
 
 class Bluesky:
     """Bluesky scraping configuration."""

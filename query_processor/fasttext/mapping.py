@@ -19,10 +19,10 @@ def map_affective_states_to_emotions(affective_states):
     counts = Counter(emotions)
     max_count = max(counts.values())
     most_common = [k for k, v in counts.items() if v == max_count]
-    return most_common
+    return most_common[0]
 
 def map_to_fixed_labels(result_list: list[PostAnalysisResult]):
     """Return normalized summary of affective states and mapped emotions."""
     for result in result_list:
         affective_states = result["affective_states"]
-        result["dominant_emotions"] = map_affective_states_to_emotions(affective_states)
+        result["dominant_emotion"] = map_affective_states_to_emotions(affective_states)
