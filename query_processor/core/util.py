@@ -56,4 +56,4 @@ def done_receiving_messages(message: Message,
     elif queue_message.code == EOF:
         post = EndOfPosts.model_validate_json(decoded_body)
         return post.total - len(analysis_results)
-    return None
+    return messages_left

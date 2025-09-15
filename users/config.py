@@ -59,7 +59,7 @@ class Config:
     KONG = Kong
     JWT = JSONWebToken
     MINIO = Minio
-    TESTING = bool(os.getenv("TESTING", default="False"))
+    TESTING = os.getenv("TESTING", "0") == "1"
 
 
 config = Config()
