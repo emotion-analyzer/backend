@@ -4,6 +4,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 
+from users.config import config
+from users.core.image_storage import s3_storage_initialize
 from users.core.password_reset import send_password_reset_email
 from users.core.schemas import (
     LoginResponse,
@@ -38,7 +40,10 @@ from users.exceptions.exceptions import (
 async def lifespan(app: FastAPI):
     """Initialize the database and tables before the app runs."""
     create_db_and_tables()
-    #app.state.minio_client = s3_storage_initialize()
+    if not config.TESTING:
+        app.state.minio_client = s3_storage_initialize()
+    else:
+        app.state.minio_client = None
     yield
 
 
@@ -137,7 +142,8 @@ async def update_user_details_route(details_update: NewUserDetails,
     """
     try:
         decoded_token = decode_token(access_token)
-        user = update_user_details(decoded_token["id"], details_update, session)
+        user = update_user_details(decoded_token["id"], details_update,
+                                   app.state.minio_client, session)
         user_details = UserDetails(id = user.id,
                                    username = user.username,
                                    display_name = user.display_name,
@@ -194,7 +200,7 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
 @app.delete("/me")
 async def delete_user(session: SessionDep,
                       access_token: str = Depends(oauth2_scheme)):
-    """Delete registered user with specified id.
+    """Delete user referenced by JWT encoded data.
 
     Returns:
         None

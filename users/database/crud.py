@@ -2,6 +2,7 @@ from pydantic import EmailStr
 from sqlmodel import select
 
 from users.core.hashing import get_hash, verify_password
+from users.core.image_storage import s3_store
 from users.core.schemas import NewUserDetails, PasswordReset, RegisterUser
 from users.core.security import decode_token
 from users.database.model import User
@@ -53,9 +54,8 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User | None:
     return user
 
 
-def update_user_details(user_id: int,
-                        details_update: NewUserDetails,
-                        session: SessionDep) -> User | None:
+def update_user_details(user_id: int, details_update: NewUserDetails,
+                        client, session: SessionDep) -> User | None:
     """Update user's details."""
     user = get_user_by_id(user_id, session)
     if user is None:
@@ -67,6 +67,9 @@ def update_user_details(user_id: int,
         if details_update.new_password != details_update.confirm_password:
             raise AuthError("Contraseña de confirmación difiere de la nueva.")
     update_data = details_update.model_dump(exclude_unset=True, exclude_none=True)
+    new_image  = update_data.pop("image", None)
+    if new_image is not None:
+        update_data["avatar_url"] = s3_store(user_id, new_image, client)
     update_data.pop('confirm_password', None)
     update_data.pop('current_password', None)
     if 'new_password' in update_data:

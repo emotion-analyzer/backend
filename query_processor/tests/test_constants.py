@@ -6,12 +6,12 @@ from util.schemas import AnalysisRequestParameters, PostAnalysisResult
 analysis_result_body = PostAnalysisResult(query_processor_id="id1", code=POST_ANALYSIS_RESULT,
                           source="test_source", link="www.test.com", text="test_text",
                           timestamp=datetime.now(), model="test_model",
-                          affective_states={"ira": 0.60}, dominant_emotions=["ira"])
+                          affective_states={"ira": 0.60}, dominant_emotion="ira")
 
 analysis_request_parameters = AnalysisRequestParameters(
     date_start=datetime.now(),
     date_end=datetime.now(),
     keyword="test",
     platform=["test_platform"],
-    limit=100
+    model="test_model",
 )

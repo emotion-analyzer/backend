@@ -23,17 +23,19 @@ def create_callback(available_models, client, results_exchange):
     async def process_message(message: AbstractIncomingMessage):
         """Decode message, perform an emotional analysis on it and store the results."""
         queue_message = QueueMessage.model_validate_json(message.body.decode("utf-8"))
-        if queue_message.code == POST:
-            post = Post.model_validate_json(message.body.decode("utf-8"))
-            analyzed_post = analyze_post(available_models, client, post)
-            analyzed_post.code = POST_ANALYSIS_RESULT
-            new_message = Message(analyzed_post.model_dump_json().encode('utf-8'),
-                              delivery_mode=DeliveryMode.PERSISTENT)
-        else:
-            new_message = Message(message.body, delivery_mode=DeliveryMode.PERSISTENT)
-        await results_exchange.publish(new_message,
-                                       routing_key=queue_message.query_processor_id)
-        await message.ack()
+        try:
+            if queue_message.code == POST:
+                post = Post.model_validate_json(message.body.decode("utf-8"))
+                analyzed_post = analyze_post(available_models, client, post)
+                analyzed_post.code = POST_ANALYSIS_RESULT
+                new_message = Message(analyzed_post.model_dump_json().encode('utf-8'),
+                                  delivery_mode=DeliveryMode.PERSISTENT)
+            else:
+                new_message = Message(message.body, delivery_mode=DeliveryMode.PERSISTENT)
+            await results_exchange.publish(new_message,
+                                           routing_key=queue_message.query_processor_id)
+        finally:
+            await message.ack()
     return process_message
 
 

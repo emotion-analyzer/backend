@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
 import uuid
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+from util.models import available_models
 from util.schemas import (
     AnalysisRequestParameters,
 )
@@ -27,12 +27,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/")
-async def get_emotional_analysis (query: Annotated[AnalysisRequestParameters, Query()]):
+@app.post("/search")
+async def get_emotional_analysis (query_parameters : AnalysisRequestParameters):
     """Request social media posts and their corresponding emotional analysis."""
     query_processor_id = str(uuid.uuid4())
-    await queue_scrape_request(query, query_processor_id, app)
+    await queue_scrape_request(query_parameters, query_processor_id, app)
     # There should be a fixed timeout
     analysis_results = await receive_analysis_results(query_processor_id, app)
     map_to_fixed_labels(analysis_results)
     return {"results": analysis_results}
+
+
+@app.get("/models")
+async def get_available_models (query_parameters : AnalysisRequestParameters):
+    """Return all available models for emotional analysis."""
+    return {"models": available_models}

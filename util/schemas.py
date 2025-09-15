@@ -15,7 +15,7 @@ class AnalysisRequestParameters(BaseModel):
     date_end: Optional[datetime] = datetime.now()
     keyword: str
     platform: list[str] = ["all"]
-    limit: int = 100
+    model: str
 
 
 class AnalysisRequest(QueueMessage):
@@ -28,13 +28,14 @@ class Post(QueueMessage):
     link: str
     text: str
     timestamp: datetime
+    model: str
 
 
 class PostAnalysisResult(Post):
     """Social media analysis result model."""
     model: str
     affective_states: dict[str, float]
-    dominant_emotions: list[str] | None = None
+    dominant_emotion: str | None = None
 
 
 class EndOfPosts(QueueMessage):

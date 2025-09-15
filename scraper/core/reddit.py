@@ -29,7 +29,7 @@ class RedditScraper(Scraper):
         subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
         async for submission in subreddit.search(query=query.parameters.keyword,
                                                  sort="new",
-                                                 limit=None):
+                                                 limit=config.REDDIT.LIMIT):
             if submission.selftext == "":
                 continue
             if submission.created_utc < query.parameters.date_start.timestamp():
@@ -39,9 +39,8 @@ class RedditScraper(Scraper):
                                text=submission.selftext,
                                timestamp=submission.created_utc,
                                code = POST,
-                               query_processor_id=query.query_processor_id)
+                               query_processor_id=query.query_processor_id,
+                               model=query.parameters.model)
             await self.send_to_analyzer(reddit_post)
             messages_sent += 1
-            if messages_sent == query.parameters.limit:
-                break
         return messages_sent

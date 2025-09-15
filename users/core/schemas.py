@@ -14,7 +14,7 @@ class NewUserDetails(BaseModel):
     """New user details for updating users."""
     username: str | None = None
     display_name: str | None = None
-    avatar_url: str | None = None
+    image: str | None = None
     email: EmailStr | None = None
     current_password: str | None = None
     new_password: str | None = None
