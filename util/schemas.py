@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class QueueMessage(BaseModel):
@@ -9,18 +9,18 @@ class QueueMessage(BaseModel):
     query_processor_id: str
     code: int
 
-
 class AnalysisRequestParameters(BaseModel):
-    date_start: datetime
-    date_end: Optional[datetime] = datetime.now()
+    from_: datetime = Field(alias="from")
+    to: Optional[datetime] = datetime.now()
     keyword: str
     platform: list[str] = ["all"]
     model: str
 
+class SearchParameters(AnalysisRequestParameters):
+    emotions: list[str] = ["all"]
 
 class AnalysisRequest(QueueMessage):
     parameters: AnalysisRequestParameters
-
 
 class Post(QueueMessage):
     """Social media post model."""

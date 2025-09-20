@@ -23,6 +23,6 @@ async def test_queue_scrape_request_calls_publish():
     message, = args
     analysis_request_body = Message(body = AnalysisRequest(query_processor_id="id1",
                                                            code=ANALYSIS_REQUEST,
-                                                           parameters=analysis_request_parameters).model_dump_json().encode('utf-8') )
+                                                           parameters=analysis_request_parameters).model_dump_json(by_alias=True).encode('utf-8') )
     assert message.body == analysis_request_body.body
     assert kwargs["routing_key"] == fake_queue.name

@@ -1,4 +1,5 @@
 import asyncio
+from datetime import UTC
 
 from aio_pika import Message
 from aio_pika.abc import AbstractIncomingMessage, DeliveryMode
@@ -16,6 +17,8 @@ def create_callback(available_scrapers, channel):
     async def process_scrape_request(message: AbstractIncomingMessage):
         """Scrape social media according to parameters, then queue the results."""
         query = AnalysisRequest.model_validate_json(message.body.decode("utf-8"))
+        query.parameters.from_ = query.parameters.from_.replace(tzinfo=UTC)
+        query.parameters.to = query.parameters.to.replace(tzinfo=UTC)
         total = 0
         scrapers = []
         if "all" in query.parameters.platform:

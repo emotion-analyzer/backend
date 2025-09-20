@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from util.models import available_models
 from util.schemas import (
     AnalysisRequestParameters,
+    SearchParameters,
 )
 
 from query_processor.config import config
@@ -28,13 +29,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/search")
-async def get_emotional_analysis (query_parameters : AnalysisRequestParameters):
+async def get_emotional_analysis (query_parameters : SearchParameters):
     """Request social media posts and their corresponding emotional analysis."""
     query_processor_id = str(uuid.uuid4())
     await queue_scrape_request(query_parameters, query_processor_id, app)
     # There should be a fixed timeout
     analysis_results = await receive_analysis_results(query_processor_id, app)
-    map_to_fixed_labels(analysis_results)
+    analysis_results = map_to_fixed_labels(analysis_results, query_parameters.emotions)
     return {"results": analysis_results}
 
 

@@ -113,6 +113,7 @@ services:
     environment:
       - APP_ENV=scraper/prod.env
       - RABBITMQ_ENV=util/rabbit_mq.test.env
+      - PYTHONUNBUFFERED=1
     build:
       dockerfile: ./scraper/Dockerfile
     container_name: scraper

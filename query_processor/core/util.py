@@ -15,7 +15,7 @@ async def queue_scrape_request(query, query_processor_id, app):
     body = AnalysisRequest(query_processor_id=query_processor_id,
                            code=ANALYSIS_REQUEST,
                            parameters=query)
-    message = Message(body=body.model_dump_json().encode('utf-8'))
+    message = Message(body=body.model_dump_json(by_alias=True).encode('utf-8'))
     await app.state.channel.default_exchange.publish(
         message,
         routing_key=app.state.posts_queue.name,

@@ -12,7 +12,6 @@ def test_message_with_wrong_code_returns_none():
     message=  Message(body=body.model_dump_json().encode('utf-8'))
     assert done_receiving_messages(message, [], None) is None
 
-
 def test_analysis_result_returns_none_if_no_eof_has_been_received():
     message= Message(body=analysis_result_body.model_dump_json().encode('utf-8'))
     analysis_results = []
