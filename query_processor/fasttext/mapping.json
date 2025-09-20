@@ -1,11 +1,11 @@
 {
   "_comment": "Este es un mapeo de las 6 emociones de Ekman mas 1 neutral a los estados afectivos mas detectados en MASIVE (al menos 100 ocurrencias). Realizado mediante FastText",
-  "ira": ["hartx", "enojado"],
-  "miedo": ["locx","asustadx", "preocupadx", "nerviosx", "estresadx", "mal", "confundidx"],
-  "tristeza": ["enamoradx", "peor", "rotx","enfermx","cansadx", "deprimidx", "triste", "desesperadx", "aburridx", "solx", "perdido", "horrible", "decepcionadx", "muertx", "agotadx", "insegurx", "indecisx", "culpable", "atrapadx", "frustradx", "libre"],
-  "disgusto": [],
-  "sorpresa": ["sorprendidx", "rarx", "curiosx"],
-  "alegria": ["orgullosx", "contentx", "feliz", "emocionadx", "mejor", "agradecidx", "vivx", "tranquilx", "satisfechx",  "ansiosx",  "consciente", "segurx", "convencidx", "hecho"],
+  "anger": ["hartx", "enojado"],
+  "fear": ["locx","asustadx", "preocupadx", "nerviosx", "estresadx", "mal", "confundidx"],
+  "sadness": ["enamoradx", "peor", "rotx","enfermx","cansadx", "deprimidx", "triste", "desesperadx", "aburridx", "solx", "perdido", "horrible", "decepcionadx", "muertx", "agotadx", "insegurx", "indecisx", "culpable", "atrapadx", "frustradx", "libre"],
+  "disgust": [],
+  "surprise": ["sorprendidx", "rarx", "curiosx"],
+  "joy": ["orgullosx", "contentx", "feliz", "emocionadx", "mejor", "agradecidx", "vivx", "tranquilx", "satisfechx",  "ansiosx",  "consciente", "segurx", "convencidx", "hecho"],
   "neutral": ["decididx", "dispuestx","interesadx","estafadx","chatx", "obligadx", "caliente", "pensado", "familiarizado", "equivocado", "inscrito","listx", "dispuestx", "preparadx", "bajx",
-  "igual", "viejo", "acostumbradx", "disponible", "equivocadx", "casadx", "embaradazada", "sentadx", "estacandx", "paradx", "cachondx", "abiertx"]
+  "igual", "viejo", "acostumbradx", "disponible", "equivocadx", "casadx", "embaradazada", "sentadx", "estancadx", "paradx", "cachondx", "abiertx"]
 }

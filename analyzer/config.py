@@ -13,7 +13,7 @@ class HuggingFace:
 
 class Model:
     """Model configuration."""
-    THRESHOLD = float(os.getenv("MODEL_EMOTION_THRESHOLD", "0.4"))
+    THRESHOLD = float(os.getenv("MODEL_THRESHOLD", "0.30"))
     TOP_K = int(os.getenv("MODEL_TOP_K", "1"))
 
 class RabbitMQ:

@@ -20,5 +20,6 @@ class ClassificationModel(EmotionAnalyzerModel):
     def process(self, text) -> dict[str, float]:
         """Analyze text and return a dictionary of affective states with their scores."""
         results = self._pipeline(text)[0]
-        results_dict = {r["label"]: float(r["score"]) for r in results[:5]}
+        results_dict = {r["label"]: float(r["score"])
+                        for r in results[:5] if r["score"] >= self.threshold}
         return results_dict

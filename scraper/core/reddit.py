@@ -32,7 +32,7 @@ class RedditScraper(Scraper):
                                                  limit=config.REDDIT.LIMIT):
             if submission.selftext == "":
                 continue
-            if submission.created_utc < query.parameters.date_start.timestamp():
+            if submission.created_utc < query.parameters.from_.timestamp():
                 break
             reddit_post = Post(source="reddit",
                                link=f"reddit.com{submission.permalink}",

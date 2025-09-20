@@ -9,9 +9,11 @@ analysis_result_body = PostAnalysisResult(query_processor_id="id1", code=POST_AN
                           affective_states={"ira": 0.60}, dominant_emotion="ira")
 
 analysis_request_parameters = AnalysisRequestParameters(
-    date_start=datetime.now(),
-    date_end=datetime.now(),
-    keyword="test",
-    platform=["test_platform"],
-    model="test_model",
+    **{
+        "from": datetime.now(),
+        "to": datetime.now(),
+        "keyword": "test",
+        "platform": ["test_platform"],
+        "model": "test_model",
+    }
 )
