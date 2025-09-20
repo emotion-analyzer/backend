@@ -22,7 +22,7 @@ services:
   routes:
   - name: query-processor-route
     paths:
-    - /api/emotional-analysis
+    - /api
 
 plugins:
 

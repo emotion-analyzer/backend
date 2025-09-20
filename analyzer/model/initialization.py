@@ -7,7 +7,7 @@ def load_available_models():
     models = {
         "classification": ClassificationModel(
             url=config.HUGGING_FACE.CLASSIFICATION_MODEL,
-            threshold=0.40),
+            threshold=config.MODEL.THRESHOLD),
         # "generative": GenerativeModel(
         #     url=config.HUGGING_FACE.GENERATIVE_MODEL,
         #     threshold=0.40)
