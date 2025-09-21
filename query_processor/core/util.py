@@ -1,3 +1,5 @@
+import asyncio
+
 from aio_pika import Message
 from util.codes import ANALYSIS_REQUEST, EOF, POST_ANALYSIS_RESULT
 from util.schemas import (
@@ -27,16 +29,25 @@ async def receive_analysis_results(query_processor_id, app):
                                                   durable=True)
     await queue.bind(app.state.results_exchange, routing_key=query_processor_id)
     analysis_results = []
-    messages_left = None
-    async with queue.iterator() as iterator:
-        async for message in iterator:
-            async with message.process():
-                messages_left = done_receiving_messages(message,
-                                                        analysis_results,
-                                                        messages_left)
-                if messages_left == 0:
-                    break
-    return analysis_results
+    try:
+        async def process_messages():
+            messages_left = None
+            async with queue.iterator() as iterator:
+                async for message in iterator:
+                    async with message.process():
+                        messages_left = done_receiving_messages(message,
+                                                                analysis_results,
+                                                                messages_left)
+                        if messages_left == 0:
+                            break
+            return analysis_results
+
+        # Apply timeout to the entire operation
+        result = await asyncio.wait_for(process_messages(), timeout=config.TIMEOUT)
+        return result
+
+    except TimeoutError:
+        return analysis_results
 
 def done_receiving_messages(message: Message,
                             analysis_results: list[PostAnalysisResult],

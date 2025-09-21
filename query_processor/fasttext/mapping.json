@@ -5,7 +5,5 @@
   "sadness": ["enamoradx", "peor", "rotx","enfermx","cansadx", "deprimidx", "triste", "desesperadx", "aburridx", "solx", "perdido", "horrible", "decepcionadx", "muertx", "agotadx", "insegurx", "indecisx", "culpable", "atrapadx", "frustradx", "libre"],
   "disgust": [],
   "surprise": ["sorprendidx", "rarx", "curiosx"],
-  "joy": ["orgullosx", "contentx", "feliz", "emocionadx", "mejor", "agradecidx", "vivx", "tranquilx", "satisfechx",  "ansiosx",  "consciente", "segurx", "convencidx", "hecho"],
-  "neutral": ["decididx", "dispuestx","interesadx","estafadx","chatx", "obligadx", "caliente", "pensado", "familiarizado", "equivocado", "inscrito","listx", "dispuestx", "preparadx", "bajx",
-  "igual", "viejo", "acostumbradx", "disponible", "equivocadx", "casadx", "embaradazada", "sentadx", "estancadx", "paradx", "cachondx", "abiertx"]
+  "joy": ["orgullosx", "contentx", "feliz", "emocionadx", "mejor", "agradecidx", "vivx", "tranquilx", "satisfechx",  "ansiosx",  "consciente", "segurx", "convencidx", "hecho"]
 }

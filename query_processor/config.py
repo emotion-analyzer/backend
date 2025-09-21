@@ -29,5 +29,6 @@ class Config:
     """
     RABBIT_MQ = RabbitMQ
     FASTTEXT = FastText
+    TIMEOUT = int(os.getenv("TIMEOUT"))
 
 config = Config()

@@ -14,6 +14,7 @@ def map_affective_states_to_emotions(affective_states):
         return "neutral", []
     for state in affective_states.keys():
         genderless_state = f"{state[:-1]}x"
+        mapped = False
         for key, mapped_list in fixed_mapping.items():
             if state in mapped_list or genderless_state in mapped_list:
                 emotions.append(key)
@@ -22,7 +23,15 @@ def map_affective_states_to_emotions(affective_states):
                     "primary_emotion": key,
                     "score": round(affective_states[state], 2)
                 })
+                mapped = True
                 break
+        if not mapped:
+            emotions.append("neutral")
+            mapped_affective_states.append({
+                "label": state,
+                "primary_emotion": "neutral",
+                "score": round(affective_states[state], 2)
+            })
     counts = Counter(emotions)
     max_count = max(counts.values())
     most_common = [k for k, v in counts.items() if v == max_count]
