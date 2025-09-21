@@ -1,20 +1,13 @@
 # Backend
 
-- **Service:** `users`  
-
-[![users](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
-
-- **Service:** `analyzer` 
-
-[![analyzer](https://codecov.io/gh/emotion-analyzer/backend/branch/develop/graph/badge.svg?token=2NYBBD0MQJ)](https://codecov.io/gh/emotion-analyzer/backend)
-
 ## 📌 Descripción
 > Consultar documentacion de API en https://docs.google.com/document/u/0/d/10Zm-g5byCYIC16gqPxft8NlaIF1dNFdCHV5fKHiCpzw
 
 > El modelo presente incluye los siguientes modulos
-> * users, para registro y logeo de usuarios (necesario para acceder a los otros modulos).
-> * scraper para obtener posts de Reddit y Bluesky.
-> * analyzer, para analisis emocional de textos aislados o grupos de los mismos.
+> * users: maneja todo lo relacionado a usuarios (registro, inicio de session, actualizacion de detalles, etc.)
+> * scraper: para obtener posts de Reddit y Bluesky. Modular para permitir incorporacion de nuevas redes sociales.
+> * query_processor: coordina el scraper y analyzer y realiza el mapeo final de los estados afectivos a un set de emociones mas reducido.
+> * analyzer: realiza el analisis emocional de los textos recibidos 
 
 ## 📌 Ejecución
 
@@ -44,58 +37,3 @@ cd <service>
 fastapi run --reload
 ```
 De forma predeterminada esto carga el .env especificado en **APP_ENV** o bien _test.env_
-
-
-## 📌 Agregado de contenedores
-1. Crear carpeta con archivo de Dockerfile correspondiente al nuevo modulo
-2. En _docker-compose.yml_ agregar
-
-```
-  <module_name>:
-    build:
-      context: <folder_name>
-    container_name: <module_name>
-    ...
-    networks:
-      - kong-network
-```
-
-3. En _gateway/kong.yml_ agregar 
-
-```
-- name: <module_name>
-  url: http://<module_name>:<module_port>
-  routes:
-  - name: <module>-route
-    paths:
-    - <route/to/access/module>
-```
-
-y al final (esto se puede obviar inicialmente)
-
-```
-plugins:
-- name: jwt
-  service: <module_name>
-  config:
-    uri_param_names: []
-    cookie_names: []
-    claims_to_verify:
-      - exp
-    run_on_preflight: false
-```
-
-El sistema se puede acceder mediante
-http://localhost:8000/<route/to/access/module>
-
-**IMPORTANTE**
-
-kong quita la ruta especificada en paths. Una ruta accedida como
-```
-<route/to/access/module/endpoint>
-```
-desde afuera del modulo, se convierte en
-```
-</endpoint>
-```
-dentro del mismo.
