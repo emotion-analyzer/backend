@@ -20,7 +20,8 @@ class BlueskyScraper(Scraper):
 
     async def query(self, query: AnalysisRequest) -> int:
         """Return relevant Bluesky posts according to the fetch request."""
-        params = {'q': query.parameters.keyword,
+        query_string = " OR ".join(query.parameters.keywords)
+        params = {'q': query_string,
                   'since': query.parameters.from_.isoformat(),
                   'until': query.parameters.to.isoformat(),
                   'lang': 'es'}

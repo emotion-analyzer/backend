@@ -27,7 +27,9 @@ class RedditScraper(Scraper):
         """Return relevant posts according to the fetch request."""
         messages_sent = 0
         subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
-        async for submission in subreddit.search(query=query.parameters.keyword,
+        separator = ' '
+        keyword = separator.join(query.parameters.keywords)
+        async for submission in subreddit.search(query=keyword,
                                                  sort="new",
                                                  limit=config.REDDIT.LIMIT):
             if submission.selftext == "":
