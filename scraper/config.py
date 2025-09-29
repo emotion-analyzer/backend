@@ -12,6 +12,7 @@ class Reddit:
     CLIENT_SECRET = os.getenv("CLIENT_SECRET")
     USER_AGENT = os.getenv("USER_AGENT")
     ES_SUBREDDITS = "+".join(json.loads(os.getenv("ES_SUBREDDITS")))
+    EN_SUBREDDITS = "+".join(json.loads(os.getenv("EN_SUBREDDITS")))
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
     LIMIT = int(os.getenv("LIMIT"))
 

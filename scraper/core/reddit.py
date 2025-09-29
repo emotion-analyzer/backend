@@ -26,7 +26,10 @@ class RedditScraper(Scraper):
     async def query(self, query: AnalysisRequest) -> int:
         """Return relevant posts according to the fetch request."""
         messages_sent = 0
-        subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
+        if query.parameters.language == "es":
+            subreddit = await self.reddit.subreddit(config.REDDIT.ES_SUBREDDITS)
+        else:
+            subreddit = await self.reddit.subreddit(config.REDDIT.EN_SUBREDDITS)
         separator = ' '
         keyword = separator.join(query.parameters.keywords)
         async for submission in subreddit.search(query=keyword,

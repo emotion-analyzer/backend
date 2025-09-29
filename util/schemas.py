@@ -12,7 +12,7 @@ class QueueMessage(BaseModel):
 class AnalysisRequestParameters(BaseModel):
     from_: datetime = Field(alias="from")
     to: Optional[datetime] = datetime.now()
-    language: Optional[str] = "es"
+    language: str
     keywords: list[str]
     platform: list[str] = ["all"]
     model: str

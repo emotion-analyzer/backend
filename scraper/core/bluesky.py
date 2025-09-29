@@ -24,7 +24,7 @@ class BlueskyScraper(Scraper):
         params = {'q': query_string,
                   'since': query.parameters.from_.isoformat(),
                   'until': query.parameters.to.isoformat(),
-                  'lang': 'es'}
+                  'lang': query.parameters.language}
         async with httpx.AsyncClient() as client:
             request = await client.get(self.search_url, params=params)
             if request.status_code != HTTP_200_OK:

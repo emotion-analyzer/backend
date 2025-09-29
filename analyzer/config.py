@@ -10,6 +10,7 @@ class HuggingFace:
     """HuggingFace configuration."""
     CLASSIFICATION_MODEL = os.getenv("HUGGINGFACE_CLASSIFICATION_MODEL")
     GENERATIVE_MODEL = os.getenv("HUGGINGFACE_GENERATIVE_MODEL")
+    EN_MODEL = os.getenv("HUGGINGFACE_EN_MODEL")
 
 class Model:
     """Model configuration."""
