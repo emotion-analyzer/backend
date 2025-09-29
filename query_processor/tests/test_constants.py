@@ -12,7 +12,8 @@ analysis_request_parameters = AnalysisRequestParameters(
     **{
         "from": datetime.now(),
         "to": datetime.now(),
-        "keyword": "test",
+        "language": "es",
+        "keywords": ["test"],
         "platform": ["test_platform"],
         "model": "test_model",
     }
