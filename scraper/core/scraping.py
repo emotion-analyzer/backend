@@ -21,8 +21,10 @@ class Scraper:
     def query(self, query: AnalysisRequest) -> int:
         """Search for posts using specified parameters. Return amount of posts fetched."""
 
-    async def send_to_analyzer(self, post: Post):
+    async def send_to_analyzer(self, post: Post, language: str):
         """Send post to analyzer."""
+        if language == "en":
+            post.model = "english"
         message = Message(post.model_dump_json().encode('utf-8'),
                           delivery_mode=DeliveryMode.PERSISTENT)
         await send_message(message, self.channel, config)

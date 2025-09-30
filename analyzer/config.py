@@ -1,10 +1,5 @@
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
-load_dotenv(os.getenv(key="DATABASE_ENV", default="../util/database.test.env"))
-load_dotenv(os.getenv(key="RABBITMQ_ENV", default="../util/rabbit_mq.test.env"))
 
 class HuggingFace:
     """HuggingFace configuration."""

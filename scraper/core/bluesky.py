@@ -38,5 +38,5 @@ class BlueskyScraper(Scraper):
                                  code=POST,
                                  query_processor_id=query.query_processor_id,
                                  model=query.parameters.model)
-                await self.send_to_analyzer(bsky_post)
+                await self.send_to_analyzer(bsky_post,  query.parameters.language)
         return messages_sent

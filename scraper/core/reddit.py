@@ -46,6 +46,6 @@ class RedditScraper(Scraper):
                                code = POST,
                                query_processor_id=query.query_processor_id,
                                model=query.parameters.model)
-            await self.send_to_analyzer(reddit_post)
+            await self.send_to_analyzer(reddit_post, query.parameters.language)
             messages_sent += 1
         return messages_sent
