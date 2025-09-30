@@ -1,10 +1,7 @@
 import os
 
-from dotenv import load_dotenv
 from sqlalchemy import URL
 
-load_dotenv(os.getenv(key="APP_ENV", default="test.env"))
-load_dotenv(os.getenv(key="DATABASE_ENV", default="../util/database.test.env"))
 
 class Database:
     """Database configuration. Will generate the URL if one is not provided."""

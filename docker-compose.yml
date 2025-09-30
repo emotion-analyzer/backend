@@ -78,6 +78,12 @@ services:
       MINIO_ROOT_USER: minio_root_user
       MINIO_ROOT_PASSWORD: minio_root_password
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
     #restart: unless-stopped
 
   database:
@@ -97,9 +103,9 @@ services:
       retries: 5
 
   users:
-    environment:
-      - APP_ENV=test.env
-      - DATABASE_ENV=../util/database.test.env
+    env_file:
+      - users/test.env
+      - util/database.test.env
     build:
       dockerfile: ./users/Dockerfile
     container_name: users
@@ -108,12 +114,13 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      minio:
+        condition: service_healthy
 
   scraper:
-    environment:
-      - APP_ENV=scraper/prod.env
-      - RABBITMQ_ENV=util/rabbit_mq.test.env
-      - PYTHONUNBUFFERED=1
+    env_file:
+      - scraper/prod.env
+      - util/rabbit_mq.test.env
     build:
       dockerfile: ./scraper/Dockerfile
     container_name: scraper
@@ -124,9 +131,9 @@ services:
         condition: service_healthy
 
   analyzer:
-    environment:
-      - APP_ENV=analyzer/test.env
-      - RABBITMQ_ENV=util/rabbit_mq.test.env
+    env_file:
+      - analyzer/test.env
+      - util/rabbit_mq.test.env
     build:
       dockerfile: ./analyzer/Dockerfile
     container_name: analyzer
@@ -139,9 +146,9 @@ services:
         condition: service_healthy
 
   query-processor:
-    environment:
-      - APP_ENV=test.env
-      - RABBITMQ_ENV=../util/rabbit_mq.test.env
+    env_file:
+      - query_processor/test.env
+      - util/rabbit_mq.test.env
     build:
       dockerfile: ./query_processor/Dockerfile
     container_name: query-processor
