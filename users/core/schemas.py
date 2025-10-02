@@ -5,20 +5,14 @@ class UserDetails(BaseModel):
     """User details to be returned on log in."""
     id: int
     username: str
-    display_name: str
     avatar_url: str | None
     email: EmailStr
 
 
-class NewUserDetails(BaseModel):
-    """New user details for updating users."""
-    username: str | None = None
-    display_name: str | None = None
-    image: str | None = None
-    email: EmailStr | None = None
-    current_password: str | None = None
-    new_password: str | None = None
-    confirm_password: str | None = None
+class PasswordChange(BaseModel):
+    """Data required for a password change."""
+    current_password: str
+    new_password: str
 
 
 class LoginResponse(BaseModel):
@@ -44,9 +38,12 @@ class LoginUser(BaseModel):
 
 class NewUser(BaseModel):
     """User data returned after successful registration."""
-
     id: int
 
+class UserDelete(BaseModel):
+    """Data required to delete a user."""
+    current_password: str
+    reason: str | None = None
 
 class PasswordReset(BaseModel):
     """Password reset details."""

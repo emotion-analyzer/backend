@@ -18,7 +18,7 @@ def get_token(login: LoginUser, user: User,
     if user is None:
         raise AuthError("Usuario no encontrado.")
     if not verify_password(login.password, user, session):
-        raise AuthError("Contraseña invalida.")
+        raise AuthError("Contraseña inválida.")
     encoded_jwt = encode_token(
         {"id": user.id, "email": login.email},
         expiration_time=config.JWT.EXPIRATION_MINUTES_LOGIN * 60)

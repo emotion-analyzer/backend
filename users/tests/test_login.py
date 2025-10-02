@@ -25,7 +25,6 @@ def test_valid_log_in_response_returns_correct_user_details(client):
     assert 1 == user["id"]
     assert valid_user_1["email"] == user["email"]
     assert valid_user_1["username"] == user["username"]
-    assert valid_user_1["username"] == user["display_name"]
     assert user["avatar_url"] is None
 
 
@@ -52,4 +51,4 @@ def test_logging_in_with_incorrect_password_returns_401(client):
     user_3_login["password"] = "invalid_pw"
     response = client.post("/login", json=user_3_login)
     assert response.status_code == HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Contraseña invalida."}
+    assert response.json() == {"detail": "Contraseña inválida."}

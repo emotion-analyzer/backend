@@ -24,7 +24,6 @@ repeated_email_user_1 = {
 
 user_1_details_update = {
     "username": "camilo",
-    "display_name": "camilin",
 }
 
 user_1_email_update_wrong_pw = {
@@ -38,15 +37,13 @@ user_1_email_update = {
 }
 
 user_1_pw_update_mismatch = {
-    "current_password": "jorgito_pw",
-    "new_password": "camilo_pw_1",
-    "confirm_password": "camilo_pw_2"
+    "current_password": "jorgelin_pw",
+    "new_password": "camilo_pw",
 }
 
 user_1_pw_update = {
     "current_password": "jorgito_pw",
     "new_password": "camilo_pw",
-    "confirm_password": "camilo_pw"
 }
 
 user_1_updated_login = {
