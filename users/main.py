@@ -76,9 +76,6 @@ async def login(login_data: LoginUser, session: SessionDep):
     """
     try:
         user = get_user_by_email(login_data.email, session)
-        if user is None:
-            raise HTTPException(status_code=HTTP_404_NOT_FOUND,
-                                detail="Usuario no encontrado.")
         jwt = get_token(login_data, user, session)
         user_details = UserDetails(id = user.id,
                                    username = user.username,

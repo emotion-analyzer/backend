@@ -15,6 +15,8 @@ from users.exceptions.exceptions import AuthError
 def get_token(login: LoginUser, user: User,
               session: SessionDep):
     """Return a JWT token if given login data is valid."""
+    if user is None:
+        raise AuthError("Usuario no encontrado.")
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña invalida.")
     encoded_jwt = encode_token(
