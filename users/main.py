@@ -193,7 +193,7 @@ async def password_reset(password_reset: PasswordReset,
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return {"detail": "Contraseña actualizada exitosamente."}
+    return {"message": "La contraseña ha sido restablecida correctamente."}
 
 
 @app.post("/forgot-password")
@@ -239,4 +239,4 @@ async def delete_user(
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return {"detail": "Usuario borrado exitosamente."}
+    return {"message": "La cuenta ha sido eliminada correctamente."}

@@ -57,7 +57,7 @@ def test_deleting_user_with_valid_jwt_and_valid_password_returns_200(client):
         headers=headers
     )
     #assert response.status_code == HTTP_200_OK
-    assert response.json() == {"detail": "Usuario borrado exitosamente."}
+    assert response.json() == {"message": "La cuenta ha sido eliminada correctamente."}
 
 
 def test_deleting_user_with_valid_jwt_and_correct_id_twice_returns_404(client):
