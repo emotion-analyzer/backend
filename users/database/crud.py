@@ -2,12 +2,14 @@ from pydantic import EmailStr
 from sqlmodel import select
 
 from users.core.hashing import get_hash, verify_password
+from users.core.image_storage import s3_store
 from users.core.schemas import PasswordChange, PasswordReset, RegisterUser, UserDelete
 from users.core.security import decode_token
 from users.database.model import User
 from users.database.session import SessionDep
 from users.exceptions.exceptions import (
     AuthError,
+    ImageFormatError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -65,8 +67,21 @@ def update_user_password(password_update: PasswordChange,
     user.password_hash = get_hash(password_update.new_password)
     session.commit()
     session.refresh(user)
-    # if new_image is not None:
-    #     update_data["avatar_url"] = s3_store(user_id, new_image, client)
+
+def update_user_avatar(file, extension,
+                       user_id: int, client,
+                       session: SessionDep) -> str:
+    """Update user's details."""
+    user = get_user_by_id(user_id, session)
+    if user is None:
+        raise UserDoesntExistError
+    if extension not in ("jpeg", "jpg", "png"):
+        raise ImageFormatError("Only JPEG/JPG and PNG allowed")
+    avatar_url = s3_store(user_id, file, extension, client)
+    user.avatar_url = avatar_url
+    session.commit()
+    session.refresh(user)
+    return avatar_url
 
 def delete_user_from_db(user_delete: UserDelete, user_id: int, session: SessionDep):
     """Delete user from database, raise exception if not found."""

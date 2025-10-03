@@ -1,8 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.security import OAuth2PasswordBearer
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from starlette.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+)
 
 from users.config import config
 from users.core.image_storage import s3_storage_initialize
@@ -27,11 +32,13 @@ from users.database.crud import (
     get_user_by_email,
     register_new_user,
     update_password,
+    update_user_avatar,
     update_user_password,
 )
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
+    ImageFormatError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -138,6 +145,33 @@ async def update_user_details_route(password_update: PasswordChange,
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     return {"message": "La contraseña ha sido actualizada correctamente."}
+
+
+@app.put("/me/avatar")
+async def upload_avatar(session: SessionDep,
+                        avatar: UploadFile = File(...),
+                        access_token: str = Depends(oauth2_scheme)):
+    """Updates user avatar.
+
+    HTTP Status Codes:
+        200 OK: If the user avatar was successfully updated.
+        401 Unauthorized: If the token is invalid in any way (format, expired, etc.)
+
+    """
+    try:
+        file = await avatar.read()
+        extension = avatar.content_type.split("/")[-1]
+        decoded_token = decode_token(access_token)
+        avatar_url = update_user_avatar(file, extension, decoded_token["id"],
+                                        app.state.minio_client, session)
+    except UserDoesntExistError as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    except ImageFormatError as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=e.message) from e
+    return {"avatar_url": avatar_url,
+            "message": "Avatar actualizado correctamente."}
 
 @app.post("/reset-password")
 async def password_reset(password_reset: PasswordReset,
