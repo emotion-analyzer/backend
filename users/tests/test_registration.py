@@ -1,4 +1,8 @@
-from starlette.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_422_UNPROCESSABLE_ENTITY
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_409_CONFLICT,
+    HTTP_422_UNPROCESSABLE_CONTENT,
+)
 
 from users.tests.test_constants import (
     invalid_user,
@@ -20,7 +24,7 @@ def test_successful_user_registration_returns_200_and_user_details(client):
 
 def test_missing_details_user_registration_returns_422(client):
     response = client.post("/register", json=invalid_user)
-    assert response.status_code == HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_repeated_username_registration_returns_409(client):

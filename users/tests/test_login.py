@@ -1,4 +1,4 @@
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 from users.core.security import decode_token
 from users.tests.test_constants import (
@@ -25,7 +25,6 @@ def test_valid_log_in_response_returns_correct_user_details(client):
     assert 1 == user["id"]
     assert valid_user_1["email"] == user["email"]
     assert valid_user_1["username"] == user["username"]
-    assert valid_user_1["username"] == user["display_name"]
     assert user["avatar_url"] is None
 
 
@@ -38,11 +37,11 @@ def test_valid_log_in_token_contains_correct_data(client):
     assert valid_user_1["email"] == decoded_token["email"]
 
 
-def test_logging_in_with_nonexistent_user_returns_404(client):
+def test_logging_in_with_nonexistent_user_returns_401(client):
     client.post("/register", json=valid_user_1)
     user_2_login = {k: v for k, v in valid_user_2.items() if k != "username"}
     response = client.post("/login", json=user_2_login)
-    assert response.status_code == HTTP_404_NOT_FOUND
+    assert response.status_code == HTTP_401_UNAUTHORIZED
     assert response.json() == {"detail": "Usuario no encontrado."}
 
 
@@ -52,4 +51,4 @@ def test_logging_in_with_incorrect_password_returns_401(client):
     user_3_login["password"] = "invalid_pw"
     response = client.post("/login", json=user_3_login)
     assert response.status_code == HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Contraseña invalida."}
+    assert response.json() == {"detail": "Contraseña inválida."}

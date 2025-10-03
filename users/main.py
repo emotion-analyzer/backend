@@ -1,8 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.security import OAuth2PasswordBearer
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from starlette.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+)
 
 from users.config import config
 from users.core.image_storage import s3_storage_initialize
@@ -10,10 +15,11 @@ from users.core.password_reset import send_password_reset_email
 from users.core.schemas import (
     LoginResponse,
     LoginUser,
-    NewUserDetails,
+    PasswordChange,
     PasswordReset,
     PasswordResetRequest,
     RegisterUser,
+    UserDelete,
     UserDetails,
 )
 from users.core.security import (
@@ -26,11 +32,13 @@ from users.database.crud import (
     get_user_by_email,
     register_new_user,
     update_password,
-    update_user_details,
+    update_user_avatar,
+    update_user_password,
 )
 from users.database.session import SessionDep, create_db_and_tables
 from users.exceptions.exceptions import (
     AuthError,
+    ImageFormatError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -76,13 +84,9 @@ async def login(login_data: LoginUser, session: SessionDep):
     """
     try:
         user = get_user_by_email(login_data.email, session)
-        if user is None:
-            raise HTTPException(status_code=HTTP_404_NOT_FOUND,
-                                detail="Usuario no encontrado.")
         jwt = get_token(login_data, user, session)
         user_details = UserDetails(id = user.id,
                                    username = user.username,
-                                   display_name = user.display_name,
                                    avatar_url = user.avatar_url,
                                    email = user.email)
     except AuthError as e:
@@ -112,7 +116,6 @@ async def get_user_details_route(session: SessionDep,
         user = get_user_by_email(decoded_token["email"], session)
         user_details = UserDetails(id = user.id,
                                    username = user.username,
-                                   display_name = user.display_name,
                                    avatar_url = user.avatar_url,
                                    email = user.email)
     except UserDoesntExistError as e:
@@ -122,18 +125,11 @@ async def get_user_details_route(session: SessionDep,
     return user_details
 
 
-@app.patch("/me")
-async def update_user_details_route(details_update: NewUserDetails,
+@app.post("/me/change-password")
+async def update_user_details_route(password_update: PasswordChange,
                                     session: SessionDep,
                                     access_token: str = Depends(oauth2_scheme)):
-    """Returns user details using JWT encoded data.
-
-    Returns:
-        id: str
-        username: str
-        display_name: str
-        avatar_url: str | None
-        email:
+    """Updates user password.
 
     HTTP Status Codes:
         200 OK: If the user details were successfully retrieved.
@@ -142,18 +138,40 @@ async def update_user_details_route(details_update: NewUserDetails,
     """
     try:
         decoded_token = decode_token(access_token)
-        user = update_user_details(decoded_token["id"], details_update,
-                                   app.state.minio_client, session)
-        user_details = UserDetails(id = user.id,
-                                   username = user.username,
-                                   display_name = user.display_name,
-                                   avatar_url = user.avatar_url,
-                                   email = user.email)
+        update_user_password(password_update, decoded_token["id"],
+                             app.state.minio_client, session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return user_details
+    return {"message": "La contraseña ha sido actualizada correctamente."}
+
+
+@app.put("/me/avatar")
+async def upload_avatar(session: SessionDep,
+                        avatar: UploadFile = File(...),
+                        access_token: str = Depends(oauth2_scheme)):
+    """Updates user avatar.
+
+    HTTP Status Codes:
+        200 OK: If the user avatar was successfully updated.
+        401 Unauthorized: If the token is invalid in any way (format, expired, etc.)
+
+    """
+    try:
+        file = await avatar.read()
+        extension = avatar.content_type.split("/")[-1]
+        decoded_token = decode_token(access_token)
+        avatar_url = update_user_avatar(file, extension, decoded_token["id"],
+                                        app.state.minio_client, session)
+    except UserDoesntExistError as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
+    except AuthError as e:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    except ImageFormatError as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=e.message) from e
+    return {"avatar_url": avatar_url,
+            "message": "Avatar actualizado correctamente."}
 
 @app.post("/reset-password")
 async def password_reset(password_reset: PasswordReset,
@@ -175,7 +193,7 @@ async def password_reset(password_reset: PasswordReset,
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return {"detail": "Contraseña actualizada exitosamente."}
+    return {"message": "La contraseña ha sido restablecida correctamente."}
 
 
 @app.post("/forgot-password")
@@ -198,8 +216,10 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
 
 
 @app.delete("/me")
-async def delete_user(session: SessionDep,
-                      access_token: str = Depends(oauth2_scheme)):
+async def delete_user(
+        delete_details: UserDelete,
+        session: SessionDep,
+        access_token: str = Depends(oauth2_scheme)):
     """Delete user referenced by JWT encoded data.
 
     Returns:
@@ -214,9 +234,9 @@ async def delete_user(session: SessionDep,
     """
     try:
         decoded_token = decode_token(access_token)
-        delete_user_from_db(decoded_token["id"], session)
+        delete_user_from_db(delete_details, decoded_token["id"], session)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
-    return {"detail": "Usuario borrado exitosamente."}
+    return {"message": "La cuenta ha sido eliminada correctamente."}

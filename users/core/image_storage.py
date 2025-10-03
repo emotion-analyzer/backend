@@ -4,7 +4,6 @@ import json
 from minio import Minio
 
 from users.config import config
-from users.core.base64 import decode_b64
 
 
 def s3_storage_initialize():
@@ -36,16 +35,15 @@ def s3_storage_initialize():
     return client
 
 
-def s3_store(user_id, image, minio_client):
+def s3_store(user_id, avatar, extension, minio_client):
     """Store image in S3 using minio client."""
-    extension, image_bytes = decode_b64(image)
-    image_stream = io.BytesIO(image_bytes)
+    image_stream = io.BytesIO(avatar)
     content_type = f"image/{extension}"
     minio_client.put_object(
         bucket_name=config.MINIO.BUCKET,
         object_name=f"{user_id}.{extension}",
         data=image_stream,
-        length=len(image_bytes),
+        length=len(image_stream.getvalue()),
         content_type=content_type
     )
     return s3_get_image_url(user_id, extension)

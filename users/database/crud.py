@@ -3,12 +3,13 @@ from sqlmodel import select
 
 from users.core.hashing import get_hash, verify_password
 from users.core.image_storage import s3_store
-from users.core.schemas import NewUserDetails, PasswordReset, RegisterUser
+from users.core.schemas import PasswordChange, PasswordReset, RegisterUser, UserDelete
 from users.core.security import decode_token
 from users.database.model import User
 from users.database.session import SessionDep
 from users.exceptions.exceptions import (
     AuthError,
+    ImageFormatError,
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
@@ -54,42 +55,45 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User | None:
     return user
 
 
-def update_user_details(user_id: int, details_update: NewUserDetails,
-                        client, session: SessionDep) -> User | None:
+def update_user_password(password_update: PasswordChange,
+                         user_id: int, client,
+                         session: SessionDep) -> User | None:
     """Update user's details."""
     user = get_user_by_id(user_id, session)
     if user is None:
         raise UserDoesntExistError
-    if details_update.email or details_update.new_password is not None:
-        if not verify_password(details_update.current_password, user, session):
-            raise AuthError("Contraseña inválida.")
-    if details_update.new_password is not None:
-        if details_update.new_password != details_update.confirm_password:
-            raise AuthError("Contraseña de confirmación difiere de la nueva.")
-    update_data = details_update.model_dump(exclude_unset=True, exclude_none=True)
-    new_image  = update_data.pop("image", None)
-    if new_image is not None:
-        update_data["avatar_url"] = s3_store(user_id, new_image, client)
-    update_data.pop('confirm_password', None)
-    update_data.pop('current_password', None)
-    if 'new_password' in update_data:
-        update_data['password_hash'] = get_hash(update_data.pop('new_password'))
-    for key, value in update_data.items():
-        if hasattr(user, key):
-            setattr(user, key, value)
+    if not verify_password(password_update.current_password, user, session):
+        raise AuthError("Contraseña inválida.")
+    user.password_hash = get_hash(password_update.new_password)
     session.commit()
     session.refresh(user)
-    return user
 
+def update_user_avatar(file, extension,
+                       user_id: int, client,
+                       session: SessionDep) -> str:
+    """Update user's details."""
+    user = get_user_by_id(user_id, session)
+    if user is None:
+        raise UserDoesntExistError
+    if extension not in ("jpeg", "jpg", "png"):
+        raise ImageFormatError("Only JPEG/JPG and PNG allowed")
+    avatar_url = s3_store(user_id, file, extension, client)
+    user.avatar_url = avatar_url
+    session.commit()
+    session.refresh(user)
+    return avatar_url
 
-def delete_user_from_db(user_id: int, session: SessionDep):
+def delete_user_from_db(user_delete: UserDelete, user_id: int, session: SessionDep):
     """Delete user from database, raise exception if not found."""
     user = get_user_by_id(user_id, session)
     if user is None:
         raise UserDoesntExistError
+    if not verify_password(user_delete.current_password, user, session):
+        raise AuthError("Contraseña inválida.")
     user.active = False
     session.commit()
     session.refresh(user)
+
 
 def update_password(password_reset: PasswordReset,
                     session: SessionDep) -> None:

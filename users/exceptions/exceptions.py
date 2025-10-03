@@ -21,3 +21,11 @@ class AuthError(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
+
+
+class ImageFormatError(Exception):
+    """Raised if image has invalid format."""
+
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)

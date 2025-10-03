@@ -9,7 +9,7 @@ from users.config import config
 async def send_email(to_email: str, subject: str, body: str):
     """Send email to receiver, with specified subject and body."""
     message = EmailMessage()
-    message["From"] = config.EMAIL_ADDRESS
+    message["From"] = config.MAIL.ADDRESS
     message["To"] = to_email
     message["Subject"] = subject
     message.set_content("This is the plain text version.")
