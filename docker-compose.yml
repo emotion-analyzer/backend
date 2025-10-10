@@ -131,6 +131,8 @@ services:
         condition: service_healthy
 
   analyzer:
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - analyzer/test.env
       - util/rabbit_mq.test.env
