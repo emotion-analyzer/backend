@@ -1,7 +1,6 @@
-from collections import Counter
 import json
 
-from util.schemas import PostAnalysisResult
+from util.schemas import DominantEmotion, PostAnalysisResult
 
 with open("fasttext/mapping.json", encoding="utf-8") as f:
     fixed_mapping = json.load(f)
@@ -11,31 +10,44 @@ def map_affective_states_to_emotions(affective_states):
     emotions=[]
     mapped_affective_states = []
     if len(affective_states) == 0:
-        return "neutral", []
+        return DominantEmotion(
+        label="neutral",
+        score=1.00), []
+    total = 0
     for state in affective_states.keys():
         genderless_state = f"{state[:-1]}x"
         mapped = False
         for key, mapped_list in fixed_mapping.items():
             if state in mapped_list or genderless_state in mapped_list:
-                emotions.append(key)
+                score = round(affective_states[state], 2)
+                emotions.append((key, score))
                 mapped_affective_states.append({
                     "label": state,
                     "primary_emotion": key,
-                    "score": round(affective_states[state], 2)
+                    "score": score
                 })
+                total += score
                 mapped = True
                 break
         if not mapped:
-            emotions.append("neutral")
+            score = round(affective_states[state], 2)
+            total += score
+            emotions.append(("neutral", score))
             mapped_affective_states.append({
                 "label": state,
                 "primary_emotion": "neutral",
-                "score": round(affective_states[state], 2)
+                "score": score
             })
-    counts = Counter(emotions)
-    max_count = max(counts.values())
-    most_common = [k for k, v in counts.items() if v == max_count]
-    return most_common[0], mapped_affective_states
+
+    emotion_totals = {}
+    for emotion, score in emotions:
+        emotion_totals[emotion] = emotion_totals.get(emotion, 0) + score
+    max_emotion = max(emotion_totals, key=emotion_totals.get)
+    max_score = emotion_totals[max_emotion]
+    result = max_score / total
+    return DominantEmotion(
+        label=max_emotion,
+        score=result), mapped_affective_states
 
 def map_to_fixed_labels(result_list: list[PostAnalysisResult], emotions: list[str]):
     """Return normalized summary of affective states and mapped emotions."""
@@ -45,4 +57,5 @@ def map_to_fixed_labels(result_list: list[PostAnalysisResult], emotions: list[st
          result["affective_states"]) = map_affective_states_to_emotions(affective_states)
     if "all" in emotions:
         return result_list
-    return [result for result in result_list if result["dominant_emotion"] in emotions]
+    return [result for result in result_list if
+            result["dominant_emotion"].label in emotions]

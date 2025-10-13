@@ -148,6 +148,8 @@ services:
         condition: service_healthy
 
   query-processor:
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - query_processor/test.env
       - util/rabbit_mq.test.env
