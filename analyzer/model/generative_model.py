@@ -31,5 +31,6 @@ class GenerativeModel(EmotionAnalyzerModel):
         texts = [self._tokenizer.decode(seq, skip_special_tokens=True)
                  for seq in output.sequences]
         results = {t: p.item() for t, p in zip(texts, probs, strict=False)}
+        results = {k: v for k, v in results.items() if '.' not in k}
         return results
 

@@ -31,12 +31,15 @@ class Post(QueueMessage):
     timestamp: datetime
     model: str
 
+class DominantEmotion(BaseModel):
+    label: str
+    score: float
 
 class PostAnalysisResult(Post):
     """Social media analysis result model."""
     model: str
     affective_states: dict[str, float]
-    dominant_emotion: str | None = None
+    dominant_emotion: DominantEmotion | None = None
 
 
 class EndOfPosts(QueueMessage):

@@ -49,6 +49,14 @@ async def receive_analysis_results(query_processor_id, app):
     except TimeoutError:
         return analysis_results
 
+    finally:
+        try:
+            await queue.unbind(app.state.results_exchange, routing_key=query_processor_id)
+            await queue.delete(if_unused=False, if_empty=False)
+        except Exception:
+            # Should be a log
+            pass
+
 def done_receiving_messages(message: Message,
                             analysis_results: list[PostAnalysisResult],
                             messages_left: int | None):
