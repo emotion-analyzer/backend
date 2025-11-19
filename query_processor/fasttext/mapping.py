@@ -15,21 +15,17 @@ def map_affective_states_to_emotions(affective_states):
         score=1.00), []
     total = 0
     for state in affective_states.keys():
-        genderless_state = f"{state[:-1]}x"
-        mapped = False
-        for key, mapped_list in fixed_mapping.items():
-            if state in mapped_list or genderless_state in mapped_list:
-                score = round(affective_states[state], 2)
-                emotions.append((key, score))
-                mapped_affective_states.append({
-                    "label": state,
-                    "primary_emotion": key,
-                    "score": score
-                })
-                total += score
-                mapped = True
-                break
-        if not mapped:
+        try:
+            ekman_emotion = fixed_mapping[state]
+            score = round(affective_states[state], 2)
+            emotions.append((ekman_emotion, score))
+            mapped_affective_states.append({
+                "label": state,
+                "primary_emotion": ekman_emotion,
+                "score": score
+            })
+            total += score
+        except KeyError:
             score = round(affective_states[state], 2)
             total += score
             emotions.append(("neutral", score))
@@ -38,7 +34,6 @@ def map_affective_states_to_emotions(affective_states):
                 "primary_emotion": "neutral",
                 "score": score
             })
-
     emotion_totals = {}
     for emotion, score in emotions:
         emotion_totals[emotion] = emotion_totals.get(emotion, 0) + score

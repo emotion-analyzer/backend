@@ -29,3 +29,10 @@ class ImageFormatError(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
+
+class ExternalServiceConnectionError(Exception):
+    """Raised if user is not present in the database."""
+
+    def __init__(self, service: str):
+        self.message = f"Conexion al servicio de {service} fallida"
+        super().__init__(self.message)

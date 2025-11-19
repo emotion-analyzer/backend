@@ -1,29 +1,35 @@
+import logging
 from contextlib import asynccontextmanager
 import uuid
 
 from fastapi import FastAPI
-from util.models import available_models
-from util.schemas import (
-    AnalysisRequestParameters,
-    SearchParameters,
-)
+
+from util.queue_middleware import initiate_connection, declare_queue, initialize_exchange
+from util.logging import initialize_logging
+from util.schemas import SearchParameters
 
 from query_processor.config import config
-from query_processor.core.queue_middleware import (
-    initialize_exchange,
-    initialize_queues,
-    initiate_connection,
-)
 from query_processor.core.util import queue_scrape_request, receive_analysis_results
 from query_processor.fasttext.mapping import map_to_fixed_labels
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize the rabbitQ connection."""
-    app.state.channel = await initiate_connection(config)
-    app.state.posts_queue = await initialize_queues(app.state.channel, config)
-    app.state.results_exchange = await initialize_exchange(app.state.channel, config)
+    """Initialize logging and rabbitMQ connection."""
+    initialize_logging(config.FLUENTD.HOST,
+                       config.FLUENTD.PORT,
+                       "query_processor")
+    app.state.logger = logging.getLogger("affect_pulse")
+    app.state.connection = await initiate_connection(config)
+    app.state.channel = await app.state.connection.channel()
+    # Mover esto a middleware
+    await app.state.channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
+    await declare_queue(app.state.channel,
+                        config.RABBIT_MQ.ANALYSIS_REQUEST_QUEUE,
+                        app.state.logger)
+    app.state.results_exchange = await initialize_exchange(app.state.channel,
+                                                           config.RABBIT_MQ.RESULT_EXCHANGE,
+                                                           app.state.logger)
+    app.state.logger.info("Service initialized")
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -36,9 +42,3 @@ async def get_emotional_analysis (query_parameters : SearchParameters):
     analysis_results = await receive_analysis_results(query_processor_id, app)
     analysis_results = map_to_fixed_labels(analysis_results, query_parameters.emotions)
     return {"results": analysis_results}
-
-
-@app.get("/models")
-async def get_available_models (query_parameters : AnalysisRequestParameters):
-    """Return all available models for emotional analysis."""
-    return {"models": available_models}

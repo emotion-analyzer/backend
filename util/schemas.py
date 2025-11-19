@@ -26,6 +26,7 @@ class AnalysisRequest(QueueMessage):
 class Post(QueueMessage):
     """Social media post model."""
     source: str
+    language: str
     link: str
     text: str
     timestamp: datetime

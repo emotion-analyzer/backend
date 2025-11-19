@@ -3,14 +3,13 @@ import os
 
 class HuggingFace:
     """HuggingFace configuration."""
-    CLASSIFICATION_MODEL = os.getenv("HUGGINGFACE_CLASSIFICATION_MODEL")
-    GENERATIVE_MODEL = os.getenv("HUGGINGFACE_GENERATIVE_MODEL")
-    EN_MODEL = os.getenv("HUGGINGFACE_EN_MODEL")
+    REPO = os.getenv("HUGGINGFACE_REPO")
+    MODELS = os.getenv("HUGGINGFACE_MODELS")
 
 class Model:
     """Model configuration."""
-    THRESHOLD = float(os.getenv("MODEL_THRESHOLD", "0.30"))
-    TOP_K = int(os.getenv("MODEL_TOP_K", "1"))
+    CLASSIFICATION_THRESHOLD = float(os.getenv("CLASSIFICATION_MODEL_THRESHOLD", "0.30"))
+    GENERATIVE_THRESHOLD = float(os.getenv("GENERATIVE_MODEL_THRESHOLD", "0.30"))
 
 class RabbitMQ:
     """RabbitMQ configuration."""
@@ -21,6 +20,11 @@ class RabbitMQ:
     PREFETCH_COUNT = int(os.getenv("RABBITMQ_PREFETCH_COUNT"))
     SCRAPING_RESULT_QUEUE = os.getenv("RABBITMQ_SCRAPING_RESULT_QUEUE")
     RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
+
+class Fluentd:
+    """Fluentd configuration."""
+    HOST = os.getenv("FLUENTD_HOST")
+    PORT = int(os.getenv("FLUENTD_PORT"))
 
 class ElasticSearch:
     """ElasticSearch configuration."""
@@ -38,5 +42,6 @@ class Config:
     RABBIT_MQ = RabbitMQ
     MODEL = Model
     ELASTICSEARCH = ElasticSearch
+    FLUENTD = Fluentd
 
 config = Config()

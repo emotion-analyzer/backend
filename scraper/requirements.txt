@@ -5,3 +5,5 @@ aio-pika
 httpx
 pydantic
 starlette
+python-json-logger
+fluent-logger

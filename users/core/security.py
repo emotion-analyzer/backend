@@ -9,14 +9,14 @@ from users.core.hashing import verify_password
 from users.core.schemas import LoginUser
 from users.database.model import User
 from users.database.session import SessionDep
-from users.exceptions.exceptions import AuthError
+from users.exceptions.exceptions import AuthError, UserDoesntExistError
 
 
 def get_token(login: LoginUser, user: User,
               session: SessionDep):
     """Return a JWT token if given login data is valid."""
     if user is None:
-        raise AuthError("Usuario no encontrado.")
+        raise UserDoesntExistError()
     if not verify_password(login.password, user, session):
         raise AuthError("Contraseña inválida.")
     encoded_jwt = encode_token(

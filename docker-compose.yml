@@ -40,9 +40,10 @@ services:
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    # Just for now, will need to be enabled in the future.
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - ELASTIC_PASSWORD=changeme
     ports:
       - "9200:9200"
     networks:
@@ -52,13 +53,27 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://elasticsearch:9200/_cluster/health"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9200/_cluster/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  fluentd:
+    container_name: fluentd
+    build:
+      dockerfile: ./fluentd/Dockerfile
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      - kong-network
+
   kibana:
     image: kibana:9.0.4
+    environment:
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjo3N1ozNkRRZlJCLXRwWXJ5U0tFU2JB
     container_name: kibana
     ports:
       - "5601:5601"
@@ -90,7 +105,7 @@ services:
     image: postgres:17.5-alpine
     container_name: database
     env_file:
-      - ./util/database.test.env
+      - ./util/database.prod.env
 #    volumes:
 #      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
@@ -105,7 +120,7 @@ services:
   users:
     env_file:
       - users/test.env
-      - util/database.test.env
+      - util/database.prod.env
     build:
       dockerfile: ./users/Dockerfile
     container_name: users
@@ -131,8 +146,6 @@ services:
         condition: service_healthy
 
   analyzer:
-    environment:
-      - PYTHONUNBUFFERED=1
     env_file:
       - analyzer/test.env
       - util/rabbit_mq.test.env
@@ -144,12 +157,15 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   query-processor:
-    environment:
-      - PYTHONUNBUFFERED=1
     env_file:
       - query_processor/test.env
       - util/rabbit_mq.test.env

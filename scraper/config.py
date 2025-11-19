@@ -2,6 +2,10 @@ import json
 import os
 
 
+class General:
+    """General scraping configuration."""
+    LANGUAGES = json.loads(os.getenv("LANGUAGES"))
+
 class Reddit:
     """Reddit scraping configuration."""
     CLIENT_ID = os.getenv("CLIENT_ID")
@@ -17,10 +21,16 @@ class Bluesky:
     BASE_URL = os.getenv("BLUESKY_BASE_URL")
     SEARCH_URL = os.getenv("BLUESKY_SEARCH_URL")
 
+class Fluentd:
+    """Fluentd configuration."""
+    HOST = os.getenv("FLUENTD_HOST")
+    PORT = int(os.getenv("FLUENTD_PORT"))
+
 class RabbitMQ:
     """RabbitMQ configuration."""
     USERNAME = os.getenv("RABBITMQ_USERNAME")
     PASSWORD = os.getenv("RABBITMQ_PASSWORD")
+    FLUENTD = Fluentd
     HOST = os.getenv("RABBITMQ_HOST")
     PORT = int(os.getenv("RABBITMQ_PORT"))
     ANALYSIS_REQUEST_QUEUE = os.getenv("RABBITMQ_ANALYSIS_REQUEST_QUEUE")
@@ -34,5 +44,7 @@ class Config:
     REDDIT = Reddit
     BLUESKY = Bluesky
     RABBIT_MQ = RabbitMQ
+    FLUENTD = Fluentd
+    GENERAL = General
 
 config = Config()
