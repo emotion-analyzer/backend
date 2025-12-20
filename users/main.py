@@ -45,7 +45,8 @@ from users.exceptions.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
-
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Counter
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,13 +65,18 @@ async def lifespan(app: FastAPI):
     else:
         app.state.minio_client = None
     app.state.logger.info("Service initialized")
+    instrumentator.expose(app)
     yield
 
 
 app = FastAPI(lifespan=lifespan)
-
+instrumentator = Instrumentator().instrument(app)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
+# Metrics
+user_registrations = Counter('user_registrations_total', 'User registrations', ['status'])
+login_attempts = Counter('login_attempts_total', 'Login attempts', ['status'])
+password_resets = Counter('password_resets_total', 'Password resets', ['status'])
+user_deletions = Counter('user_deletions_total', 'User deletions', ['status'])
 
 @app.post("/register")
 async def register(new_user: RegisterUser, session: SessionDep):
@@ -85,8 +91,10 @@ async def register(new_user: RegisterUser, session: SessionDep):
                                "user_id": user.id,
                                "username": user.username,
                                "email": f"{user.email[:3]}***"})
+        user_registrations.labels(status='success').inc()
         return {"message": "Usuario registrado exitosamente", "id": user.id}
     except UserAlreadyExistsError as e:
+        user_registrations.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_409_CONFLICT, detail=e.message) from e
 
 
@@ -107,15 +115,18 @@ async def login(login_data: LoginUser, session: SessionDep):
                                    email = user.email)
         app.state.logger.info({"message": "Successful user login.",
                                "user_id": user.id})
+        login_attempts.labels(status='success').inc()
     except AuthError as e:
         app.state.logger.warning({"message": "Failed user login.",
                                   "status_code": HTTP_401_UNAUTHORIZED,
                                   "reason": e.message})
+        login_attempts.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     except UserDoesntExistError as e:
         app.state.logger.warning({"message": "Failed user login.",
                                   "status_code": HTTP_404_NOT_FOUND,
                                   "reason": e.message})
+        login_attempts.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     return LoginResponse(access_token=jwt, token_type="bearer", user=user_details)
 
@@ -228,14 +239,17 @@ async def password_reset(password_reset: PasswordReset,
         app.state.logger.warning({"message": "Failed password change.",
                                   "status_code": HTTP_404_NOT_FOUND,
                                   "reason": e.message})
+        password_resets.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         app.state.logger.warning({"message": "Failed password reset.",
                                   "status_code": HTTP_401_UNAUTHORIZED,
                                   "reason": e.message})
+        password_resets.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     app.state.logger.info({"message": "Successful password reset.",
                               "user_id": decoded_token["id"]})
+    password_resets.labels(status='success').inc()
     return {"message": "La contraseña ha sido restablecida correctamente."}
 
 
@@ -286,12 +300,15 @@ async def delete_user(
         app.state.logger.warning({"message": "Failed user deletion.",
                                   "status_code": HTTP_404_NOT_FOUND,
                                   "reason": e.message})
+        user_deletions.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
         app.state.logger.warning({"message": "Failed user deletion.",
                                   "status_code": HTTP_401_UNAUTHORIZED,
                                   "reason": e.message})
+        user_deletions.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
     app.state.logger.info({"message": "Successful user deletion.",
                               "user_id": decoded_token["id"]})
+    user_deletions.labels(status='success').inc()
     return {"message": "La cuenta ha sido eliminada correctamente."}

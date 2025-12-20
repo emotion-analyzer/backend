@@ -12,6 +12,9 @@ from query_processor.config import config
 from query_processor.core.util import queue_scrape_request, receive_analysis_results
 from query_processor.fasttext.mapping import map_to_fixed_labels
 
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Counter
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize logging and rabbitMQ connection."""
@@ -29,14 +32,20 @@ async def lifespan(app: FastAPI):
     app.state.results_exchange = await initialize_exchange(app.state.channel,
                                                            config.RABBIT_MQ.RESULT_EXCHANGE,
                                                            app.state.logger)
+    instrumentator.expose(app)
     app.state.logger.info("Service initialized")
     yield
 
 app = FastAPI(lifespan=lifespan)
+instrumentator = Instrumentator().instrument(app)
+
+# Metrics
+analysis_requests = Counter('analysis_requests_total', 'Analysis requests', ['status'])
 
 @app.post("/search")
 async def get_emotional_analysis (query_parameters : SearchParameters):
     """Request social media posts and their corresponding emotional analysis."""
+    analysis_requests.inc()
     query_processor_id = str(uuid.uuid4())
     await queue_scrape_request(query_parameters, query_processor_id, app)
     analysis_results = await receive_analysis_results(query_processor_id, app)

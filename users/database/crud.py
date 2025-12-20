@@ -14,7 +14,13 @@ from users.exceptions.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
+from prometheus_client import Histogram
 
+db_query_duration = Histogram(
+    'database_query_duration_seconds',
+    'Database query duration',
+    ['operation']
+)
 
 def register_new_user(user: RegisterUser, session: SessionDep, app) -> User | None:
     """Register a new user in the database and return it."""
@@ -29,46 +35,50 @@ def register_new_user(user: RegisterUser, session: SessionDep, app) -> User | No
         password_hash=get_hash(user.password),
         active=True
     )
-    try:
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_insert').time():
+        try:
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise
     return get_user_by_username(user.username, session, app)
 
 
 def get_user_by_username(username: str, session: SessionDep, app) -> User | None:
     """Return user with given username or None if not found."""
     statement = select(User).where(User.username == username,  User.active)
-    try:
-        user = session.exec(statement).first()
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_lookup').time():
+        try:
+            user = session.exec(statement).first()
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise
     return user
 
 
 def get_user_by_email(email: EmailStr, session: SessionDep, app) -> User | None:
     """Return user with given email or None if not found."""
     statement = select(User).where(User.email == email,  User.active)
-    try:
-        user = session.exec(statement).first()
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_lookup').time():
+        try:
+            user = session.exec(statement).first()
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise
     return user
 
 
 def get_user_by_id(user_id: int, session: SessionDep, app) -> User | None:
     """Return user with given email or None if not found."""
     statement = select(User).where(User.id == user_id,  User.active)
-    try:
-        user = session.exec(statement).first()
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_lookup').time():
+        try:
+            user = session.exec(statement).first()
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise
     return user
 
 
@@ -118,12 +128,13 @@ def delete_user_from_db(user_delete: UserDelete, user_id: int, session: SessionD
     if not verify_password(user_delete.current_password, user, session):
         raise AuthError("Contraseña inválida.")
     user.active = False
-    try:
-        session.commit()
-        session.refresh(user)
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_deletion').time():
+        try:
+            session.commit()
+            session.refresh(user)
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise
 
 def update_password(password_reset: PasswordReset,
                     session: SessionDep, app) -> None:
@@ -133,9 +144,10 @@ def update_password(password_reset: PasswordReset,
     if user is None:
         raise UserDoesntExistError
     user.password_hash = get_hash(password_reset.new_password)
-    try:
-        session.add(user)
-        session.commit()
-    except sqlalchemy.exc.OperationalError:
-        app.state.logger.info("Failed database connection.")
-        raise
+    with db_query_duration.labels(operation='user_delete').time():
+        try:
+            session.add(user)
+            session.commit()
+        except sqlalchemy.exc.OperationalError:
+            app.state.logger.info("Failed database connection.")
+            raise

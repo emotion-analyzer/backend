@@ -16,6 +16,14 @@ from util.schemas import (
 
 from query_processor.config import config
 
+from prometheus_client import Histogram, Counter
+
+result_queue_wait_time = Histogram(
+    'result_queue_wait_time_seconds',
+    'Result queue wait time',
+)
+query_results = Counter('query_results_total', 'Query results', ['status'])
+
 async def queue_scrape_request(query, query_processor_id, app):
     """Create and queue a scrape request with specified parameters."""
     body = AnalysisRequest(query_processor_id=query_processor_id,
@@ -57,10 +65,13 @@ async def receive_analysis_results(query_processor_id, app):
                         if messages_left == 0:
                             break
             return analysis_results
-        result = await asyncio.wait_for(process_messages(), timeout=config.TIMEOUT)
+        with result_queue_wait_time.time():
+            result = await asyncio.wait_for(process_messages(), timeout=config.TIMEOUT)
+        query_results.labels(status='success').inc()
         return result
 
     except TimeoutError:
+        query_results.labels(status='timeout').inc()
         app.state.logger.warning("Request timeout")
         return analysis_results
 

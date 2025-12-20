@@ -15,7 +15,6 @@ def s3_storage_initialize():
         # HTTPS, change in the future before production launch.
         secure=False
     )
-
     if not client.bucket_exists(config.MINIO.BUCKET):
         client.make_bucket(config.MINIO.BUCKET)
 

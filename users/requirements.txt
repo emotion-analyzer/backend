@@ -7,3 +7,4 @@ pyjwt
 minio
 python-json-logger
 fluent-logger
+prometheus-fastapi-instrumentator

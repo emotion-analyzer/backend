@@ -58,6 +58,15 @@ services:
       timeout: 5s
       retries: 5
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kong-network
+
   fluentd:
     container_name: fluentd
     build:
@@ -105,7 +114,7 @@ services:
     image: postgres:17.5-alpine
     container_name: database
     env_file:
-      - ./util/database.prod.env
+      - ./util/database.test.env
 #    volumes:
 #      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
@@ -119,8 +128,8 @@ services:
 
   users:
     env_file:
-      - users/test.env
-      - util/database.prod.env
+      - users/prod.env
+      - util/database.test.env
     build:
       dockerfile: ./users/Dockerfile
     container_name: users

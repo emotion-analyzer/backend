@@ -9,3 +9,4 @@ numpy
 fasttext-wheel
 python-json-logger
 fluent-logger
+prometheus-fastapi-instrumentator
