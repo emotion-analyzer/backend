@@ -11,10 +11,22 @@ async def initiate_connection(config) -> AbstractRobustConnection:
         login=config.RABBIT_MQ.USERNAME,
         password=config.RABBIT_MQ.PASSWORD)
 
+async def configure(channel, prefetch_count):
+    """Execute basic RabbitMQ config."""
+    await channel.set_qos(prefetch_count=prefetch_count)
+    await channel.declare_exchange(name='dlq_exchange', type='fanout')
+    dlq = await channel.declare_queue(name='dead_letters', durable=True)
+    await dlq.bind(exchange='dlq_exchange')
+
 async def declare_queue(channel: AbstractRobustChannel,
                         name: str, logger) -> AbstractRobustQueue:
     try:
-        return await channel.declare_queue(name, durable=True)
+        return await channel.declare_queue(name,
+                                           durable=True,
+                                           arguments={
+                                               'x-dead-letter-exchange': 'dlq_exchange',
+                                               'x-message-ttl': 60000, # 1 minute to process
+                                           })
     except ChannelClosed:
         logger.error(f"Channel closed while declaring {name} queue.")
         raise

@@ -8,5 +8,6 @@ COPY analyzer/main.py main.py
 
 RUN pip install pip --upgrade
 RUN pip install --no-cache-dir -r analyzer/requirements.txt
+RUN pip install torch==2.7.0+cpu --index-url https://download.pytorch.org/whl/cpu
 
 ENTRYPOINT [ "python3", "main.py"]

@@ -3,6 +3,8 @@ import logging
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.security import OAuth2PasswordBearer
+from prometheus_client import Counter
+from prometheus_fastapi_instrumentator import Instrumentator
 import sqlalchemy
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
@@ -45,8 +47,7 @@ from users.exceptions.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
-from prometheus_fastapi_instrumentator import Instrumentator
-from prometheus_client import Counter
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

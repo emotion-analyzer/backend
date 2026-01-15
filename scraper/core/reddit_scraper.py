@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 
 import aiohttp
 import asyncpraw
@@ -7,6 +8,7 @@ from util.codes import POST
 from util.schemas import AnalysisRequest, Post
 
 from scraper.config import config
+from scraper.core.metrics import posts_scraped
 from scraper.core.scraper import Scraper
 
 
@@ -24,6 +26,12 @@ class RedditScraper(Scraper):
         )
         self.reddit.read_only = True
 
+    def normalize(self, text: str) -> str:
+        """Normalize Reddit subreddit and user tokens."""
+        text = super().normalize(text)
+        text = re.sub(r'/?r/[\w\-]+', '<SUBREDDIT>', text)
+        text = re.sub(r'/?u/[\w\-]+', '<USER>', text)
+        return text
 
     async def query(self, query: AnalysisRequest) -> int:
         """Return relevant posts according to the fetch request."""
@@ -45,7 +53,7 @@ class RedditScraper(Scraper):
                     break
                 reddit_post = Post(source="reddit",
                                    link=f"reddit.com{submission.permalink}",
-                                   text=submission.selftext,
+                                   text=self.normalize(submission.selftext),
                                    timestamp=submission.created_utc,
                                    code = POST,
                                    query_processor_id=query.query_processor_id,
@@ -71,4 +79,6 @@ class RedditScraper(Scraper):
             self.logger.error("Timeout while querying Reddit")
         except Exception as e:
             self.logger.exception(f"Unexpected error during reddit.search: {e}")
+        posts_scraped.labels(platform="reddit",
+                             language=query.parameters.language).inc(messages_sent)
         return messages_sent

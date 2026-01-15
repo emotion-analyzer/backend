@@ -4,6 +4,7 @@ import torch
 from transformers import AutoModelForSequenceClassification, pipeline
 
 from analyzer.core.exceptions import ModelConfigurationError
+from analyzer.core.metrics import emotional_analysis_duration
 from analyzer.model.base_model import EmotionAnalyzerModel
 
 
@@ -30,7 +31,8 @@ class ClassificationModel(EmotionAnalyzerModel):
 
     def process(self, text) -> dict[str, float]:
         """Analyze text and return a dictionary of affective states with their scores."""
-        results = self._pipeline(text)[0]
-        results_dict = {r["label"]: float(r["score"])
-                        for r in results[:5] if r["score"] >= self.threshold}
+        with emotional_analysis_duration.labels(model='classification').time():
+            results = self._pipeline(text)[0]
+            results_dict = {r["label"]: float(r["score"])
+                            for r in results[:5] if r["score"] >= self.threshold}
         return results_dict

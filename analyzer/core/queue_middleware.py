@@ -4,6 +4,7 @@ from aio_pika import Message
 from aio_pika.abc import AbstractIncomingMessage, DeliveryMode
 from util.codes import POST, POST_ANALYSIS_RESULT
 from util.queue_middleware import (
+    configure,
     declare_queue,
     initialize_exchange,
     initiate_connection,
@@ -13,6 +14,7 @@ from util.schemas import Post, QueueMessage
 
 from analyzer.model.analyze import analyze_post
 
+documents = []
 
 def create_callback(available_models, client, results_exchange, logger):
     """Create callback function."""
@@ -22,6 +24,8 @@ def create_callback(available_models, client, results_exchange, logger):
         try:
             if queue_message.code == POST:
                 post = Post.model_validate_json(message.body.decode("utf-8"))
+                # documents.append(post)
+                # bulk_analyze_posts(available_models, client, post, logger)
                 analyzed_post = analyze_post(available_models, client, post, logger)
                 if analyzed_post is None:
                     return
@@ -42,7 +46,7 @@ async def process_posts(available_models, client, config, logger) -> None:
     connection = await initiate_connection(config)
     async with connection:
         channel = await connection.channel()
-        await channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
+        await configure(channel, config.RABBIT_MQ.PREFETCH_COUNT)
         queue = await declare_queue(channel,
                                     config.RABBIT_MQ.SCRAPING_RESULT_QUEUE,
                                     logger)

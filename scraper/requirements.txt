@@ -7,3 +7,4 @@ pydantic
 starlette
 python-json-logger
 fluent-logger
+prometheus-client

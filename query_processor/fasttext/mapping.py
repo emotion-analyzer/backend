@@ -1,8 +1,7 @@
 import json
 
-from util.schemas import DominantEmotion, PostAnalysisResult
-
 from prometheus_client import Counter
+from util.schemas import DominantEmotion, PostAnalysisResult
 
 mapping_results = Counter('mapping_results_total', 'Mapping results', ['value'])
 
@@ -14,7 +13,7 @@ def map_affective_states_to_emotions(affective_states):
     emotions=[]
     mapped_affective_states = []
     if len(affective_states) == 0:
-        mapping_results.labels(status='neutral').inc()
+        mapping_results.labels(value='neutral').inc()
         return DominantEmotion(
         label="neutral",
         score=1.00), []
@@ -24,7 +23,7 @@ def map_affective_states_to_emotions(affective_states):
             ekman_emotion = fixed_mapping[state]
             score = round(affective_states[state], 2)
             emotions.append((ekman_emotion, score))
-            mapping_results.labels(status=ekman_emotion).inc()
+            mapping_results.labels(value=ekman_emotion).inc()
             mapped_affective_states.append({
                 "label": state,
                 "primary_emotion": ekman_emotion,
@@ -34,7 +33,7 @@ def map_affective_states_to_emotions(affective_states):
         except KeyError:
             score = round(affective_states[state], 2)
             total += score
-            mapping_results.labels(status='neutral').inc()
+            mapping_results.labels(value='neutral').inc()
             emotions.append(("neutral", score))
             mapped_affective_states.append({
                 "label": state,
@@ -51,13 +50,10 @@ def map_affective_states_to_emotions(affective_states):
         label=max_emotion,
         score=result), mapped_affective_states
 
-def map_to_fixed_labels(result_list: list[PostAnalysisResult], emotions: list[str]):
+def map_to_fixed_labels(result_list: list[PostAnalysisResult]):
     """Return normalized summary of affective states and mapped emotions."""
     for result in result_list:
         affective_states = result["affective_states"]
         (result["dominant_emotion"],
          result["affective_states"]) = map_affective_states_to_emotions(affective_states)
-    if "all" in emotions:
-        return result_list
-    return [result for result in result_list if
-            result["dominant_emotion"].label in emotions]
+    return result_list

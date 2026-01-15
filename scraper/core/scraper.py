@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
+import re
 
 from aio_pika import DeliveryMode, Message
 from util.queue_middleware import send_message
@@ -24,6 +25,11 @@ class Scraper:
     @abstractmethod
     def query(self, query: AnalysisRequest) -> int:
         """Search for posts using specified parameters. Return amount of posts fetched."""
+
+    def normalize(self, text: str) -> str:
+        """Normalize post URLs in the post."""
+        text = re.sub(r'(?:https?://|www\.)\S+', '<URL>', text)
+        return text
 
     def validate_query(self, query: AnalysisRequest) -> bool:
         """Validate query parameters (language only so far)."""

@@ -1,10 +1,8 @@
 import asyncio
 
 from aio_pika import Message
-from aio_pika.exceptions import (ChannelClosed, AMQPConnectionError,
-                                 ConnectionClosed)
-
-
+from aio_pika.exceptions import AMQPConnectionError, ChannelClosed, ConnectionClosed
+from prometheus_client import Counter, Histogram
 from util.codes import ANALYSIS_REQUEST, EOF, POST_ANALYSIS_RESULT
 from util.queue_middleware import declare_queue, send_message
 from util.schemas import (
@@ -15,8 +13,6 @@ from util.schemas import (
 )
 
 from query_processor.config import config
-
-from prometheus_client import Histogram, Counter
 
 result_queue_wait_time = Histogram(
     'result_queue_wait_time_seconds',
@@ -47,7 +43,7 @@ async def receive_analysis_results(query_processor_id, app):
         app.state.logger.error("Connection lost while declaring/binding results queue.")
         raise
     except Exception as e:
-        app.state.logger.error("Unexpected error while declaring/binding results queue: %s", e)
+        app.state.logger.error("Error while declaring/binding results queue: %s", e)
         raise
     analysis_results = []
     hashed_results = set()

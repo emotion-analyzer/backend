@@ -30,6 +30,8 @@ class ElasticSearch:
     """ElasticSearch configuration."""
     ADDRESS = os.getenv("ELASTICSEARCH_ADDRESS", "elasticsearch")
     PORT = os.getenv("ELASTICSEARCH_PORT", "9200")
+    USER = os.getenv("ELASTICSEARCH_USER")
+    PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
     # Change to HTTPS later (will need to adjust docker-compose)
     HOST = f"http://{ADDRESS}:{PORT}"
 

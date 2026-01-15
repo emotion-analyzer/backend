@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from prometheus_client import start_http_server
 from util.logging import initialize_logging
 
 from analyzer.config import config
@@ -28,6 +29,7 @@ async def initialize():
 
 def main():
     """Main function."""
+    start_http_server(8000)
     asyncio.run(initialize())
 
 if __name__ == "__main__":

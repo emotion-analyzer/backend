@@ -12,6 +12,11 @@ class RabbitMQ:
     RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
     ANALYSIS_RESULT_QUEUE = os.getenv("RABBITMQ_ANALYSIS_RESULT_QUEUE")
 
+class JSONWebToken:
+    """JSONWebToken configuration."""
+    KEY = os.getenv("SECRET_KEY")
+    ALGORITHM = os.getenv("ALGORITHM")
+
 class Fluentd:
     """Fluentd configuration."""
     HOST = os.getenv("FLUENTD_HOST")
@@ -25,6 +30,7 @@ class Config:
     RABBIT_MQ = RabbitMQ
     FLUENTD = Fluentd
     TIMEOUT = int(os.getenv("TIMEOUT"))
+    JWT = JSONWebToken
     SERVICE = "query-processor"
     DEBUG = int(os.getenv("DEBUG","1")) == 1
 

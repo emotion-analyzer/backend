@@ -35,6 +35,7 @@ class RabbitMQ:
     PORT = int(os.getenv("RABBITMQ_PORT"))
     ANALYSIS_REQUEST_QUEUE = os.getenv("RABBITMQ_ANALYSIS_REQUEST_QUEUE")
     SCRAPING_RESULT_QUEUE = os.getenv("RABBITMQ_SCRAPING_RESULT_QUEUE")
+    PREFETCH_COUNT = int(os.getenv("RABBITMQ_PREFETCH_COUNT"))
 
 class Config:
     """Represents configuration state in the application.

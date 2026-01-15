@@ -11,14 +11,15 @@ analysis_mappings = {
         }
     ],
     "properties": {
-        "source": {"type": "text"},
-        "link": {"type": "text"},
-        "text": {"type": "text"},
+        "source": {"type": "keyword", "eager_global_ordinals": True},
+        "language": {"type": "keyword", "eager_global_ordinals": True},
+        "link": {"type": "keyword"},
+        "text": {"type": "text", "analyzer": "spanish_analyzer"},
         "timestamp": {"type": "date"},
-        "model": {"type": "text"},
-        "affective_states": {
-            "type": "object",
-            "dynamic": True
-        }
+        "model": {"type": "keyword", "eager_global_ordinals": True},
+        "version": {"type": "keyword"},
+        "affective_states": {"type": "object", "dynamic": True},
+        "processing_timestamp": {"type": "date"},
     }
 }
+

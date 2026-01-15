@@ -1,3 +1,4 @@
+from prometheus_client import Histogram
 from pydantic import EmailStr
 import sqlalchemy
 from sqlmodel import select
@@ -14,7 +15,6 @@ from users.exceptions.exceptions import (
     UserAlreadyExistsError,
     UserDoesntExistError,
 )
-from prometheus_client import Histogram
 
 db_query_duration = Histogram(
     'database_query_duration_seconds',
@@ -144,7 +144,7 @@ def update_password(password_reset: PasswordReset,
     if user is None:
         raise UserDoesntExistError
     user.password_hash = get_hash(password_reset.new_password)
-    with db_query_duration.labels(operation='user_delete').time():
+    with db_query_duration.labels(operation='user_deletion').time():
         try:
             session.add(user)
             session.commit()

@@ -4,9 +4,15 @@ import logging
 
 from aio_pika import Message
 from aio_pika.abc import AbstractIncomingMessage, DeliveryMode
+from prometheus_client import start_http_server
 from util.codes import EOF
 from util.logging import initialize_logging
-from util.queue_middleware import declare_queue, initiate_connection, send_message
+from util.queue_middleware import (
+    configure,
+    declare_queue,
+    initiate_connection,
+    send_message,
+)
 from util.schemas import AnalysisRequest, EndOfPosts
 
 from scraper.config import config
@@ -54,6 +60,7 @@ async def initialize_scraper():
     logger = logging.getLogger("affect_pulse")
     connection = await initiate_connection(config)
     channel = await connection.channel()
+    await configure(channel, config.RABBIT_MQ.PREFETCH_COUNT)
     scrapers = {"reddit": RedditScraper("Reddit", channel,
                                         config.GENERAL.LANGUAGES, logger),
                 "bluesky": BlueskyScraper("Bluesky", channel,
@@ -70,6 +77,7 @@ async def initialize_scraper():
 
 def main():
     """Main function."""
+    start_http_server(8000)
     asyncio.run(initialize_scraper())
 
 if __name__ == "__main__":
