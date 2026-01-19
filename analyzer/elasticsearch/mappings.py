@@ -1,5 +1,7 @@
-"""Version 1 de mapeos
+"""Version 1 de mapeos.
+
 Fecha: 2026-01-19
+
 Cambios: version inicial.
 """
 

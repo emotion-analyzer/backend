@@ -63,12 +63,14 @@ services:
       - xpack.security.authc.api_key.enabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
       - ELASTIC_PASSWORD=changeme
+    #  - path.repo=/mnt/backups
     ports:
       - "9200:9200"
     networks:
       - kong-network
     volumes:
       - es-data:/usr/share/elasticsearch/data
+    #  - ./backups:/mnt/backups
     ulimits:
       memlock:
         soft: -1

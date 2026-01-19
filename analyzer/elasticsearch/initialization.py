@@ -5,6 +5,39 @@ import elasticsearch
 from elasticsearch import Elasticsearch
 
 
+def setup_snapshots(client, repository_path="/mnt/backups/elasticsearch"):
+    """Set up automated snapshots."""
+    repo_name = "analysis_backups"
+
+    client.snapshot.create_repository(
+        name=repo_name,
+        body={
+            "type": "fs",  # File system repository
+            "settings": {
+                "location": repository_path,
+                "compress": True
+            }
+        }
+    )
+    policy_name = "daily_snapshots"
+    client.slm.put_lifecycle(
+        policy_id=policy_name,
+        body={
+            "schedule": "0 0 2 * * ?",  # Daily at 2 AM
+            "name": "<analysis-snapshot-{now/d}>",
+            "repository": repo_name,
+            "config": {
+                "indices": ["analysis-*"],
+                "include_global_state": False
+            },
+            "retention": {
+                "expire_after": "30d",  # Keep for 30 days
+                "min_count": 5,  # Keep at least 5
+                "max_count": 50  # Keep max 50
+            }
+        }
+    )
+
 def create_ilm_policy(client):
     """Create and store ILM policy."""
     policy = {
@@ -89,5 +122,5 @@ def initialize_mappings():
             }
         }
     )
-
+    #setup_snapshots(client)
     return client
