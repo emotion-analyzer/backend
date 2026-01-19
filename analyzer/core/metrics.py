@@ -6,6 +6,12 @@ emotional_analysis_duration = Histogram(
     ['model']
 )
 
+elasticsearch_operation_duration = Histogram(
+    'elasticsearch_operation_duration_seconds',
+    'Elasticsearch operation duration',
+    ['operation']
+)
+
 requests = Counter(
     'requests_total',
     'Total amount of requests',

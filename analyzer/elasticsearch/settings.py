@@ -1,7 +1,7 @@
 analysis_settings = {
-    "index": {
-        "refresh_interval": "30s"
-    },
+    "number_of_shards": 3,        # Adjust based on expected data volume
+    "number_of_replicas": 1,       # 1 replica for redundancy
+    "refresh_interval": "30s",     # Balance between speed and visibility
     "analysis": {
         "analyzer": {
             "spanish_analyzer": {

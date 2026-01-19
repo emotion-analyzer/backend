@@ -1,43 +1,29 @@
 import asyncio
 
-from aio_pika import Message
-from aio_pika.abc import AbstractIncomingMessage, DeliveryMode
-from util.codes import POST, POST_ANALYSIS_RESULT
+from aio_pika.abc import AbstractIncomingMessage
 from util.queue_middleware import (
     configure,
     declare_queue,
     initialize_exchange,
     initiate_connection,
-    send_message,
 )
-from util.schemas import Post, QueueMessage
 
-from analyzer.model.analyze import analyze_post
+from analyzer.config import config
+from analyzer.core.flushing import flush_buffer, periodic_flush
 
-documents = []
+buffer = []
+buffer_lock = asyncio.Lock()
 
-def create_callback(available_models, client, results_exchange, logger):
+def create_callback(xch, available_models, client, logger):
     """Create callback function."""
     async def process_message(message: AbstractIncomingMessage):
         """Decode message, perform an emotional analysis on it and store the results."""
-        queue_message = QueueMessage.model_validate_json(message.body.decode("utf-8"))
-        try:
-            if queue_message.code == POST:
-                post = Post.model_validate_json(message.body.decode("utf-8"))
-                # documents.append(post)
-                # bulk_analyze_posts(available_models, client, post, logger)
-                analyzed_post = analyze_post(available_models, client, post, logger)
-                if analyzed_post is None:
-                    return
-                analyzed_post.code = POST_ANALYSIS_RESULT
-                new_message = Message(analyzed_post.model_dump_json().encode('utf-8'),
-                                  delivery_mode=DeliveryMode.PERSISTENT)
-            else:
-                new_message = Message(message.body, delivery_mode=DeliveryMode.PERSISTENT)
-            await send_message(results_exchange, new_message,
-                               queue_message.query_processor_id, logger)
-        finally:
-            await message.ack()
+        async with buffer_lock:
+            buffer.append(message)
+        if len(buffer) == config.ELASTICSEARCH.BATCH_SIZE:
+            await flush_buffer(buffer, buffer_lock,
+                               xch, available_models,
+                                client, logger)
     return process_message
 
 
@@ -53,9 +39,10 @@ async def process_posts(available_models, client, config, logger) -> None:
         xch = await initialize_exchange(channel,
                                         config.RABBIT_MQ.RESULT_EXCHANGE,
                                         logger)
-        await queue.consume(callback=create_callback(available_models,
-                                                     client,
-                                                     xch,
-                                                     logger),
+        flush_task = asyncio.create_task(periodic_flush(buffer, buffer_lock, xch,
+                                           available_models, client, logger))
+        await queue.consume(callback=create_callback(xch, available_models,
+                                                     client, logger),
                             no_ack=False)
+        await flush_task
         await asyncio.Future()

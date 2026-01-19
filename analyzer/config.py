@@ -34,6 +34,8 @@ class ElasticSearch:
     PASSWORD = os.getenv("ELASTICSEARCH_PASSWORD")
     # Change to HTTPS later (will need to adjust docker-compose)
     HOST = f"http://{ADDRESS}:{PORT}"
+    FLUSH_INTERVAL = float(os.getenv("ELASTICSEARCH_FLUSH_INTERVAL", "0.5"))
+    BATCH_SIZE = int(os.getenv("ELASTICSEARCH_BATCH_SIZE", "500"))
 
 class Config:
     """Represents configuration state in the application.

@@ -3,7 +3,10 @@ import json
 from prometheus_client import Counter
 from util.schemas import DominantEmotion, PostAnalysisResult
 
-mapping_results = Counter('mapping_results_total', 'Mapping results', ['value'])
+mapping_results = Counter('mapping_results_total',
+                          'Mapping results', ['value'])
+dominant_emotions = Counter('dominant_emotions_total',
+                            'Dominant emotion mapping results', ['value'])
 
 with open("fasttext/mapping.json", encoding="utf-8") as f:
     fixed_mapping = json.load(f)
@@ -14,6 +17,7 @@ def map_affective_states_to_emotions(affective_states):
     mapped_affective_states = []
     if len(affective_states) == 0:
         mapping_results.labels(value='neutral').inc()
+        dominant_emotions.labels(value='neutral').inc()
         return DominantEmotion(
         label="neutral",
         score=1.00), []
@@ -46,6 +50,7 @@ def map_affective_states_to_emotions(affective_states):
     max_emotion = max(emotion_totals, key=emotion_totals.get)
     max_score = emotion_totals[max_emotion]
     result = max_score / total
+    dominant_emotions.labels(value=max_emotion).inc()
     return DominantEmotion(
         label=max_emotion,
         score=result), mapped_affective_states
