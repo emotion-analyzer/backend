@@ -7,7 +7,7 @@ from util.logging import initialize_logging
 from analyzer.config import config
 from analyzer.core.exceptions import FatalConfigurationError
 from analyzer.core.queue_middleware import process_posts
-from analyzer.elasticsearch.initialization import initialize_mappings
+from analyzer.elasticsearch.initialization import initialize_es_client
 from analyzer.model.initialization import load_models
 
 
@@ -17,7 +17,7 @@ async def initialize():
                        config.FLUENTD.PORT,
                        "analyzer")
     logger = logging.getLogger("affect_pulse")
-    elasticsearch_client = initialize_mappings()
+    elasticsearch_client = initialize_es_client()
     available_models = load_models(logger)
     if len(available_models) == 0:
         logger.error("No valid models found after loading attempt.")

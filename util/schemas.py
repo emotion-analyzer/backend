@@ -14,7 +14,7 @@ class AnalysisRequestParameters(BaseModel):
     to: Optional[datetime] = datetime.now()
     language: str
     keywords: list[str]
-    platform: list[str] = ["all"]
+    platform: str = "all"
     model: str
 
 class SearchParameters(AnalysisRequestParameters):

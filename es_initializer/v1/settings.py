@@ -1,7 +1,7 @@
 analysis_settings = {
-    "number_of_shards": 3,        # Adjust based on expected data volume
-    "number_of_replicas": 1,       # 1 replica for redundancy
-    "refresh_interval": "30s",     # Balance between speed and visibility
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "30s",
     "analysis": {
         "analyzer": {
             "spanish_analyzer": {

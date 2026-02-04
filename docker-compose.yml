@@ -63,14 +63,14 @@ services:
       - xpack.security.authc.api_key.enabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
       - ELASTIC_PASSWORD=changeme
-    #  - path.repo=/mnt/backups
+      - path.repo=/usr/share/elasticsearch/snapshots
     ports:
       - "9200:9200"
     networks:
       - kong-network
     volumes:
       - es-data:/usr/share/elasticsearch/data
-    #  - ./backups:/mnt/backups
+      - ~/es-snapshots:/usr/share/elasticsearch/snapshots
     ulimits:
       memlock:
         soft: -1
@@ -82,6 +82,18 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+
+  elasticsearch_bootstrapper:
+    container_name: elasticsearch_bootstrapper
+    env_file:
+      - es_initializer/test.env
+    build:
+      dockerfile: ./es_initializer/Dockerfile
+    networks:
+      - kong-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:latest

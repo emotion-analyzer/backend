@@ -29,15 +29,14 @@ def create_callback(available_scrapers, channel, logger):
         query.parameters.to = query.parameters.to.replace(tzinfo=UTC)
         total = 0
         scrapers = []
-        if "all" in query.parameters.platform:
+        if "all" == query.parameters.platform:
             scrapers = available_scrapers.values()
         else:
-            for platform in query.parameters.platform:
-                scraper = available_scrapers.get(platform)
-                if scraper is None:
-                    logger.warning(f"Scraper {platform} not available, skipping...")
-                    continue
-                scrapers.append(scraper)
+            platform = query.parameters.platform
+            scraper = available_scrapers.get(platform)
+            if scraper is None:
+                logger.warning(f"Scraper {platform} not available, skipping...")
+            scrapers.append(scraper)
         for scraper in scrapers:
             messages_sent = await scraper.query(query)
             total += messages_sent
