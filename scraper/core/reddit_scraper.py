@@ -50,7 +50,7 @@ class RedditScraper(Scraper):
                 if submission.selftext == "":
                     continue
                 if submission.created_utc < query.parameters.from_.timestamp():
-                    break
+                    continue
                 reddit_post = Post(source="reddit",
                                    link=f"reddit.com{submission.permalink}",
                                    text=self.normalize(submission.selftext),
@@ -81,4 +81,5 @@ class RedditScraper(Scraper):
             self.logger.exception(f"Unexpected error during reddit.search: {e}")
         posts_scraped.labels(platform="reddit",
                              language=query.parameters.language).inc(messages_sent)
+        self.logger.info(f"Scraped {messages_sent} Reddit posts")
         return messages_sent

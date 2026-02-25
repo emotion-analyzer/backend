@@ -5,7 +5,7 @@ services:
     container_name: gateway
     ports:
       - "8000:8000"
-      - "8002:8002" # Strictly for admin access, this is not secure.
+      - "8002:8002"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/kong.yml
@@ -76,7 +76,6 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      # Correct this
       test: ["CMD-SHELL", "curl -f -u elastic:changeme http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
@@ -135,7 +134,9 @@ services:
   kibana:
     image: kibana:9.0.4
     environment:
-      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL215LWtpYmFuYS10b2tlbjowQnFLbjZlbVNDTzBrS3hvQ2pQT3V3
+    - ELASTICSEARCH_USERNAME=kibana
+    - ELASTICSEARCH_PASSWORD=kibana
+    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     container_name: kibana
     ports:
       - "5601:5601"
@@ -160,8 +161,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-
-    #restart: unless-stopped
 
   database:
     image: postgres:17.5-alpine
@@ -193,6 +192,7 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    restart: unless-stopped
 
   scraper:
     env_file:
@@ -206,6 +206,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    restart: unless-stopped
 
   analyzer:
     env_file:
@@ -221,14 +222,14 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
-
-#    deploy:
-#      resources:
-#        reservations:
-#          devices:
-#            - driver: nvidia
-#              count: 1
-#              capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
 
   query-processor:
     env_file:
@@ -244,6 +245,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
 networks:
   kong-network:

@@ -29,10 +29,20 @@ class ClassificationModel(EmotionAnalyzerModel):
                           f"threshold: {threshold}")
 
 
-    def process(self, text) -> dict[str, float]:
+    def process_batch(self, texts: list[str]) -> list[dict[str, float]]:
         """Analyze text and return a dictionary of affective states with their scores."""
+        if not texts:
+            return []
+
         with emotional_analysis_duration.labels(model='classification').time():
-            results = self._pipeline(text)[0]
-            results_dict = {r["label"]: float(r["score"])
-                            for r in results[:5] if r["score"] >= self.threshold}
-        return results_dict
+            batch_results = self._pipeline(texts, batch_size=len(texts))
+
+        final_results = []
+        for results in batch_results:
+            results_dict = {
+                r["label"]: float(r["score"])
+                for r in results[:5] if r["score"] >= self.threshold
+            }
+            final_results.append(results_dict)
+
+        return final_results

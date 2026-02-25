@@ -41,6 +41,7 @@ class PostAnalysisResult(Post):
     model: str
     affective_states: dict[str, float]
     dominant_emotion: DominantEmotion | None = None
+    id: str
 
 
 class EndOfPosts(QueueMessage):

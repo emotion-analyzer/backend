@@ -51,14 +51,19 @@ def map_affective_states_to_emotions(affective_states):
     max_score = emotion_totals[max_emotion]
     result = max_score / total
     dominant_emotions.labels(value=max_emotion).inc()
-    return DominantEmotion(
+    if result >= 0.40:
+        return DominantEmotion(
         label=max_emotion,
+        score=result), mapped_affective_states
+    return DominantEmotion(
+        label="neutral",
         score=result), mapped_affective_states
 
 def map_to_fixed_labels(result_list: list[PostAnalysisResult]):
     """Return normalized summary of affective states and mapped emotions."""
     for result in result_list:
         affective_states = result["affective_states"]
+        result.pop("id")
         (result["dominant_emotion"],
          result["affective_states"]) = map_affective_states_to_emotions(affective_states)
     return result_list

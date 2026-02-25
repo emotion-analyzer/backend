@@ -7,8 +7,7 @@ def load_affective_states(filename: str):
     """Load affective states file for generative model sanitization."""
     try:
         with open(f"analyzer/model/{filename}") as f:
-            affective_states = (line.strip() for line in f)
-            return affective_states
+            return {line.strip() for line in f}
     except FileNotFoundError:
         return None
 

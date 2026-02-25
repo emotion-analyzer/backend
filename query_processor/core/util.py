@@ -88,6 +88,9 @@ def done_receiving_messages(message: Message,
     queue_message = QueueMessage.model_validate_json(decoded_body)
     if queue_message.code == POST_ANALYSIS_RESULT:
         post = PostAnalysisResult.model_validate_json(decoded_body)
+        if post.id in hashed_results:
+            return messages_left
+        hashed_results.add(post.id)
         post = post.model_dump()
         post.pop("query_processor_id", None)
         post.pop("code", None)

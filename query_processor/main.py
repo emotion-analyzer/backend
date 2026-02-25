@@ -59,6 +59,9 @@ async def get_emotional_analysis (query_parameters : SearchParameters,
                                   ):
     """Request social media posts and their corresponding emotional analysis."""
     analysis_requests.inc()
+    all_emotions = ["surprise", "joy", "fear", "anger", "sadness", "disgust"]
+    if set(all_emotions) <= set(query_parameters.emotions):
+        query_parameters.emotions = ["all"]
     cache_key = make_cache_key(query_parameters)
     cached_results = await redis.get(cache_key)
     if cached_results:

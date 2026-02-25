@@ -14,12 +14,13 @@ class Reddit:
     ES_SUBREDDITS = "+".join(json.loads(os.getenv("ES_SUBREDDITS")))
     EN_SUBREDDITS = "+".join(json.loads(os.getenv("EN_SUBREDDITS")))
     RATELIMIT_SECONDS = int(os.getenv("RATELIMIT_SECONDS"))
-    LIMIT = int(os.getenv("LIMIT"))
+    LIMIT = int(os.getenv("REDDIT_LIMIT"))
 
 class Bluesky:
     """Bluesky scraping configuration."""
     BASE_URL = os.getenv("BLUESKY_BASE_URL")
     SEARCH_URL = os.getenv("BLUESKY_SEARCH_URL")
+    LIMIT = int(os.getenv("BLUESKY_LIMIT"))
 
 class Fluentd:
     """Fluentd configuration."""

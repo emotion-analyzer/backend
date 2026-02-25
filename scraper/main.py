@@ -38,8 +38,7 @@ def create_callback(available_scrapers, channel, logger):
                 logger.warning(f"Scraper {platform} not available, skipping...")
             scrapers.append(scraper)
         for scraper in scrapers:
-            messages_sent = await scraper.query(query)
-            total += messages_sent
+            total += await scraper.query(query)
         await message.ack()
         body = EndOfPosts(query_processor_id=query.query_processor_id,
                           code=EOF,

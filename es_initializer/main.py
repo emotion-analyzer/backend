@@ -126,7 +126,6 @@ def setup_elasticsearch(logger):
                            retry_on_timeout=True,
                            max_retries=3)
     version = config.INDEX.VERSION
-    # Faltaria crear el usuario basico para el analizador
     create_ilm_policy(client)
     if client.indices.exists(index=f"analysis-{version}"):
         client.indices.delete(index=f"analysis-{version}")
@@ -143,7 +142,7 @@ def setup_elasticsearch(logger):
         },
     )
     client.indices.put_alias(index=f"analysis-{version}", name="analysis-current")
-    #setup_snapshots(client)
+    client.security.change_password(username="kibana", password="kibana")
     create_basic_user(client)
     logger.info("Finished Elasticsearch configuration")
 

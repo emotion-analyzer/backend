@@ -34,8 +34,9 @@ class BlueskyScraper(Scraper):
         params = {'q': query_string,
                   'since': query.parameters.from_.isoformat(),
                   'until': query.parameters.to.isoformat(),
-                  'lang': query.parameters.language}
-        async with httpx.AsyncClient() as client:
+                  'lang': query.parameters.language,
+                  'limit': config.BLUESKY.LIMIT}
+        async with httpx.AsyncClient(timeout=30.0) as client:
             request = await client.get(self.search_url, params=params)
             if request.status_code != HTTP_200_OK:
                 self.logger.warning(f"Error querying Bluesky: {request.text} "
@@ -54,4 +55,5 @@ class BlueskyScraper(Scraper):
                 await self.send_to_analyzer(bsky_post)
         posts_scraped.labels(platform="bluesky",
                              language=query.parameters.language).inc(messages_sent)
+        self.logger.info(f"Scraped {messages_sent} Bluesky posts")
         return messages_sent
