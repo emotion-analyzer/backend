@@ -49,3 +49,7 @@ convention = "google"
 known-first-party = ["your_package_name"]
 combine-as-imports = true
 force-sort-within-sections = true
+
+[lint.per-file-ignores]
+# Ignore specific rules
+"core/reddit_scraper.py" = ["PLR0912"]

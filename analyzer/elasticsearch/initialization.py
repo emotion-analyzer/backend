@@ -1,16 +1,11 @@
 from analyzer.config import config
-from analyzer.elasticsearch.mappings import analysis_mappings
-from elasticsearch import Elasticsearch
+from elasticsearch import AsyncElasticsearch
 
-
-def initialize_mappings():
+def initialize_es_client():
     """Initialize ElasticSearch client and define mappings."""
-    client = Elasticsearch(config.ELASTICSEARCH.HOST,
+    client = AsyncElasticsearch(config.ELASTICSEARCH.HOST,
+                           basic_auth=(config.ELASTICSEARCH.USER,
+                                       config.ELASTICSEARCH.PASSWORD),
                            retry_on_timeout=True,
                            max_retries=3)
-    if client.indices.exists(index="analysis_index"):
-        client.indices.delete(index="analysis_index")
-    client.indices.create(index="analysis_index",
-                          mappings=analysis_mappings,
-                          request_timeout=60)
     return client

@@ -5,7 +5,7 @@ services:
     container_name: gateway
     ports:
       - "8000:8000"
-      - "8002:8002" # Strictly for admin access, this is not secure.
+      - "8002:8002"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/kong.yml
@@ -18,6 +18,25 @@ services:
       - kong-network
     volumes:
       - ./gateway/kong.yml:/kong/kong.yml:ro
+
+  redis:
+    image: redis:7
+    container_name: redis
+    command: >
+      redis-server
+      --maxmemory 500mb
+      --maxmemory-policy allkeys-lru
+      --appendonly no
+      --save ""
+    ports:
+      - "6379:6379"
+    networks:
+      - kong-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:4.1.0-management-alpine
@@ -40,25 +59,84 @@ services:
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    # Just for now, will need to be enabled in the future.
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - ELASTIC_PASSWORD=changeme
+      - path.repo=/usr/share/elasticsearch/snapshots
     ports:
       - "9200:9200"
     networks:
       - kong-network
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+      - ~/es-snapshots:/usr/share/elasticsearch/snapshots
     ulimits:
       memlock:
         soft: -1
         hard: -1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://elasticsearch:9200/_cluster/health"]
+      test: ["CMD-SHELL", "curl -f -u elastic:changeme http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
+
+  elasticsearch_bootstrapper:
+    container_name: elasticsearch_bootstrapper
+    env_file:
+      - es_initializer/test.env
+    build:
+      dockerfile: ./es_initializer/Dockerfile
+    networks:
+      - kong-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kong-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - kong-network
+
+  fluentd:
+    container_name: fluentd
+    build:
+      dockerfile: ./fluentd/Dockerfile
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      - kong-network
 
   kibana:
     image: kibana:9.0.4
+    environment:
+    - ELASTICSEARCH_USERNAME=kibana
+    - ELASTICSEARCH_PASSWORD=kibana
+    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     container_name: kibana
     ports:
       - "5601:5601"
@@ -84,8 +162,6 @@ services:
       timeout: 5s
       retries: 3
 
-    #restart: unless-stopped
-
   database:
     image: postgres:17.5-alpine
     container_name: database
@@ -104,7 +180,7 @@ services:
 
   users:
     env_file:
-      - users/test.env
+      - users/prod.env
       - util/database.test.env
     build:
       dockerfile: ./users/Dockerfile
@@ -116,6 +192,7 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    restart: unless-stopped
 
   scraper:
     env_file:
@@ -129,10 +206,9 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    restart: unless-stopped
 
   analyzer:
-    environment:
-      - PYTHONUNBUFFERED=1
     env_file:
       - analyzer/test.env
       - util/rabbit_mq.test.env
@@ -146,10 +222,16 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
 
   query-processor:
-    environment:
-      - PYTHONUNBUFFERED=1
     env_file:
       - query_processor/test.env
       - util/rabbit_mq.test.env
@@ -161,10 +243,15 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 networks:
   kong-network:
     driver: bridge
 
-#volumes:
+volumes:
+  grafana-data:
+  es-data:
   #pgdata:

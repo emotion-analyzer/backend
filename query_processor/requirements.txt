@@ -7,3 +7,8 @@ scikit-learn
 unidecode
 numpy
 fasttext-wheel
+python-json-logger
+fluent-logger
+pyjwt
+prometheus-fastapi-instrumentator
+redis

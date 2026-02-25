@@ -1,13 +1,18 @@
 from contextlib import asynccontextmanager
+import logging
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.security import OAuth2PasswordBearer
+from prometheus_client import Counter
+from prometheus_fastapi_instrumentator import Instrumentator
+import sqlalchemy
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
 )
+from util.logging import initialize_logging
 
 from users.config import config
 from users.core.image_storage import s3_storage_initialize
@@ -47,18 +52,32 @@ from users.exceptions.exceptions import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize the database and tables before the app runs."""
-    create_db_and_tables()
+    initialize_logging(config.FLUENTD.HOST,
+                       config.FLUENTD.PORT,
+                       "users")
+    app.state.logger = logging.getLogger("affect_pulse")
+    try:
+        create_db_and_tables()
+    except sqlalchemy.exc.OperationalError:
+        app.state.logger.info("Failed database creation.")
+        raise
     if not config.TESTING:
         app.state.minio_client = s3_storage_initialize()
     else:
         app.state.minio_client = None
+    app.state.logger.info("Service initialized")
+    instrumentator.expose(app)
     yield
 
 
 app = FastAPI(lifespan=lifespan)
-
+instrumentator = Instrumentator().instrument(app)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
+# Metrics
+user_registrations = Counter('user_registrations_total', 'User registrations', ['status'])
+login_attempts = Counter('login_attempts_total', 'Login attempts', ['status'])
+password_resets = Counter('password_resets_total', 'Password resets', ['status'])
+user_deletions = Counter('user_deletions_total', 'User deletions', ['status'])
 
 @app.post("/register")
 async def register(new_user: RegisterUser, session: SessionDep):
@@ -68,9 +87,15 @@ async def register(new_user: RegisterUser, session: SessionDep):
         id: the resulting id for the new registered user.
     """
     try:
-        user = register_new_user(new_user, session)
+        user = register_new_user(new_user, session, app)
+        app.state.logger.info({"message": "Successful user registration.",
+                               "user_id": user.id,
+                               "username": user.username,
+                               "email": f"{user.email[:3]}***"})
+        user_registrations.labels(status='success').inc()
         return {"message": "Usuario registrado exitosamente", "id": user.id}
     except UserAlreadyExistsError as e:
+        user_registrations.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_409_CONFLICT, detail=e.message) from e
 
 
@@ -83,14 +108,27 @@ async def login(login_data: LoginUser, session: SessionDep):
         token_type: always "bearer".
     """
     try:
-        user = get_user_by_email(login_data.email, session)
+        user = get_user_by_email(login_data.email, session, app)
         jwt = get_token(login_data, user, session)
         user_details = UserDetails(id = user.id,
                                    username = user.username,
                                    avatar_url = user.avatar_url,
                                    email = user.email)
+        app.state.logger.info({"message": "Successful user login.",
+                               "user_id": user.id})
+        login_attempts.labels(status='success').inc()
     except AuthError as e:
+        app.state.logger.warning({"message": "Failed user login.",
+                                  "status_code": HTTP_401_UNAUTHORIZED,
+                                  "reason": e.message})
+        login_attempts.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    except UserDoesntExistError as e:
+        app.state.logger.warning({"message": "Failed user login.",
+                                  "status_code": HTTP_404_NOT_FOUND,
+                                  "reason": e.message})
+        login_attempts.labels(status='failed').inc()
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     return LoginResponse(access_token=jwt, token_type="bearer", user=user_details)
 
 
@@ -113,7 +151,7 @@ async def get_user_details_route(session: SessionDep,
     """
     try:
         decoded_token = decode_token(access_token)
-        user = get_user_by_email(decoded_token["email"], session)
+        user = get_user_by_email(decoded_token["email"], session, app)
         user_details = UserDetails(id = user.id,
                                    username = user.username,
                                    avatar_url = user.avatar_url,
@@ -139,11 +177,19 @@ async def update_user_details_route(password_update: PasswordChange,
     try:
         decoded_token = decode_token(access_token)
         update_user_password(password_update, decoded_token["id"],
-                             app.state.minio_client, session)
+                             app.state.minio_client, session, app)
     except UserDoesntExistError as e:
+        app.state.logger.warning({"message": "Failed password change.",
+                                  "status_code": HTTP_404_NOT_FOUND,
+                                  "reason": e.message})
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
+        app.state.logger.warning({"message": "Failed password change.",
+                                  "status_code": HTTP_401_UNAUTHORIZED,
+                                  "reason": e.message})
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    app.state.logger.info({"message": "Successful password change.",
+                              "user_id": decoded_token["id"]})
     return {"message": "La contraseña ha sido actualizada correctamente."}
 
 
@@ -163,7 +209,7 @@ async def upload_avatar(session: SessionDep,
         extension = avatar.content_type.split("/")[-1]
         decoded_token = decode_token(access_token)
         avatar_url = update_user_avatar(file, extension, decoded_token["id"],
-                                        app.state.minio_client, session)
+                                        app.state.minio_client, session, app)
     except UserDoesntExistError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
@@ -188,11 +234,23 @@ async def password_reset(password_reset: PasswordReset,
         404 Not Found: If the token has a valid format but there is no such user.
     """
     try:
-        update_password(password_reset, session)
+        decoded_token = decode_token(password_reset.token)
+        update_password(password_reset, session, app)
     except UserDoesntExistError as e:
+        app.state.logger.warning({"message": "Failed password change.",
+                                  "status_code": HTTP_404_NOT_FOUND,
+                                  "reason": e.message})
+        password_resets.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
+        app.state.logger.warning({"message": "Failed password reset.",
+                                  "status_code": HTTP_401_UNAUTHORIZED,
+                                  "reason": e.message})
+        password_resets.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    app.state.logger.info({"message": "Successful password reset.",
+                              "user_id": decoded_token["id"]})
+    password_resets.labels(status='success').inc()
     return {"message": "La contraseña ha sido restablecida correctamente."}
 
 
@@ -207,10 +265,14 @@ async def password_reset_mail(password_reset_request: PasswordResetRequest,
     HTTP Status Codes:
         200 OK: After attempting to send a password reset email (even if it fails!).
     """
-    user = get_user_by_email(password_reset_request.email, session)
+    user = get_user_by_email(password_reset_request.email, session, app)
     if user is not None:
         token = get_password_reset_token(user.email)
-        await send_password_reset_email(password_reset_request.email, token)
+        await send_password_reset_email(password_reset_request.email,
+                                        token,
+                                        app.state.logger)
+        app.state.logger.info({"message": "Password reset flow triggered.",
+                               "email": password_reset_request.email})
     return {"message": "Si el correo está registrado, "
                        "se han enviado instrucciones para restablecer la contraseña."}
 
@@ -234,9 +296,20 @@ async def delete_user(
     """
     try:
         decoded_token = decode_token(access_token)
-        delete_user_from_db(delete_details, decoded_token["id"], session)
+        delete_user_from_db(delete_details, decoded_token["id"], session, app)
     except UserDoesntExistError as e:
+        app.state.logger.warning({"message": "Failed user deletion.",
+                                  "status_code": HTTP_404_NOT_FOUND,
+                                  "reason": e.message})
+        user_deletions.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=e.message) from e
     except AuthError as e:
+        app.state.logger.warning({"message": "Failed user deletion.",
+                                  "status_code": HTTP_401_UNAUTHORIZED,
+                                  "reason": e.message})
+        user_deletions.labels(status='failed').inc()
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=e.message) from e
+    app.state.logger.info({"message": "Successful user deletion.",
+                              "user_id": decoded_token["id"]})
+    user_deletions.labels(status='success').inc()
     return {"message": "La cuenta ha sido eliminada correctamente."}

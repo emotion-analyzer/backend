@@ -12,11 +12,15 @@ class RabbitMQ:
     RESULT_EXCHANGE = os.getenv("RABBITMQ_ANALYSIS_RESULT_EXCHANGE")
     ANALYSIS_RESULT_QUEUE = os.getenv("RABBITMQ_ANALYSIS_RESULT_QUEUE")
 
+class JSONWebToken:
+    """JSONWebToken configuration."""
+    KEY = os.getenv("SECRET_KEY")
+    ALGORITHM = os.getenv("ALGORITHM")
 
-class FastText:
-    """FastText configuration."""
-    PATH = os.getenv("FASTTEXT_PATH")
-    THRESHOLD = os.getenv("FASTTEXT_THRESHOLD")
+class Fluentd:
+    """Fluentd configuration."""
+    HOST = os.getenv("FLUENTD_HOST")
+    PORT = int(os.getenv("FLUENTD_PORT"))
 
 class Config:
     """Represents configuration state in the application.
@@ -24,7 +28,10 @@ class Config:
     Import in your module and access (after setting in the proper .env).
     """
     RABBIT_MQ = RabbitMQ
-    FASTTEXT = FastText
+    FLUENTD = Fluentd
     TIMEOUT = int(os.getenv("TIMEOUT"))
+    JWT = JSONWebToken
+    SERVICE = "query-processor"
+    DEBUG = int(os.getenv("DEBUG","1")) == 1
 
 config = Config()

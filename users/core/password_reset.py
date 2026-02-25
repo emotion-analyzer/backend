@@ -6,7 +6,7 @@ import aiosmtplib
 from users.config import config
 
 
-async def send_email(to_email: str, subject: str, body: str):
+async def send_email(to_email: str, subject: str, body: str, logger):
     """Send email to receiver, with specified subject and body."""
     message = EmailMessage()
     message["From"] = config.MAIL.ADDRESS
@@ -14,17 +14,21 @@ async def send_email(to_email: str, subject: str, body: str):
     message["Subject"] = subject
     message.set_content("This is the plain text version.")
     message.add_alternative(body, subtype="html")
-    await aiosmtplib.send(
-        message,
-        hostname=config.MAIL.SMTP_SERVER,
-        port=config.MAIL.SMTP_PORT,
-        start_tls=True,
-        username=config.MAIL.ADDRESS,
-        password=config.MAIL.PASSWORD,
-    )
+    try:
+        await aiosmtplib.send(
+            message,
+            hostname=config.MAIL.SMTP_SERVER,
+            port=config.MAIL.SMTP_PORT,
+            start_tls=True,
+            username=config.MAIL.ADDRESS,
+            password=config.MAIL.PASSWORD,
+        )
+    except aiosmtplib.SMTPConnectError:
+        logger.error({"message": "Mail service connection failed."})
+        raise
 
 
-async def send_password_reset_email(email, token):
+async def send_password_reset_email(email, token, logger):
     """Compose and send a password reset email."""
     html_content = f"""
     <html>
@@ -42,4 +46,4 @@ async def send_password_reset_email(email, token):
     </html>
     """
     await send_email(to_email=email, subject="Emotion Analyzer - Recuperación de contraseña",
-               body=html_content)
+               body=html_content, logger=logger)

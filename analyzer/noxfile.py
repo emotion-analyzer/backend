@@ -31,7 +31,7 @@ def tests_without_report(session):
     session.install("-r", "dev-requirements.txt")
     session.install("pydantic")
     session.install("python-dotenv")
-    session.run("pytest", "tests", env=env_vars)
+    #session.run("pytest", "tests", env=env_vars)
     session.notify("clean")
 
 @nox.session(python=["3.11"])

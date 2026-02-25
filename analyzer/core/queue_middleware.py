@@ -1,57 +1,46 @@
 import asyncio
 
-import aio_pika
-from aio_pika import Message
-from aio_pika.abc import AbstractIncomingMessage, DeliveryMode, ExchangeType
-from util.codes import POST, POST_ANALYSIS_RESULT
-from util.schemas import Post, QueueMessage
+from aio_pika.abc import AbstractIncomingMessage
+from util.queue_middleware import (
+    configure,
+    declare_queue,
+    initialize_exchange,
+    initiate_connection,
+)
 
-from analyzer.model.analyze import analyze_post
+from analyzer.config import config
+from analyzer.core.flushing import flush_buffer, periodic_flush
 
-
-async def initiate_connection(config):
-    """Initialize the connection to the RabbitMQ server."""
-    return await aio_pika.connect_robust(
-        host=config.RABBIT_MQ.HOST,
-        port=config.RABBIT_MQ.PORT,
-        login=config.RABBIT_MQ.USERNAME,
-        password=config.RABBIT_MQ.PASSWORD)
-
-
-def create_callback(available_models, client, results_exchange):
+def create_callback(xch, available_models, buffer, lock, client, logger):
     """Create callback function."""
     async def process_message(message: AbstractIncomingMessage):
         """Decode message, perform an emotional analysis on it and store the results."""
-        queue_message = QueueMessage.model_validate_json(message.body.decode("utf-8"))
-        try:
-            if queue_message.code == POST:
-                post = Post.model_validate_json(message.body.decode("utf-8"))
-                analyzed_post = analyze_post(available_models, client, post)
-                analyzed_post.code = POST_ANALYSIS_RESULT
-                new_message = Message(analyzed_post.model_dump_json().encode('utf-8'),
-                                  delivery_mode=DeliveryMode.PERSISTENT)
-            else:
-                new_message = Message(message.body, delivery_mode=DeliveryMode.PERSISTENT)
-            await results_exchange.publish(new_message,
-                                           routing_key=queue_message.query_processor_id)
-        finally:
-            await message.ack()
+        async with lock:
+            buffer.append(message)
+            if len(buffer) >= config.ELASTICSEARCH.BATCH_SIZE:
+                await flush_buffer(buffer, xch, available_models,
+                                   client, logger)
     return process_message
 
 
-async def process_posts(available_models, client, config) -> None:
+async def process_posts(available_models, client, config, logger) -> None:
     """Connect to RabbitMQ, create channel and queue."""
     connection = await initiate_connection(config)
+    buffer = []
+    buffer_lock = asyncio.Lock()
     async with connection:
         channel = await connection.channel()
-        await channel.set_qos(prefetch_count=config.RABBIT_MQ.PREFETCH_COUNT)
-        queue = await channel.declare_queue(config.RABBIT_MQ.SCRAPING_RESULT_QUEUE,
-                                            durable=True)
-        xch = await channel.declare_exchange(config.RABBIT_MQ.RESULT_EXCHANGE,
-                                             ExchangeType.TOPIC)
-        await queue.consume(callback=create_callback(available_models, client, xch),
+        await configure(channel, config.RABBIT_MQ.PREFETCH_COUNT)
+        queue = await declare_queue(channel,
+                                    config.RABBIT_MQ.SCRAPING_RESULT_QUEUE,
+                                    logger)
+        xch = await initialize_exchange(channel,
+                                        config.RABBIT_MQ.RESULT_EXCHANGE,
+                                        logger)
+        flush_task = asyncio.create_task(periodic_flush(buffer, buffer_lock, xch,
+                                           available_models, client, logger))
+        await queue.consume(callback=create_callback(xch, available_models, buffer,
+                                                     buffer_lock, client, logger),
                             no_ack=False)
+        await flush_task
         await asyncio.Future()
-
-
-

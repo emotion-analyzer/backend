@@ -30,7 +30,7 @@ def test_changing_password_with_valid_jwt_but_invalid_user_return_404(client):
 def test_successful_password_change_invalidates_old_login(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
-    token = encode_token({"email": valid_user_1["email"]},
+    token = encode_token({"email": valid_user_1["email"], "id": 1},
                           expiration_time=60)
     client.post("/reset-password",
                 json={"token": token,
@@ -43,7 +43,7 @@ def test_successful_password_change_invalidates_old_login(client):
 def test_can_login_with_new_password_after_password_reset(client):
     client.post("/register", json=valid_user_1)
     user_1_login = {k: v for k, v in valid_user_1.items() if k != "username"}
-    token = encode_token({"email": valid_user_1["email"]},
+    token = encode_token({"email": valid_user_1["email"], "id": 1},
                           expiration_time=60)
     client.post("/reset-password",
                 json={"token": token,

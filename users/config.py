@@ -18,6 +18,11 @@ class Frontend:
     """Frontend configuration."""
     URL = os.getenv("FRONTEND_URL")
 
+class Fluentd:
+    """Fluentd configuration."""
+    HOST = os.getenv("FLUENTD_HOST")
+    PORT = int(os.getenv("FLUENTD_PORT"))
+
 class Mail:
     """Mail configuration."""
     SMTP_SERVER = os.getenv("SMTP_SERVER")
@@ -55,6 +60,7 @@ class Config:
     MAIL = Mail
     KONG = Kong
     JWT = JSONWebToken
+    FLUENTD = Fluentd
     MINIO = Minio
     TESTING = os.getenv("TESTING", "0") == "1"
 

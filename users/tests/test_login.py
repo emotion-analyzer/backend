@@ -1,4 +1,4 @@
-from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
 from users.core.security import decode_token
 from users.tests.test_constants import (
@@ -37,11 +37,11 @@ def test_valid_log_in_token_contains_correct_data(client):
     assert valid_user_1["email"] == decoded_token["email"]
 
 
-def test_logging_in_with_nonexistent_user_returns_401(client):
+def test_logging_in_with_nonexistent_user_returns_404(client):
     client.post("/register", json=valid_user_1)
     user_2_login = {k: v for k, v in valid_user_2.items() if k != "username"}
     response = client.post("/login", json=user_2_login)
-    assert response.status_code == HTTP_401_UNAUTHORIZED
+    assert response.status_code == HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Usuario no encontrado."}
 
 
